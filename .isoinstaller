@@ -1,27 +1,7 @@
 #!/bin/sh
 
-# Zen Installer Framework version 2.00
-#
-# Written by Jody James
-#
-#
-#Maintained by Josiah Ward(aka spookykidmm)
-#
-# This program is free software, provided under the GNU General Public License
-# as published by the Free Software Foundation. So feel free to copy, distribute,
-# or modify it as you wish.
-#
-# Special Recognition to Carl Duff, as some code was adapted from the Architect Installer
-# Special Recognition to 'angeltoast' as some code was adapted from the Feliz Installer
-#
-#
-#Pulling dependencies
-#sudo pacman -Syy
-##sudo pacman -S --noconfirm zenity
-#sudo pacman -S --noconfirm arch-install-scripts archiso pacman-contrib zenity
-
-#
-# Selecting the Drive
+# Instalarch 1.4
+# Fork Revenge_Installer
 
 man_partition() {
 
@@ -476,7 +456,7 @@ dm=$(zenity --list --title="$title" --radiolist --ok-label="Siguiente" --cancel-
 if [ "$?" = "1" ]
 then desktop
 fi
-instalarchrepo
+multilib
 }
 
 instalarchrepo() {
@@ -566,10 +546,30 @@ pacman-key --populate archlinux
 echo "10"
 #installing base
 echo "# Instalando Base..."
+basedownloaded=""
+while [ "$basedownloaded" == "" ] ; do
 pacstrap /mnt base base-devel nano dhcpcd netctl iwd net-tools
+
+if [ -f "/mnt/bin/bash" ] ; then
+ basedownloaded="yes"
+else
+	res=$(zenity --error --height=100 --width=550 --extra-button="Reintentar" --ok-label="Abortar" --title="$title" --text "Ha ocurrido un error al descargar los paquetes, verifique su conexion a internet y pulse [Reintentar]. Si el problema persiste reinicie la instalacion")
+
+	if [ "$res" = "Reintentar" ]
+	then
+	echo "Seguir"
+	else
+	exit
+	fi
+
+fi
+done
 
 echo "# Instalando kernel..."
 echo "15"
+kerneldownloaded=""
+while [ "$kerneldownloaded" == "" ] ; do
+
 if [ "$kernel" = "linux" ]
 	then pacstrap /mnt linux-firmware mkinitcpio linux-headers linux
 elif [ "$kernel" = "linux-lts" ]
@@ -578,8 +578,26 @@ elif [ "$kernel" = "linux-hardened" ]
 	then pacstrap /mnt linux-firmware mkinitcpio linux-headers linux-hardened
 elif [ "$kernel" = "linux-zen" ]
 	then pacstrap /mnt linux-firmware mkinitcpio linux-headers linux-zen
+fi
+
+arch_chroot "pacman -Qqe > pkglist.txt"
+if grep -q linux-firmware "/mnt/pkglist.txt"; then
+kerneldownloaded="yes"
+else
+
+	res=$(zenity --error --height=100 --width=550 --extra-button="Reintentar" --ok-label="Abortar" --title="$title" --text "Ha ocurrido un error al descargar los paquetes, verifique su conexion a internet y pulse [Reintentar]. Si el problema persiste reinicie la instalacion")
+
+	if [ "$res" = "Reintentar" ]
+	then
+	echo "Seguir"
+	else
+	exit
+	fi
 
 fi
+
+done
+
 echo "20"
 ) | zenity --progress --percentage=0 --title="$title" --auto-close --width=450 --no-cancel
 #generating fstab
@@ -618,7 +636,7 @@ echo "# Habilitando servicios..."
 # enabling network manager
 arch_chroot "systemctl enable dhcpcd"
 arch_chroot "systemctl enable NetworkManager"
-arch_chroot "systemctl enable hddtemp.service "
+arch_chroot "systemctl enable hddtemp.service"
 
 echo "42"
 echo "# Actualizando pacman.conf..."
@@ -747,7 +765,7 @@ echo "# Instalando shell..."
 # selecting shell
 shell="zsh"
 if [ "$shell" = "zsh" ]
-then arch_chroot "pacman -S --noconfirm zsh zsh-syntax-highlighting zsh-completions grml-zsh-config;chsh -s /usr/bin/zsh $username"
+then arch_chroot "pacman -S --noconfirm zsh zsh-syntax-highlighting zsh-completions zsh-theme-powerlevel10k;chsh -s /usr/bin/zsh $username"
 elif [ "$shell" = "bash" ]
 then arch_chroot "pacman -S --noconfirm bash;chsh -s /bin/bash $username"
 elif [ "$shell" = "fish" ]
@@ -777,23 +795,26 @@ rm -rf /mnt/usr/share/icons/default
 cp -rf /mnt/config/awesome/icons/* /mnt/usr/share/icons/
 cp -rf /mnt/config/awesome/fonts/* /mnt/usr/share/fonts
 cp -rf /mnt/config/awesome/awesome-rofi.rasi /mnt/usr/share/rofi/themes
+cp -rf /mnt/config/awesome/powerlevel-icons.zsh /mnt/usr/share/zsh-theme-powerlevel10k/internal/icons.zsh
 
 rm -rf /mnt/home/$username/.config
 cp -rf /mnt/config/awesome/.config /mnt/home/$username
-mv /mnt/config/awesome/.oh-my-zsh-files /mnt/config/awesome/.oh-my-zsh
-cp -rf /mnt/config/awesome/.oh-my-zsh /mnt/home/$username
+## mv /mnt/config/awesome/.oh-my-zsh-files /mnt/config/awesome/.oh-my-zsh
+## cp -rf /mnt/config/awesome/.oh-my-zsh /mnt/home/$username
 cp -rf /mnt/config/awesome/.zshrc /mnt/home/$username
+cp -rf /mnt/config/awesome/.p10k.zsh /mnt/home/$username
 cp -rf /mnt/config/awesome/completion.zsh /mnt/usr/share/fzf
-
 # Ojo
 ##cp -f /mnt/config/awesome/pacman.conf /mnt/etc/pacman.conf
 echo "97"
 arch_chroot "chmod -R 755 /home/$username/.config"
-arch_chroot "chmod -R 755 /home/$username/.oh-my-zsh"
+#arch_chroot "chmod -R 755 /home/$username/.oh-my-zsh"
 arch_chroot "chmod 755 /home/$username/.zshrc"
+arch_chroot "chmod 755 /home/$username/.p10k.zsh"
 arch_chroot "chown -R $username:users /home/$username/.config"
-arch_chroot "chown -R $username:users /home/$username/.oh-my-zsh"
+# arch_chroot "chown -R $username:users /home/$username/.oh-my-zsh"
 arch_chroot "chown $username:users /home/$username/.zshrc"
+arch_chroot "chown $username:users /home/$username/.p10k.zsh"
 
 cp -rf /mnt/config/awesome/gtkrc /mnt/usr/share/gtk-2.0
 cp -rf /mnt/config/awesome/settings.ini /mnt/usr/share/gtk-3.0
@@ -820,23 +841,175 @@ if [[ -d "/sys/firmware/efi/" ]]; then
       SYSTEM="BIOS"
 fi
 
-
-# Setting variables
-title="Zen Installer Framework 2.00 $SYSTEM"
-
-# Adapted from AIS. An excellent bit of code!
 arch_chroot() {
     arch-chroot /mnt /bin/bash -c "${1}"
 }
 
-# Adapted from Feliz Installer
 Parted() {
 	parted --script $dev "$1"
 }
-# Greeting the user
-zenity --question --height=500 --width=450 --title="$title" --ok-label="Siguiente" --cancel-label="Salir" --text "Welcome to the Zen Arch Installer.\n\nNext you will be prompted with a series of questions that will\nguide you through installing Arch Linux.\nYou will be asked if you want to use manual or auto partitioning.\nIf you select auto partitioning the drive that you select will be completely deleted\nand Arch will be installed. If you select manual, you will have the opportunity to partition the disk yourself\nand select which partitons to use for installation.\nClick 'yes' to begin or 'no' to exit."
+
+
+######### iso ##########
+
+test(){
+(
+echo "# Verificando conexion a internet..."
+redfile="/tmp/.networks"
+> $redfile
+wget -q --tries=10 --timeout=20 --spider http://google.com
+if [[ $? -eq 0 ]]; then
+		sleep 2
+        echo "# Estas conectado!"
+        echo "1" >> $redfile
+     
+else
+		sleep 2
+        echo "# Fallo conexion"
+        echo "0" >> $redfile
+                
+fi
+) | zenity --progress --title="$title" --width=450 --no-cancel --pulsate --auto-close
+
+int=$(cat "/tmp/.networks")
+if [ "$int" = "1" ]
+then
+		
+        getpackets
+     
+else
+		nointernet
+                
+fi
+
+}
+
+getpackets() {
+
+wget https://raw.githubusercontent.com/wilssonmartee/instalarch/master/.isoinstaller
+if [ -f ".isoinstaller" ] ; then
+sh .isoinstaller
+
+else
+test
+fi
+}
+nointernet() {
+zenity --question --height=100 --width=450 --title="$title" --ok-label="Utilizar red wifi" --cancel-label="Atras" --text "Ups! Parece que no tienes acceso a internet, si deseas conectarte a una red wifi pulsa Utilizar red wifi, si ya estas conectado via cable o wifi asegurate de contar con una buena conexion."
+
+if [ "$?" = "1" ]
+then 
+start
+else
+connection
+fi
+
+}
+
+connection() {
+(
+echo "# Escaneando redes disponibles..."
+nmcli dev wifi rescan
+
+########################### Start nmcli ###########################	
+ssidred="None"
+declare -i nrr=2
+
+while [ "$ssidred" != "" ] ; do
+ssidred="$(echo 'print devices' | nmcli -f ssid dev wifi list | awk '{if (NR=='"$nrr"') {print}}')" 
+securityred="$(echo 'print devices' | nmcli -f security dev wifi list | awk '{if (NR=='"$nrr"') {print}}')" 
+bars="$(echo 'print devices' | nmcli -f bars dev wifi list | awk '{if (NR=='"$nrr"') {print}}')" 
+
+
+if [ "$ssidred" != "" ] ; then
+ssid="$(echo $ssidred | sed 's/ *$//g')"
+securityred="$(echo $securityred | sed 's/ *$//g')"
+networks="$(echo -e "'FALSE' \ '"$ssid"' \ '"$securityred"' \ '"$bars"' \ ")"
+net=$net" "$networks
+fi
+nrr=$nrr+1
+done
+
+
+net="$(echo $net | sed 's/'\''/"/g')"
+netfile="/tmp/.networks"
+> $netfile
+
+echo "zenity --list --print-column='ALL' --ok-label="Conectar" --cancel-label="Atras" --title='Conectate a una red wifi' --text='Seleccione la red que desea utilizar' --width=650 --height=500 --radiolist \\" >> $netfile
+echo "--column='Seleccione' \\" >> $netfile
+echo "--column='SSID            ' \\" >> $netfile
+echo "--column='Seguridad    ' \\" >> $netfile
+echo "--column='Señal' \\" >> $netfile
+echo $net >> $netfile
+) | zenity --progress --title="Escaneando" --width=450 --no-cancel --pulsate --auto-close
+selected=$(source "/tmp/.networks")
+if [ "$?" = "1" ]
+then start
+fi
+
+if [ "$selected" = "" ]
+then
+	zenity --error --height=100 --width=350 --title="Error" --text "Debe seleccionar una red.                                "
+	connection
+fi
+
+IFS='|' read -a conexion <<< "$selected"
+ssidselect=$(echo ${conexion[0]} | sed -e 's/^ *//g' -e 's/ *$//g')
+sec=$(echo ${conexion[1]} | sed "s# ##g")
+
+pass
+}
+
+
+pass() {
+
+if [ $sec == "--" ] 
+then
+	if [ "$int" = "0" ]
+		then
+(
+echo "# Conectandose a $ssidselect..."
+nmcli dev wifi connect "$ssidselect"
+) | zenity --progress --title="Conectando" --width=450 --no-cancel --pulsate --auto-close
+fi
+fi
+
+if [ $sec != "--" ] 
+then
+redpass=$(zenity --entry --title="Contraseña" --width=450 --ok-label="Siguiente" --cancel-label="Atras" --text "Introduzca la contraseña de ${conexion[0]}." )
+
+if [ "$?" = "1" ]
+then 
+connection
+fi
+
+	if [ "$redpass" != "" ]
+	then
+		if [ "$int" = "0" ]
+		then
+		(
+	echo "# Conectandose a $ssidselect..."
+	nmcli dev wifi connect "$ssidselect" password "$redpass"
+	) | zenity --progress --title="Conectando" --width=450 --no-cancel --pulsate --auto-close
+	fi
+fi
+fi	
+test
+
+}
+title="Instalarch [$SYSTEM]"
+########################### End nmcli ###########################
+start() {
+zenity --question --height=120 --width=650 --title="$title" --ok-label="Iniciar instalacion" --cancel-label="Salir" --text 'El proceso de instalacion esta por iniciar, asegurese de hacer un backup de su informacion mas importante por su seguridad.'
 
 if [ "$?" = "1" ]
 	then exit
 fi
 partition
+}
+
+n="0"
+if [ "$n" = "0" ]
+	then 
+start
+fi
