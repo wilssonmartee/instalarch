@@ -16,9 +16,9 @@
 #
 #
 #Pulling dependencies
-sudo pacman -Syy
+#sudo pacman -Syy
 ##sudo pacman -S --noconfirm zenity
-sudo pacman -S --noconfirm arch-install-scripts archiso pacman-contrib zenity
+#sudo pacman -S --noconfirm arch-install-scripts archiso pacman-contrib zenity
 
 #
 # Selecting the Drive
