@@ -557,7 +557,6 @@ else
 
 	if [ "$res" = "Reintentar" ]
 	then
-	echo "Seguir"
 	else
 	exit
 	fi
@@ -589,7 +588,6 @@ else
 
 	if [ "$res" = "Reintentar" ]
 	then
-	echo "Seguir"
 	else
 	exit
 	fi
