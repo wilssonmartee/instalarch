@@ -555,9 +555,8 @@ if [ -f "/mnt/bin/bash" ] ; then
 else
 	res=$(zenity --error --height=100 --width=550 --extra-button="Reintentar" --ok-label="Abortar" --title="$title" --text "Ha ocurrido un error al descargar los paquetes, verifique su conexion a internet y pulse [Reintentar]. Si el problema persiste reinicie la instalacion")
 
-	if [ "$res" = "Reintentar" ]
+	if [ "$res" != "Reintentar" ]
 	then
-	else
 	exit
 	fi
 
@@ -586,9 +585,8 @@ else
 
 	res=$(zenity --error --height=100 --width=550 --extra-button="Reintentar" --ok-label="Abortar" --title="$title" --text "Ha ocurrido un error al descargar los paquetes, verifique su conexion a internet y pulse [Reintentar]. Si el problema persiste reinicie la instalacion")
 
-	if [ "$res" = "Reintentar" ]
+	if [ "$res" != "Reintentar" ]
 	then
-	else
 	exit
 	fi
 
