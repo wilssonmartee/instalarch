@@ -574,7 +574,7 @@ fi
 
 echo "# Buscando los servidores mas rapidos..."
 rank=$(curl -s "https://www.archlinux.org/mirrorlist/?country="$country"&protocol=https&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors -n 10 -)
-echo -e "$rank" > /etc/pacman.d/mirrorlist
+echo -e "$rank" > /etc/pacman.d/mirrorlrankmirrorist
 echo -e "$rank" > .mirrors.txt
 # updating pacman cache
 echo "5"
