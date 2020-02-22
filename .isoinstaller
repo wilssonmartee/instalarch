@@ -433,7 +433,7 @@ packagemanager
 }
 
 packagemanager() {
-zenity --question --title="$title" --ok-label="Si" --cancel-label="No" --height=100 --width=550 --text="¿Desea instalar un administrador de paquetes gráfico? Esto le permitirá instalar y eliminar aplicaciones sin tener que lidiar con la línea de comando." 
+zenity --question --title="$title" --ok-label="Si" --cancel-label="No" --height=100 --width=550 --text="¿Desea instalar un administrador de paquetes gráfico?\nEsto le permitirá instalar y eliminar aplicaciones sin tener que lidiar con la línea de comando." 
 pm="$?"
 if [ "$pm" = "0" ] 
 then  
