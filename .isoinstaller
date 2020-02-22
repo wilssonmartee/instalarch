@@ -506,6 +506,7 @@ then
 echo "# Montando particion root..."
 touch .root_part.txt    
 echo $root_part >> .root_part.txt
+mkfs.ext4 -F $root_part
 mount $root_part /mnt
 fi
 
