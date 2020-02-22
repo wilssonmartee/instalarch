@@ -101,8 +101,7 @@ boot_partition() {
 		else
 		greplist=$greplist"\|"$boot_part
 		fi	
-		
-
+	
 fi
 home_partition
 
