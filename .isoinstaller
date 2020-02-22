@@ -57,7 +57,7 @@ swap_partition
 swap_partition() {
 	# Swap partition?
 			
-	zenity --question --height=100 --width=350 --ok-label="Si" --cancel-label="No" --title="$title" --text "\nDesea utilizar una particion swap?                         "
+	zenity --question --height=100 --width=350 --ok-label="Si" --cancel-label="No" --title="$title" --text " \n Desea utilizar una particion swap?                             "
 		if [ "$?" = "0" ]
 		then swap_part=$(zenity --list  --radiolist --ok-label="Siguiente" --cancel-label="Atras" --height=500 --width=650 --title="$title" --text="Seleccione la particion SWAP\nAdvertencia, la lista muestra todas las particiones disponibles.\nPor favor elige con cuidado." --column 'Seleccione' --column "Particiones                   " --column 'Tamaño' $(sudo fdisk -l $dev | grep dev | grep -v $greplist | awk '{print $1 " " $5}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
 
