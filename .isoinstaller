@@ -743,6 +743,7 @@ echo "# Instalando AUR Herlper..."
 
 yaydownloaded=""
 while [ "$yaydownloaded" == "" ] ; do
+arch_chroot "pacman -Syy"	
 arch_chroot "pacman -S --noconfirm yay"
 
 arch_chroot "pacman -Qqe > pkglist.txt"
