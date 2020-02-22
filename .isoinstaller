@@ -45,12 +45,6 @@ then root_part
 else
 greplist=$greplist"\|"$root_part
 fi
-(
-> .root_part.txt
-touch .root_part.txt    
-echo $root_part >> .root_part.txt
-mount $root_part /mnt
-) | zenity --progress --title="$title" --text "Montando particion root..." --width=450 --pulsate --auto-close --no-cancel
 
 swap_partition
 }
@@ -109,7 +103,7 @@ home_partition
 
 home_partition() {
 	# Home Partition?
-		zenity --question --height=100 --width=350 --ok-label="Si" --cancel-label="No" --title="$title" --text "Desea utilizar una particion separada para /home?"
+		zenity --question --height=100 --width=350 --ok-label="Si" --cancel-label="No" --title="$title" --text " \n Desea utilizar una particion separada para /home?  "
 		if [ "$?" = "0" ]
 		then home_part=$(zenity --list  --radiolist --ok-label="Siguiente" --cancel-label="Atras" --height=500 --width=650 --title="$title" --text="Seleccione la particion para HOME\nAdvertencia, la lista muestra todas las particiones disponibles.\nPor favor elige con cuidado." --column 'Seleccione' --column "Particiones                   " --column 'Tamaño' $(sudo fdisk -l $dev | grep dev | grep -v $greplist | awk '{print $1 " " $5}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
 		# mounting home partition
