@@ -927,7 +927,7 @@ shelldownloaded=""
 while [ "$shelldownloaded" == "" ] ; do
 
 if [ "$shell" = "zsh" ]
-then arch_chroot "pacman -S --noconfirm zsh zsh-syntax-highlighting zsh-completions zsh-theme-powerlevel10k;chsh -s /usr/bin/zsh $username"
+then arch_chroot "pacman -S --noconfirm zsh zsh-syntax-highlighting zsh-completions zsh-theme-powerlevel10k zsh-autosuggestions;chsh -s /usr/bin/zsh $username"
 elif [ "$shell" = "bash" ]
 then arch_chroot "pacman -S --noconfirm bash;chsh -s /bin/bash $username"
 elif [ "$shell" = "fish" ]
