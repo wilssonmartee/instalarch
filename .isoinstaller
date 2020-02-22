@@ -128,7 +128,7 @@ auto_partition() {
 	lsblk -lno NAME,TYPE,SIZE | grep 'disk' | awk '{print "/dev/" $1 " " $3}' | sort -u > .devices1.txt
 	devices1=` awk '{print "FALSE " $0}' .devices1.txt `
 	#
-	dev=$(zenity --list --ok-label="Siguiente" --cancel-label="Atras" --radiolist --height=500 --width=650 --title="$title" --text "Seleccione el disco que desea utilizar para la instalacion." --column Seleccione --column="Disco                 " --column Tamaño $devices1 )
+	dev=$(zenity --list --ok-label="Siguiente" --cancel-label="Atras" --radiolist --height=500 --width=650 --title="$title" --text "Seleccione el disco que desea utilizar para la instalacion." --column Seleccione --column="Disco                                           " --column Tamaño $devices1 )
 	if [ "$?" = "1" ]
 	then partition
 	fi
@@ -254,6 +254,12 @@ country=$(zenity --list --radiolist --ok-label="Siguiente" --cancel-label="Atras
 if [ "$?" = "1" ]
 then partition
 fi
+
+if [ "$country" = "TODOS" ]
+then 
+country="all"
+fi
+
 locales
 }
 
@@ -265,12 +271,12 @@ locale=$(zenity --list --radiolist --ok-label="Siguiente" --cancel-label="Atras"
 if [ "$?" = "1" ]
 then configure
 fi
-timezone
+keymap
 }
 
 
 keymap() {
-keymap=$(zenity --list --radiolist --height=500 --ok-label="Siguiente" --cancel-label="Atras" --width=650 --ok-label="Siguiente" --cancel-label="Atras" --title="$title" --text="Seleccione su keymap (mapa del teclado)" --column Seleccion --column Keymap $(localectl list-keymaps | awk '{ printf " FALSE ""\0"$0"\0" }'))
+keymap=$(zenity --list --radiolist --height=500 --ok-label="Siguiente" --cancel-label="Atras" --width=650 --ok-label="Siguiente" --cancel-label="Atras" --title="$title" --text="Seleccione su keymap (mapa del teclado)" --column Seleccion --column Keymap $(localectl list-x11-keymap-layouts | awk '{ printf " FALSE ""\0"$0"" }'))
 if [ "$?" = "1" ]
 then locales
 fi
@@ -284,7 +290,7 @@ zones=$(cat /usr/share/zoneinfo/zone.tab | awk '{print $3}' | grep "/" | sed "s/
 
 zone=$(zenity --list --radiolist --ok-label="Siguiente" --cancel-label="Atras" --height=500 --width=650 --title="$title" --text "Seleccione la zona de su pais." --column Seleccion --column Zona $zones)
 if [ "$?" = "1" ]
-then locales
+then keymap
 fi
 if [ "$zone" = "" ]
 then timezone
@@ -324,7 +330,7 @@ fi
 usernamez
 }
 usernamez(){
-username=$(zenity --entry --title="$title" --width=450 --ok-label="Siguiente" --cancel-label="Atras" --text "Por favor introduzca el nombre de usuario para el nuevo usuario.\nTodo en letras minusculas." --entry-text "username")
+username=$(zenity --entry --title="$title" --width=450 --ok-label="Siguiente" --cancel-label="Atras" --text "Por favor introduzca el nombre de usuario para el nuevo usuario.\nTodo en letras minusculas." --entry-text "miusuario")
 if [ "$?" = "1" ]
 then hostnamez
 fi
@@ -345,7 +351,7 @@ zenity --error --height=100 --width=350 --title="$title" --text "No puede dejar 
 	root_password
 fi
 
-rtpasswd2=$(zenity --entry --title="$title" --width=450 --ok-label="Siguiente" --cancel-label="Atras" --text "Vuelva a introducirla." --hide-text)
+rtpasswd2=$(zenity --entry --title="$title" --width=450 --ok-label="Siguiente" --cancel-label="Atras" --text "Vuelva a introducir la contraseña de root" --hide-text)
 if [ "$?" = "1" ]
 then root_password
 fi
@@ -456,12 +462,6 @@ bootloader
 }
 
 
-# allowing user to select extra applications
-##rank=$(curl -s "https://www.archlinux.org/mirrorlist/?country="$country"&protocol=https&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors -n 10 -)
-##echo -e "$rank" > /etc/pacman.d/mirrorlist
-##pacman -Syy
-
-
 # bootloader?
 bootloader() {
 
@@ -473,7 +473,7 @@ if [ "$grb" = "0" ]
 lsblk -lno NAME,TYPE,SIZE | grep 'disk' | awk '{print "/dev/" $1 " " $3}' | sort -u > .devices1.txt
 devices1=` awk '{print "FALSE " $0}' .devices1.txt `
 #
-		grub_device=$(zenity --list --radiolist --height=500 --ok-label="Siguiente" --cancel-label="Atras" --width=650 --title="$title" --text "Seleccione el disco para instalar el cargador de arranque. ($dev)" --column Seleccion --column "Disco        " --column Tamaño $devices1)
+		grub_device=$(zenity --list --radiolist --height=500 --ok-label="Siguiente" --cancel-label="Atras" --width=650 --title="$title" --text "Seleccione el disco para instalar el cargador de arranque. ($dev)" --column Seleccion --column "Disco                                           " --column Tamaño $devices1)
 probe="$?"
 if [ "$?" = "1" ]
 then bootloader
@@ -949,8 +949,9 @@ arch_chroot "locale-gen"
 export LANG=${locale}
 echo "# Configurando mapa del teclado..."
 #setting keymap
-keymap="en"
 echo KEYMAP=$keymap >> /mnt/etc/vconsole.conf
+arch_chroot "localectl set-x11-keymap $keymap"
+
 
 echo "83"
 
