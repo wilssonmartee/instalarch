@@ -734,6 +734,8 @@ if [ "$multilib" = "0" ]
 then
 echo "# Habilitando multilib..."
 echo -e "\n[multilib]" >> /mnt/etc/pacman.conf;echo -e "Include = /etc/pacman.d/mirrorlist\n" >> /mnt/etc/pacman.conf
+echo "# Sincronizando base de datos..."
+arch_chroot "pacman -Syy"
 fi
 echo "55"
 # AUR
@@ -744,7 +746,6 @@ echo "# Instalando AUR Herlper..."
 
 yaydownloaded=""
 while [ "$yaydownloaded" == "" ] ; do
-arch_chroot "pacman -Syy"	
 arch_chroot "pacman -S --noconfirm yay"
 
 arch_chroot "pacman -Qqe > pkglist.txt"
