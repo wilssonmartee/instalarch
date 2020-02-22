@@ -81,7 +81,7 @@ boot_partition() {
  if [ "$SYSTEM" = "UEFI" ]
  then
 
-		zenity --question --height=100 --width=550 --ok-label="Si" --cancel-label="No" --title="$title" --text "Desea instalar boot junto root? (recomendado). \nSi la espuesta es [SI] la particion EFI sera destinada exclusivamente para el gestor de arranque, de lo contrario se compartira con boot"
+		zenity --question --height=100 --width=550 --ok-label="Si" --cancel-label="No" --title="$title" --text "Desea instalar boot en la misma particion root? (recomendado). \nSi la espuesta es [SI] la particion EFI sera destinada exclusivamente para el gestor de arranque, de lo contrario se compartira con boot"
 		bootloc="$?"
 		
 			boot_part=$(zenity --list  --radiolist --ok-label="Siguiente" --cancel-label="Atras" --height=500 --width=650 --title="$title" --text="Seleccione la particion EFI\nAdvertencia, la lista muestra todas las particiones disponibles.\nPor favor elige con cuidado." --column 'Seleccione' --column "Particiones                   " --column 'Tamaño' $(sudo fdisk -l $dev | grep dev | grep -v $greplist | awk '{print $1 " " $5}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
@@ -473,7 +473,7 @@ if [ "$grb" = "0" ]
 lsblk -lno NAME,TYPE,SIZE | grep 'disk' | awk '{print "/dev/" $1 " " $3}' | sort -u > .devices1.txt
 devices1=` awk '{print "FALSE " $0}' .devices1.txt `
 #
-		grub_device=$(zenity --list --radiolist --height=500 --ok-label="Siguiente" --cancel-label="Atras" --width=650 --title="$title" --text "Seleccione el disco para instalar el cargador de arranque." --column Seleccion --column "Disco        " --column Tamaño $devices1)
+		grub_device=$(zenity --list --radiolist --height=500 --ok-label="Siguiente" --cancel-label="Atras" --width=650 --title="$title" --text "Seleccione el disco para instalar el cargador de arranque. ($dev)" --column Seleccion --column "Disco        " --column Tamaño $devices1)
 probe="$?"
 if [ "$?" = "1" ]
 then bootloader
@@ -579,7 +579,7 @@ echo -e "$rank" > /etc/pacman.d/mirrorlrankmirrorist
 echo -e "$rank" > .mirrors.txt
 # updating pacman cache
 echo "5"
-echo "# Actualizando base de datos y claves..."
+echo "# Sincronizando base de datos y claves..."
 pacman -Syy
 pacman-key --populate archlinux
 echo "10"
