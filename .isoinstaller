@@ -62,7 +62,7 @@ swap_partition() {
 		then swap_part=$(zenity --list  --radiolist --ok-label="Siguiente" --cancel-label="Atras" --height=500 --width=650 --title="$title" --text="Seleccione la particion SWAP\nAdvertencia, la lista muestra todas las particiones disponibles.\nPor favor elige con cuidado." --column 'Seleccione' --column "Particiones                   " --column 'Tamaño' $(sudo fdisk -l $dev | grep dev | grep -v $greplist | awk '{print $1 " " $5}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
 
 		if [ "$?" = "1" ]
-		then root_part
+		then swap_partition
 		fi
 		if [ "$swap_part" = "" ]
 		then swap_partition
@@ -115,7 +115,7 @@ boot_partition() {
 			boot_part=$(zenity --list  --radiolist --ok-label="Siguiente" --cancel-label="Atras" --height=500 --width=650 --title="$title" --text="Seleccione la particion para BOOT\nAdvertencia, la lista muestra todas las particiones disponibles.\nPor favor elige con cuidado." --column 'Seleccione' --column "Particiones                   " --column 'Tamaño' $(sudo fdisk -l $dev | grep dev | grep -v $greplist | awk '{print $1 " " $5}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
 
 		if [ "$?" = "1" ]
-		then swap_partition
+		then boot_partition
 		fi
 
 		if [ "$boot_part" = "" ]
@@ -132,6 +132,7 @@ boot_partition() {
 		) | zenity --progress --title="$title" --text "Montando particion boot..." --width=450 --pulsate --auto-close --no-cancel
 		fi
 
+
 home_partition
 }
 
@@ -143,7 +144,7 @@ home_partition() {
 		then home_part=$(zenity --list  --radiolist --ok-label="Siguiente" --cancel-label="Atras" --height=500 --width=650 --title="$title" --text="Seleccione la particion para HOME\nAdvertencia, la lista muestra todas las particiones disponibles.\nPor favor elige con cuidado." --column 'Seleccione' --column "Particiones                   " --column 'Tamaño' $(sudo fdisk -l $dev | grep dev | grep -v $greplist | awk '{print $1 " " $5}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
 		# mounting home partition
 		if [ "$?" = "1" ]
-		then boot_partition
+		then home_partition
 		fi
 
 		if [ "$home_part" = "" ]
@@ -898,9 +899,8 @@ export LANG=${locale}
 echo "# Configurando mapa del teclado..."
 #setting keymap
 
-if [ "$map" = "1" ]
-then echo KEYMAP=$keymap >> /mnt/etc/vconsole.conf
-fi
+echo KEYMAP=$keymap >> /mnt/etc/vconsole.conf
+
 echo "83"
 
 
