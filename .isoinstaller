@@ -177,7 +177,7 @@ auto_partition() {
 	then auto_partition
 	fi
 
-	zenity --question --height=120 --ok-label="Siguiente" --cancel-label="Atras" --width=650 --title="$title" --text "\nAdvertencia! Esto borrará todos los datos en $dev\. $dev1 Esta seguro que desea continuar?"
+	zenity --question --height=120 --ok-label="Siguiente" --cancel-label="Atras" --width=650 --title="$title" --text " \nAdvertencia! Esto borrará todos los datos en $dev\. $dev1 Esta seguro que desea continuar?"
         yn="$?"
 	> .root_part.txt
         touch .root_part.txt
@@ -466,13 +466,13 @@ multilib
 }
 
 multilib() {
-zenity --question --height=100 --width=350 --ok-label="Si" --cancel-label="No" --title="$title" --text="Desea habilitar los repositorios multilib? Puedes necesitar esto para Steam, Wine, o cualquier otro software 32-bit."
+zenity --question --height=100 --width=550 --ok-label="Si" --cancel-label="No" --title="$title" --text="Desea habilitar los repositorios multilib? Puedes necesitar esto para Steam, Wine, o cualquier otro software 32-bit."
 multilib="$?"
 packagemanager
 }
 
 packagemanager() {
-zenity --question --title="$title" --ok-label="Si" --cancel-label="No" --height=100 --width=450 --text="¿Desea instalar un administrador de paquetes gráfico? Esto le permitirá instalar y eliminar aplicaciones sin tener que lidiar con la línea de comando." 
+zenity --question --title="$title" --ok-label="Si" --cancel-label="No" --height=100 --width=550 --text="¿Desea instalar un administrador de paquetes gráfico? Esto le permitirá instalar y eliminar aplicaciones sin tener que lidiar con la línea de comando." 
 pm="$?"
 if [ "$pm" = "0" ] 
 then  
@@ -489,7 +489,7 @@ archuserrepo
 }
 
 archuserrepo() {
-zenity --question --height=100 --width=350 --ok-label="Si" --cancel-label="No" --title="$title" --text "Desea instalar yay (AUR Herlper)?\nPodras instalar paquetes del repositorio de usuarios."
+zenity --question --height=100 --width=550 --ok-label="Si" --cancel-label="No" --title="$title" --text "Desea instalar yay (AUR Herlper)? Podras instalar paquetes del repositorio de usuarios."
 abs="$?"
 bootloader
 }
@@ -504,7 +504,7 @@ bootloader
 # bootloader?
 bootloader() {
 
-grub=$(zenity --question --height=100 --width=350 --ok-label="Si" --cancel-label="No" --title="$title" --text "Desea instalar un cargador de arranque?\nLa respuesta usualmente es si, a menos que tenga otro arrancador que desee conservar")
+grub=$(zenity --question --height=100 --width=550 --ok-label="Si" --cancel-label="No" --title="$title" --text "Desea instalar un cargador de arranque?\nLa respuesta usualmente es si, a menos que tenga otro arrancador que desee conservar")
 grb="$?"
 if [ "$grb" = "0" ]
 	then 
@@ -527,7 +527,7 @@ installing
 
 # Installation
 installing() {
-zenity --question --height=150 --width=350 --ok-label="Continuar" --cancel-label="Abortar" --title="$title" --text "El proceso de instalacion esta por iniciar, todos los paquetes seran descargados desde internet, asi que asegurese de contar con una conexion constante a internet.\nEste proceso puede demorar."
+zenity --question --height=150 --width=550 --ok-label="Continuar" --cancel-label="Abortar" --title="$title" --text "El proceso de instalacion esta por iniciar, todos los paquetes seran descargados desde internet, asi que asegurese de contar con una conexion constante a internet.\nEste proceso puede demorar."
 
 if [ "$?" = "1" ]
 	then exit
@@ -553,11 +553,11 @@ pacstrap /mnt base base-devel nano dhcpcd netctl iwd net-tools
 if [ -f "/mnt/bin/bash" ] ; then
  basedownloaded="yes"
 else
-	res=$(zenity --error --height=100 --width=550 --extra-button="Reintentar" --ok-label="Abortar" --title="$title" --text "Ha ocurrido un error al descargar los paquetes, verifique su conexion a internet y pulse [Reintentar]. Si el problema persiste reinicie la instalacion")
+	res=$(zenity --error --height=100 --width=550 --extra-button="Reintentar" --ok-label="Reiniciar" --title="$title" --text "Ha ocurrido un error al descargar los paquetes, verifique su conexion a internet y pulse [Reintentar]. Si el problema persiste reinicie la instalacion")
 
 	if [ "$res" != "Reintentar" ]
 	then
-	exit
+	reboot
 	fi
 
 fi
@@ -583,11 +583,11 @@ if grep -q linux-firmware "/mnt/pkglist.txt"; then
 kerneldownloaded="yes"
 else
 
-	res=$(zenity --error --height=100 --width=550 --extra-button="Reintentar" --ok-label="Abortar" --title="$title" --text "Ha ocurrido un error al descargar los paquetes, verifique su conexion a internet y pulse [Reintentar]. Si el problema persiste reinicie la instalacion")
+	res=$(zenity --error --height=100 --width=550 --extra-button="Reintentar" --ok-label="Reiniciar" --title="$title" --text "Ha ocurrido un error al descargar los paquetes, verifique su conexion a internet y pulse [Reintentar]. Si el problema persiste reinicie la instalacion")
 
 	if [ "$res" != "Reintentar" ]
 	then
-	exit
+	reboot
 	fi
 
 fi
@@ -610,19 +610,78 @@ fi
 (
 echo "25"
 echo "# Instalando complementos..."
+
+complementsdownloaded=""
+while [ "$complementsdownloaded" == "" ] ; do
+
 pacstrap /mnt networkmanager ifplugd xf86-input-synaptics git wget xdg-user-dirs acpi pulseaudio pulseaudio-alsa alsa-utils fzf ntfs-3g polkit-gnome shotwell noto-fonts-emoji gedit htop lsb-release nano nautilus gparted neofetch network-manager-applet rofi scrot ttf-dejavu udiskie unzip xfce4-power-manager termite hddtemp reflector light
+
+
+arch_chroot "pacman -Qqe > pkglist.txt"
+if grep -q git "/mnt/pkglist.txt"; then
+complementsdownloaded="yes"
+else
+
+	res=$(zenity --error --height=100 --width=550 --extra-button="Reintentar" --ok-label="Reiniciar" --title="$title" --text "Ha ocurrido un error al descargar los paquetes, verifique su conexion a internet y pulse [Reintentar]. Si el problema persiste reinicie la instalacion")
+
+	if [ "$res" != "Reintentar" ]
+	then
+	reboot
+	fi
+
+fi
+
+done
+
 echo "30"
 echo "# Instalando servidor grafico..."
+
+xorgdownloaded=""
+while [ "$xorgdownloaded" == "" ] ; do
 pacstrap /mnt xorg xorg-apps xorg-xinit xorg-twm xorg-xclock $videocontroller
+
+arch_chroot "pacman -Qqe > pkglist.txt"
+if grep -q xorg-xinit "/mnt/pkglist.txt"; then
+xorgdownloaded="yes"
+else
+
+	res=$(zenity --error --height=100 --width=550 --extra-button="Reintentar" --ok-label="Reiniciar" --title="$title" --text "Ha ocurrido un error al descargar los paquetes, verifique su conexion a internet y pulse [Reintentar]. Si el problema persiste reinicie la instalacion")
+
+	if [ "$res" != "Reintentar" ]
+	then
+	reboot
+	fi
+
+fi
+
+done
+
 echo "35"
 
 # virtualbox
 echo "# Instalando escritorio..."
 # installing chosen desktop
-if [ "$desktops" = "Look at more window managers" ]
-then pacstrap /mnt $wm
-else pacstrap /mnt $desktops
+desktopdownloaded=""
+while [ "$desktopdownloaded" == "" ] ; do
+pacstrap /mnt $desktops
+
+arch_chroot "pacman -Qqe > pkglist.txt"
+if grep -q awesome "/mnt/pkglist.txt"; then
+desktopdownloaded="yes"
+else
+
+	res=$(zenity --error --height=100 --width=550 --extra-button="Reintentar" --ok-label="Reiniciar" --title="$title" --text "Ha ocurrido un error al descargar los paquetes, verifique su conexion a internet y pulse [Reintentar]. Si el problema persiste reinicie la instalacion")
+
+	if [ "$res" != "Reintentar" ]
+	then
+	reboot
+	fi
+
 fi
+
+done
+
+
 echo "40"
 ##
 
@@ -646,7 +705,27 @@ echo "45"
 if [ "$pm" = "0" ]
 then
 echo "# Instalando gestor de paquetes grafico..."
+
+gpgdownloaded=""
+while [ "$gpgdownloaded" == "" ] ; do
 arch_chroot "pacman -S --noconfirm $pack"
+
+arch_chroot "pacman -Qqe > pkglist.txt"
+if grep -q $pack "/mnt/pkglist.txt"; then
+gpgdownloaded="yes"
+else
+
+	res=$(zenity --error --height=100 --width=550 --extra-button="Reintentar" --ok-label="Reiniciar" --title="$title" --text "Ha ocurrido un error al descargar los paquetes, verifique su conexion a internet y pulse [Reintentar]. Si el problema persiste reinicie la instalacion")
+
+	if [ "$res" != "Reintentar" ]
+	then
+	reboot
+	fi
+
+fi
+
+done
+
 fi
 echo "50"
 #multilib
@@ -661,28 +740,111 @@ if [ "$abs" = "0" ]
 	then 
 
 echo "# Instalando AUR Herlper..."
+
+yaydownloaded=""
+while [ "$yaydownloaded" == "" ] ; do
 arch_chroot "pacman -S --noconfirm yay"
+
+arch_chroot "pacman -Qqe > pkglist.txt"
+if grep -q yay "/mnt/pkglist.txt"; then
+yaydownloaded="yes"
+else
+
+	res=$(zenity --error --height=100 --width=550 --extra-button="Reintentar" --ok-label="Reiniciar" --title="$title" --text "Ha ocurrido un error al descargar los paquetes, verifique su conexion a internet y pulse [Reintentar]. Si el problema persiste reinicie la instalacion")
+
+	if [ "$res" != "Reintentar" ]
+	then
+	reboot
+	fi
+
+fi
+
+done
+
 
 fi
 echo "60"
 echo "# Instalando ucode..."
-# installing bootloader
+# installing ucode
+ucodedownloaded=""
+while [ "$ucodedownloaded" == "" ] ; do
 proc=$(grep -m1 vendor_id /proc/cpuinfo | awk '{print $3}')
 if [ "$proc" = "GenuineIntel" ]
-then pacstrap /mnt intel-ucode
+then pacstrap /mnt intel-ucode gotop-git
 elif [ "$proc" = "AuthenticAMD" ]
 then
-pacstrap /mnt amd-ucode
+pacstrap /mnt amd-ucode gotop-git
 fi
+
+arch_chroot "pacman -Qqe > pkglist.txt"
+if grep -q gotop-git "/mnt/pkglist.txt"; then
+ucodedownloaded="yes"
+else
+
+	res=$(zenity --error --height=100 --width=550 --extra-button="Reintentar" --ok-label="Reiniciar" --title="$title" --text "Ha ocurrido un error al descargar los paquetes, verifique su conexion a internet y pulse [Reintentar]. Si el problema persiste reinicie la instalacion")
+
+	if [ "$res" != "Reintentar" ]
+	then
+	reboot
+	fi
+
+fi
+
+done
+
 echo "65"
 if [ "$grb" = "0" ]
 	then 
 		echo "# Instalando os-prober..."
+		
+		osdownloaded=""
+		while [ "$osdownloaded" == "" ] ; do
 		pacstrap /mnt os-prober
+
+		arch_chroot "pacman -Qqe > pkglist.txt"
+		if grep -q os-prober "/mnt/pkglist.txt"; then
+		osdownloaded="yes"
+		else
+
+		res=$(zenity --error --height=100 --width=550 --extra-button="Reintentar" --ok-label="Reiniciar" --title="$title" --text "Ha ocurrido un error al descargar los paquetes, verifique su conexion a internet y pulse [Reintentar]. Si el problema persiste reinicie la instalacion")
+
+		if [ "$res" != "Reintentar" ]
+		then
+		reboot
+		fi
+
+		fi
+
+		done
+
+
+
 		echo "68"
 		if [ "$SYSTEM" = 'BIOS' ]
 		then echo "# Instalando Bootloader (BIOS)..."
+		
+
+		grubdownloaded=""
+		while [ "$grubdownloaded" == "" ] ; do
 		pacstrap /mnt grub
+
+		arch_chroot "pacman -Qqe > pkglist.txt"
+		if grep -q grub "/mnt/pkglist.txt"; then
+		grubdownloaded="yes"
+		else
+
+		res=$(zenity --error --height=100 --width=550 --extra-button="Reintentar" --ok-label="Reiniciar" --title="$title" --text "Ha ocurrido un error al descargar los paquetes, verifique su conexion a internet y pulse [Reintentar]. Si el problema persiste reinicie la instalacion")
+
+		if [ "$res" != "Reintentar" ]
+		then
+		reboot
+		fi
+
+		fi
+
+		done
+
+
 		arch_chroot "grub-install --target=i386-pc $grub_device"
 		arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
 		else
@@ -760,6 +922,9 @@ echo "%wheel ALL=(ALL) ALL" >> /mnt/etc/sudoers
 echo "# Instalando shell..."
 # selecting shell
 shell="zsh"
+shelldownloaded=""
+while [ "$shelldownloaded" == "" ] ; do
+
 if [ "$shell" = "zsh" ]
 then arch_chroot "pacman -S --noconfirm zsh zsh-syntax-highlighting zsh-completions zsh-theme-powerlevel10k;chsh -s /usr/bin/zsh $username"
 elif [ "$shell" = "bash" ]
@@ -767,21 +932,75 @@ then arch_chroot "pacman -S --noconfirm bash;chsh -s /bin/bash $username"
 elif [ "$shell" = "fish" ]
 then arch_chroot "pacman -S --noconfirm fish;chsh -s /usr/bin/fish $username"
 fi
+
+arch_chroot "pacman -Qqe > pkglist.txt"
+if grep -q zsh "/mnt/pkglist.txt"; then
+shelldownloaded="yes"
+else
+res=$(zenity --error --height=100 --width=550 --extra-button="Reintentar" --ok-label="Reiniciar" --title="$title" --text "Ha ocurrido un error al descargar los paquetes, verifique su conexion a internet y pulse [Reintentar]. Si el problema persiste reinicie la instalacion")
+
+if [ "$res" != "Reintentar" ]
+then
+reboot
+fi
+fi
+
+done
+
 echo "85"
 
 # starting desktop manager
 
 echo "# Configurando gestor de pantalla..."
 
+		dmdownloaded=""
+		while [ "$dmdownloaded" == "" ] ; do
+	
 if [ "$dm" = "lightdm" ]
 then pacstrap /mnt lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings;arch_chroot "systemctl enable lightdm.service"
 else pacstrap /mnt $dm;arch_chroot "systemctl enable $dm.service"
 fi
+		arch_chroot "pacman -Qqe > pkglist.txt"
+		if grep -q $dm "/mnt/pkglist.txt"; then
+		dmdownloaded="yes"
+		else
+
+		res=$(zenity --error --height=100 --width=550 --extra-button="Reintentar" --ok-label="Reiniciar" --title="$title" --text "Ha ocurrido un error al descargar los paquetes, verifique su conexion a internet y pulse [Reintentar]. Si el problema persiste reinicie la instalacion")
+
+		if [ "$res" != "Reintentar" ]
+		then
+		reboot
+		fi
+
+		fi
+
+		done
+
 
 # copying files and configs
 echo "# Descargando configuraciones..."
 echo "90"
+configdownloaded=""
+while [ "$configdownloaded" == "" ] ; do
+
 git clone https://github.com/wilssonmartee/config.git /mnt/config
+
+arch_chroot "pacman -Qqe > pkglist.txt"
+		if [ -d "/mnt/config" ]; then
+		configdownloaded="yes"
+		else
+
+		res=$(zenity --error --height=100 --width=550 --extra-button="Reintentar" --ok-label="Reiniciar" --title="$title" --text "Ha ocurrido un error al descargar los paquetes, verifique su conexion a internet y pulse [Reintentar]. Si el problema persiste reinicie la instalacion")
+
+		if [ "$res" != "Reintentar" ]
+		then
+		reboot
+		fi
+
+		fi
+
+		done
+
 echo "95"
 
 echo "# Guardando configuraciones..."
