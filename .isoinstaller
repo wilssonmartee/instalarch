@@ -90,7 +90,7 @@ boot_partition() {
 		zenity --question --height=100 --width=550 --ok-label="Si" --cancel-label="No" --title="$title" --text "Desea instalar boot junto root? (recomendado). \nSi la espuesta es [SI] la particion EFI sera destinada exclusivamente para el gestor de arranque, de lo contrario se compartira con boot"
 		bootloc="$?"
 		
-			boot_part=$(zenity --list  --radiolist --ok-label="Siguiente" --cancel-label="Atras" --height=500 --width=650 --title="$title" --text="Seleccione la particion para BOOT\nAdvertencia, la lista muestra todas las particiones disponibles.\nPor favor elige con cuidado." --column 'Seleccione' --column "Particiones                   " --column 'Tamaño' $(sudo fdisk -l $dev | grep dev | grep -v $greplist | awk '{print $1 " " $5}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
+			boot_part=$(zenity --list  --radiolist --ok-label="Siguiente" --cancel-label="Atras" --height=500 --width=650 --title="$title" --text="Seleccione la particion EFI\nAdvertencia, la lista muestra todas las particiones disponibles.\nPor favor elige con cuidado." --column 'Seleccione' --column "Particiones                   " --column 'Tamaño' $(sudo fdisk -l $dev | grep dev | grep -v $greplist | awk '{print $1 " " $5}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
 
 		if [ "$?" = "1" ]
 		then boot_partition
