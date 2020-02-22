@@ -69,12 +69,36 @@ swap_partition() {
 		else
 		greplist=$greplist"\|"$swap_part
 		fi
-		
+		(
+		swap_number=$(echo $swap_part | sed "s#$dev##g")
+		Parted "set $swap_number swap on"
+		mkswap $swap_part
+		swapon $swap_part
+		) | zenity --progress --title="$title" --text "Montando particion swap..." --width=450 --pulsate --auto-close --no-cancel
+
 		else
-		zenity --question --height=100 --width=350 --ok-label="Si" --cancel-label="No" --title="$title" --text " \nDesea crear un archivo swap?                                   "
+		zenity --question --height=100 --width=350 --ok-label="Si" --cancel-label="No" --title="$title" --text "Desea crear un archivo swap?. Este proceso puede demorar."
 		if [ "$?" = "0" ]
 	 	then swapfile="yes"
-	 	
+	 	(
+		ram=$(grep MemTotal /proc/meminfo | awk '{print $2/1024}' | sed 's/\..*//')
+		# Find where swap partition stops
+		num=4000
+
+		if [ "$ram" -gt "$num" ]
+		then swap_space=4096
+		else swap_space=$ram
+		fi
+	
+		uefi_swap=$(($swap_space + 513))
+
+		
+		touch /mnt/swapfile
+		dd if=/dev/zero of=/mnt/swapfile bs=1M count=${swap_space}
+		chmod 600 /mnt/swapfile
+		mkswap /mnt/swapfile
+		swapon /mnt/swapfile
+		) | zenity --progress --title="$title" --text "Creando archivo swap..." --width=450 --pulsate --auto-close --no-cancel
 		fi
 		fi
 
@@ -84,11 +108,10 @@ boot_partition
 boot_partition() {
 	# Boot Partition?
 
- if [ "$SYSTEM" = "UEFI" ]
-
-		zenity --question --height=100 --width=550 --ok-label="Si" --cancel-label="No" --title="$title" --text "Desea instalar boot junto root? (recomendado). Si la espuesta es [SI] la particion EFI sera destinada exclusivamente para el gestor de arranque, de lo contrario se compartira con boot"
-		bootloc="$?"
-		
+		zenity --question --height=100 --width=350 --ok-label="Si" --cancel-label="No" --title="$title" --text "Desea utilizar una particion separada para /boot?"
+		if [ "$?" = "0" ]
+		then 
+			
 			boot_part=$(zenity --list  --radiolist --ok-label="Siguiente" --cancel-label="Atras" --height=500 --width=650 --title="$title" --text="Seleccione la particion para BOOT\nAdvertencia, la lista muestra todas las particiones disponibles.\nPor favor elige con cuidado." --column 'Seleccione' --column "Particiones                   " --column 'Tamaño' $(sudo fdisk -l $dev | grep dev | grep -v $greplist | awk '{print $1 " " $5}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
 
 		if [ "$?" = "1" ]
@@ -100,11 +123,17 @@ boot_partition() {
 		else
 		greplist=$greplist"\|"$boot_part
 		fi	
-		
+		(	
+		boot_number=$(echo $boot_part | sed "s#$dev##g")
+		Parted "set $boot_number boot on"
+		mkfs.fat -F32 $boot_part
+		mkdir -p /mnt/boot
+		mount $boot_part /mnt/boot
+		) | zenity --progress --title="$title" --text "Montando particion efi..." --width=450 --pulsate --auto-close --no-cancel
+		fi
 
-fi
+
 home_partition
-
 }
 
 home_partition() {
@@ -120,7 +149,12 @@ home_partition() {
 
 		if [ "$home_part" = "" ]
 		then home_partition
-			
+		else
+		(
+		greplist=$greplist"\|"$home_part
+		mkdir -p /mnt/home
+		mount $home_part /mnt/home
+		) | zenity --progress --title="$title" --text "Montando particion home..." --width=450 --pulsate --auto-close --no-cancel
 		fi		
 
 		fi
@@ -242,7 +276,7 @@ partition() {
 	ans=$(zenity --list --radiolist --height=500 --width=650 --ok-label="Siguiente" --cancel-label="Salir" --title="$title" --text "¿Desea utilizar el particionamiento automático o desea particionar el disco usted mismo?\nEl Particionamiento automático borrará completamente el disco que seleccione e instalará Arch." --column Seleccione --column Opcion TRUE "Particionado Automatico" FALSE "Particionado Manual")
 
 if [ "$ans" = "" ]
-	then start
+	then exit
 
 fi
 	if [ "$ans" = "Particionado Automatico" ]
@@ -252,7 +286,6 @@ fi
 	fi
 
 }
-
 
 configure() {
 # Getting Locale
@@ -501,96 +534,19 @@ if [ "$?" = "1" ]
 	then exit
 else 
 
-
 (
-
-#start partitions
-if [ "$ans" = "Particionado Manual" ]
-then
-	#montando home
-if [ "$root_part" != "" ]
-then
-echo "# Montando particion root..."
-touch .root_part.txt    
-echo $root_part >> .root_part.txt
-mount $root_part /mnt
-fi
-
-	#montando particion swap
-if [ "$swap_part" != "" ]
-then
-	echo "# Montando particion swap..."
-swap_number=$(echo $swap_part | sed "s#$dev##g")
-Parted "set $swap_number swap on"
-mkswap $swap_part
-swapon $swap_part
-fi
-
-	#creando archivoswap
-if [ "$swapfile" = "yes" ]
-then
-	echo "# Creando archivo swap (esto puede demorarse)..."
-ram=$(grep MemTotal /proc/meminfo | awk '{print $2/1024}' | sed 's/\..*//')
-# Find where swap partition stops
-num=4000
-if [ "$ram" -gt "$num" ]
-then swap_space=4096
-else swap_space=$ram
-fi
-
-uefi_swap=$(($swap_space + 513))
-	
-touch /mnt/swapfile
-dd if=/dev/zero of=/mnt/swapfile bs=1M count=${swap_space}
-chmod 600 /mnt/swapfile
-mkswap /mnt/swapfile
-swapon /mnt/swapfile
-fi
-
-# Montando boot
-if [ "$boot_part" != "" ]
-then
-echo "# Montando particion EFI..."
-boot_number=$(echo $boot_part | sed "s#$dev##g")
-Parted "set $boot_number boot on"
-#mkfs.fat -F32 $boot_part
-if [ "$bootloc" = "1" ]
-then
-mkdir -p /mnt/boot
-mount $boot_part /mnt/boot
-esp="/boot"
-else
-mkdir -p /mnt/efi
-mount $boot_part /mnt/efi
-esp="/efi"
-fi
-
-fi
-
-	#Montando home
-if [ "$home_part" != "" ]
-then
-	echo "# Montando particion home..."
-greplist=$greplist"\|"$home_part
-mkdir -p /mnt/home
-mount $home_part /mnt/home
-fi		
-
-fi
-#End partitions
-
 echo "# Buscando los servidores mas rapidos..."
 rank=$(curl -s "https://www.archlinux.org/mirrorlist/?country="$country"&protocol=https&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors -n 10 -)
 echo -e "$rank" > /etc/pacman.d/mirrorlist
 echo -e "$rank" > .mirrors.txt
 # updating pacman cache
 echo "5"
-echo "# Actualizando base de datos y claves..."
+echo "# Actualizando cache y claves..."
 pacman -Syy
 pacman-key --populate archlinux
 echo "10"
 #installing base
-echo "# Instalando Base (esto puede demorar)..."
+echo "# Instalando Base..."
 basedownloaded=""
 while [ "$basedownloaded" == "" ] ; do
 pacstrap /mnt base base-devel nano dhcpcd netctl iwd net-tools
@@ -608,7 +564,7 @@ else
 fi
 done
 
-echo "# Instalando kernel (esto puede demorar)..."
+echo "# Instalando kernel..."
 echo "15"
 kerneldownloaded=""
 while [ "$kerneldownloaded" == "" ] ; do
@@ -640,14 +596,19 @@ fi
 done
 
 echo "20"
-
+) | zenity --progress --percentage=0 --title="$title" --auto-close --width=450 --no-cancel
+#generating fstab
+(
 echo "# Generando tabla de particiones..."
 genfstab -p /mnt >> /mnt/etc/fstab
 if grep -q "/mnt/swapfile" "/mnt/etc/fstab"; then
 sed -i '/swapfile/d' /mnt/etc/fstab
 echo "/swapfile		none	swap	defaults	0	0" >> /mnt/etc/fstab
 fi
+) | zenity --progress --title="$title" --width=450 --no-cancel --pulsate --auto-close
+# installing video and audio packages
 
+(
 echo "25"
 echo "# Instalando complementos..."
 
@@ -895,33 +856,16 @@ if [ "$grb" = "0" ]
 		if [ "$ans" = "Particionado Automatico" ]
 			then root_part=${dev}2
 		fi
-		#instalando grub
 
-		grubdownloaded=""
-		while [ "$grubdownloaded" == "" ] ; do
-		pacstrap /mnt grub efibootmgr
+		[[ $(echo $root_part | grep "/dev/mapper/") != "" ]] && bl_root=$root_part \
+		|| bl_root=$"PARTUUID="$(blkid -s PARTUUID ${root_part} | sed 's/.*=//g' | sed 's/"//g')
 
-		arch_chroot "pacman -Qqe > pkglist.txt"
-		if grep -q grub "/mnt/pkglist.txt"; then
-		grubdownloaded="yes"
-		else
-
-		res=$(zenity --error --height=100 --width=550 --extra-button="Reintentar" --ok-label="Reiniciar" --title="$title" --text "Ha ocurrido un error al descargar los paquetes, verifique su conexion a internet y pulse [Reintentar]. Si el problema persiste reinicie la instalacion")
-
-		if [ "$res" != "Reintentar" ]
-		then
-		reboot
-		fi
-
-		fi
-
-		done
-
-		arch_chroot "grub-install --target=x86_64-efi --efi-directory=$esp --bootloader-id=Instalarch"
-		arch_chroot "grub-install --target=x86_64-efi --efi-directory=$esp --removable"
-		arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
-				
-
+		arch_chroot "bootctl --path=/boot install"
+		echo -e "default  Arch\ntimeout  10" > /mnt/boot/loader/loader.conf
+		[[ -e /mnt/boot/initramfs-linux.img ]] && echo -e "title\tArch Linux\nlinux\t/vmlinuz-linux\ninitrd\t/initramfs-linux.img\noptions\troot=${bl_root} rw" > /mnt/boot/loader/entries/Arch.conf
+		[[ -e /mnt/boot/initramfs-linux-lts.img ]] && echo -e "title\tArchLinux LTS\nlinux\t/vmlinuz-linux-lts\ninitrd\t/initramfs-linux-lts.img\noptions\troot=${bl_root} rw" > /mnt/boot/loader/entries/Arch-lts.conf
+		[[ -e /mnt/boot/initramfs-linux-hardened.img ]] && echo -e "title\tArch Linux hardened\nlinux\t/vmlinuz-linux-hardened\ninitrd\t/initramfs-linux-hardened.img\noptions\troot=${bl_root} rw" > /mnt/boot/loader/entries/Arch-hardened.conf
+		[[ -e /mnt/boot/initramfs-linux-zen.img ]] && echo -e "title\tArch Linux Zen\nlinux\t/vmlinuz-linux-zen\ninitrd\t/initramfs-linux-zen.img\noptions\troot=${bl_root} rw" > /mnt/boot/loader/entries/Arch-zen.conf
 		fi
 fi
 echo "70"
