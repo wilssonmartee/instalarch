@@ -23,7 +23,7 @@ fi
 
 # Partitioning
 # Allow user to partition using gparted
-zenity --question --height=200 --width=450 --ok-label="Deseo particionar" --cancel-label="Ya he particionado" --title="$title" --text "Necesita particionar $dev?\nDe ser asi formatee el disco o la particion si es necesario.\nEl instalador no formateara las particiones despues de esto.\nPuede utilizar particiones separadas para /boot /home y /root, tambien puede elegir entre particion swap o archivo."
+zenity --question --height=150 --width=450 --ok-label="Deseo particionar" --cancel-label="Ya he particionado" --title="$title" --text "Necesita particionar el disco $dev?\n \nDe ser asi formatee el disco o las particiones de ser necesario.\nEl instalador no formateara las particiones despues de esto.\nLe recomendamos crear las siguientes particiones: \n *ROOT: ext4 Linux Filesystem \n *EFI: fat32 \n *Tambien puede elegir entre particion swap o archivo."
 if [ "$?" = "0" ]
 	then gparted $dev
 fi
