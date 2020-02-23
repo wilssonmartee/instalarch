@@ -30,8 +30,9 @@ if [ "$?" = "0" ]
 	then 
 
 		gparted $dev & 
-		sleep 6
-		zenity --list --title="$title" --ok-label="He terminado" --cancel-label="Atras" --text="Sugerencia de particionado: \nUna vez termine el proceso pulse [He terminado] para continuar la instalacion. \n*no ciere esta ventana" --column "Particion     " --column "Nombre       " --column "Sistema de archivos" --column "Tamaño" --width=450 --height=250 "${dev}Y" "ROOT" "ext4" "16GiB+" "${dev}Z" "EFI" "fat32" "256-512MiB"; 
+		sleep 2
+		(sleep 3 && wmctrl -F -a "$title" -b add,above) &
+ 		(zenity --list --title="$title" --ok-label="He terminado" --cancel-label="Atras" --text="Sugerencia de particionado: \nUna vez termine el proceso pulse [He terminado] para continuar la instalacion. \n*no ciere esta ventana" --column "Particion     " --column "Nombre       " --column "Sistema de archivos" --column "Tamaño" --width=450 --height=250 "${dev}Y" "ROOT" "ext4" "16GiB+" "${dev}Z" "EFI" "fat32" "256-512MiB") ;
 		if [ "$?" = "0" ]; then 
 			pkill gparted 
 		else
