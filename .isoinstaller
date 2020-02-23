@@ -25,13 +25,13 @@ fi
 
 # Partitioning
 # Allow user to partition using gparted
-zenity --question --height=150 --width=450 --ok-label="Deseo particionar" --cancel-label="Ya he particionado" --title="$title" --text "Necesita particionar el disco $dev?\n \nDe ser asi formatee el disco o las particiones de ser necesario.\nEl instalador no formateara las particiones despues de esto.\nLe recomendamos crear las siguientes particiones: \n *ROOT: ext4 Linux Filesystem \n *EFI: fat32 \n *Tambien puede elegir entre particion swap o archivo."
+zenity --question --height=150 --width=450 --ok-label="Deseo particionar" --cancel-label="Ya he particionado" --title="$title" --text "Necesita particionar el disco $dev?\n \nDe ser asi formatee el disco o las particiones de ser necesario.\nEl instalador no formateara las particiones despues de esto."
 if [ "$?" = "0" ]
 	then 
 
 		gparted $dev & 
 		sleep 6
-		zenity --list --title="$title" --ok-label="He terminado" --cancel-label="Atras" --text="Sugerencia de particionado: \nUna vez termine el proceso pulse [He terminado] para continuar la instalacion. \n*no ciere esta ventana" --column "Particion     " --column "Nombre       " --column "Sistema de archivos" --column "Tamaño" --width=450 --height=250 "/dev/sdxY" "ROOT" "ext4" "16GiB+" "/dev/sdxZ" "EFI" "fat32" "256-512MiB"; 
+		zenity --list --title="$title" --ok-label="He terminado" --cancel-label="Atras" --text="Sugerencia de particionado: \nUna vez termine el proceso pulse [He terminado] para continuar la instalacion. \n*no ciere esta ventana" --column "Particion     " --column "Nombre       " --column "Sistema de archivos" --column "Tamaño" --width=450 --height=250 "${dev}Y" "ROOT" "ext4" "16GiB+" "${dev}Z" "EFI" "fat32" "256-512MiB"; 
 		if [ "$?" = "0" ]; then 
 			pkill gparted 
 		else
@@ -46,7 +46,7 @@ root_part
 root_part() {
 	greplist="Disk"
 	# Select root partition
-	root_part=$(zenity --list --radiolist --ok-label="Siguiente" --cancel-label="Atras" --height=500 --width=650 --title="$title" --text="Seleccione la particion para ROOT\nAdvertencia, la lista muestra todas las particiones disponibles.\nPor favor elige con cuidado." --column 'Seleccione' --column "Particiones                   " --column 'Tamaño' $(sudo fdisk -l $dev | grep dev | grep -v $greplist | awk '{print $1 " " $5}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
+	root_part=$(zenity --list --radiolist --ok-label="Siguiente" --cancel-label="Atras" --height=500 --width=650 --title="$title" --text="Seleccione la particion para ROOT\nAdvertencia! la lista muestra todas las particiones disponibles.\nPor favor elige con cuidado." --column 'Seleccione' --column "Particiones                   " --column 'Tamaño    ' --column 'Tipo' $(sudo fdisk -l $dev | grep dev | grep -v $greplist | awk '{print $1 " " $5 " " $6}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
 	#mounting root partition
 
 if [ "$?" = "1" ]
@@ -66,7 +66,7 @@ swap_partition() {
 			
 	zenity --question --height=100 --width=350 --ok-label="Si" --cancel-label="No" --title="$title" --text " \n Desea utilizar una particion swap?                             "
 		if [ "$?" = "0" ]
-		then swap_part=$(zenity --list  --radiolist --ok-label="Siguiente" --cancel-label="Atras" --height=500 --width=650 --title="$title" --text="Seleccione la particion SWAP\nAdvertencia, la lista muestra todas las particiones disponibles.\nPor favor elige con cuidado." --column 'Seleccione' --column "Particiones                   " --column 'Tamaño' $(sudo fdisk -l $dev | grep dev | grep -v $greplist | awk '{print $1 " " $5}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
+		then swap_part=$(zenity --list  --radiolist --ok-label="Siguiente" --cancel-label="Atras" --height=500 --width=650 --title="$title" --text="Seleccione la particion SWAP\nAdvertencia! la lista muestra todas las particiones disponibles.\nPor favor elige con cuidado." --column 'Seleccione' --column "Particiones                   " --column 'Tamaño    ' --column 'Tipo' $(sudo fdisk -l $dev | grep dev | grep -v $greplist | awk '{print $1 " " $5 " " $6}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
 
 		if [ "$?" = "1" ]
 		then swap_partition
@@ -97,7 +97,7 @@ boot_partition() {
 		zenity --question --height=100 --width=550 --ok-label="Si" --cancel-label="No" --title="$title" --text "Desea instalar boot en la misma particion root? (recomendado). \nSi la espuesta es [SI] la particion EFI sera destinada exclusivamente para el gestor de arranque, de lo contrario se compartira con boot"
 		bootloc="$?"
 		
-			boot_part=$(zenity --list  --radiolist --ok-label="Siguiente" --cancel-label="Atras" --height=500 --width=650 --title="$title" --text="Seleccione la particion EFI\nAdvertencia, la lista muestra todas las particiones disponibles.\nPor favor elige con cuidado." --column 'Seleccione' --column "Particiones                   " --column 'Tamaño' $(sudo fdisk -l $dev | grep dev | grep -v $greplist | awk '{print $1 " " $5}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
+			boot_part=$(zenity --list  --radiolist --ok-label="Siguiente" --cancel-label="Atras" --height=500 --width=650 --title="$title" --text="Seleccione la particion EFI\nAdvertencia! la lista muestra todas las particiones disponibles.\nPor favor elige con cuidado." --column 'Seleccione' --column "Particiones                   " --column 'Tamaño    ' --column 'Tipo' $(sudo fdisk -l $dev | grep dev | grep -v $greplist | awk '{print $1 " " $5 " " $6}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
 
 		if [ "$?" = "1" ]
 		then boot_partition
@@ -118,7 +118,7 @@ home_partition() {
 	# Home Partition?
 		zenity --question --height=100 --width=350 --ok-label="Si" --cancel-label="No" --title="$title" --text " \n Desea utilizar una particion separada para /home?  "
 		if [ "$?" = "0" ]
-		then home_part=$(zenity --list  --radiolist --ok-label="Siguiente" --cancel-label="Atras" --height=500 --width=650 --title="$title" --text="Seleccione la particion para HOME\nAdvertencia, la lista muestra todas las particiones disponibles.\nPor favor elige con cuidado." --column 'Seleccione' --column "Particiones                   " --column 'Tamaño' $(sudo fdisk -l $dev | grep dev | grep -v $greplist | awk '{print $1 " " $5}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
+		then home_part=$(zenity --list  --radiolist --ok-label="Siguiente" --cancel-label="Atras" --height=500 --width=650 --title="$title" --text="Seleccione la particion para HOME\nAdvertencia! la lista muestra todas las particiones disponibles.\nPor favor elige con cuidado." --column 'Seleccione' --column "Particiones                   " --column 'Tamaño    ' --column 'Tipo' $(sudo fdisk -l $dev | grep dev | grep -v $greplist | awk '{print $1 " " $5 " " $6}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
 		# mounting home partition
 		if [ "$?" = "1" ]
 		then home_partition
