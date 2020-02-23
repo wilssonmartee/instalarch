@@ -1301,6 +1301,27 @@ zenity --question --height=120 --width=650 --title="$titlep" --ok-label="Iniciar
 if [ "$?" = "1" ]
 	then exit
 fi
+(
+	echo "# Cargando archivos... Espere un momento"
+	
+
+wmctrldownloaded=""
+while [ "$wmctrldownloaded" == "" ] ; do
+pacman -Syy
+pacman -S wmctrl --noconfirm
+pacman -Qqe > pkglist.txt
+if grep -q wmctrl "pkglist.txt"; then
+wmctrldownloaded="yes"
+else
+res=$(zenity --error --height=100 --width=550 --extra-button="Reintentar" --ok-label="Reiniciar" --title="$title" --text "Ha ocurrido un error al descargar los paquetes, verifique su conexion a internet y pulse [Reintentar]. Si el problema persiste reinicie la instalacion")
+
+if [ "$res" != "Reintentar" ]
+then
+reboot
+fi
+fi
+done
+) | zenity --progress --title="$titlep" --width=450 --no-cancel --pulsate --auto-close
 partition
 }
 
