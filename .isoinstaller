@@ -1302,13 +1302,14 @@ if [ "$?" = "1" ]
 	then exit
 fi
 (
-	echo "# Cargando archivos... Espere un momento"
 	
-
 wmctrldownloaded=""
 while [ "$wmctrldownloaded" == "" ] ; do
+echo "# Sincronizando base de datos... Espere un momento"
 pacman -Syy
+echo "# Actualizando claves... Espere un momento"
 pacman-key --populate archlinux 
+echo "# Descargando dependencias... Espere un momento"
 pacman -S wmctrl --noconfirm
 pacman -Qqe > pkglist.txt
 if grep -q wmctrl "pkglist.txt"; then
