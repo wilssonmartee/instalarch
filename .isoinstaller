@@ -6,6 +6,7 @@
 man_partition() {
 
 #
+title="Particionado manual - $titlep"
 > .devices1.txt
 lsblk -lno NAME,TYPE,SIZE | grep 'disk' | awk '{print "/dev/" $1 " " $3}' | sort -u > .devices1.txt
 devices1=` awk '{print "FALSE " $0}' .devices1.txt `
@@ -25,7 +26,18 @@ fi
 # Allow user to partition using gparted
 zenity --question --height=150 --width=450 --ok-label="Deseo particionar" --cancel-label="Ya he particionado" --title="$title" --text "Necesita particionar el disco $dev?\n \nDe ser asi formatee el disco o las particiones de ser necesario.\nEl instalador no formateara las particiones despues de esto.\nLe recomendamos crear las siguientes particiones: \n *ROOT: ext4 Linux Filesystem \n *EFI: fat32 \n *Tambien puede elegir entre particion swap o archivo."
 if [ "$?" = "0" ]
-	then gparted $dev
+	then 
+
+		gparted $dev & 
+		sleep 10
+		zenity --list --title="$title" --ok-label="He terminado" --cancel-label="Atras" --text="Sugerencia de particionado: \nUna vez termine el proceso pulse [He terminado] para continuar la instalacion. \n*no ciere esta ventana" --column "Particion     " --column "Nombre       " --column "Sistema de archivos" --column "Tamaño" --width=450 --height=250 "/dev/sdxY" "ROOT" "ext4" "16GiB+" "/dev/sdxZ" "EFI" "fat32" "256-512MiB"; 
+		if [ "$?" = "0" ]; then 
+			pkill gparted 
+		else
+			pkill gparted
+			man_partition
+		fi
+
 fi
 root_part
 }
@@ -122,7 +134,7 @@ home_partition() {
 }
 
 auto_partition() {
-
+title="Particionado automatico - $titlep"
 	#
 	> .devices1.txt
 	lsblk -lno NAME,TYPE,SIZE | grep 'disk' | awk '{print "/dev/" $1 " " $3}' | sort -u > .devices1.txt
@@ -232,6 +244,7 @@ auto_partition() {
 }
 
 partition() {
+	title="Particionado - $titlep"
 	ans=$(zenity --list --radiolist --height=500 --width=650 --ok-label="Siguiente" --cancel-label="Salir" --title="$title" --text "¿Desea utilizar el particionamiento automático o desea particionar el disco usted mismo?\nEl Particionamiento automático borrará completamente el disco que seleccione e instalará Arch." --column Seleccione --column Opcion TRUE "Particionado Automatico" FALSE "Particionado Manual")
 
 if [ "$ans" = "" ]
@@ -248,6 +261,7 @@ fi
 
 
 configure() {
+	title="Configuraciones - $titlep"
 # Getting Locale
 country=$(zenity --list --radiolist --ok-label="Siguiente" --cancel-label="Atras" --title="$title" --height=500 --width=650 --column Seleccion --column Pais --text="Seleccion el codigo de su pais. Esto sera utilizado para buscar sevidores mas cerca de usted." TRUE TODOS FALSE AU FALSE AT FALSE BD FALSE BY FALSE BE FALSE BA FALSE BR FALSE BG FALSE CA FALSE CL FALSE CN FALSE CO FALSE HR FALSE CZ FALSE DE FALSE DK FALSE EE FALSE ES FALSE FR FALSE GB FALSE HU FALSE IE FALSE IL FALSE IN FALSE IT FALSE JP FALSE KR FALSE KZ FALSE LK FALSE LU FALSE LV FALSE MK FALSE NL FALSE NO FALSE NZ FALSE PT FALSE RO FALSE RS FALSE RU FALSE SU FALSE SG FALSE SK FALSE TR FALSE TW FALSE UA FALSE US FALSE UZ FALSE VN FALSE ZA)
 
@@ -320,6 +334,7 @@ hostnamez
 }
 # Getting hostname, username, root password, and user password
 hostnamez() {
+	title="Configuraciones - $titlep"
 hname=$(zenity --entry --title="$title" --width=450 --ok-label="Siguiente" --cancel-label="Atras" --text "Por favor introduzca el hostname para su equipo.\nTodas las letras deben ser minusculas." --entry-text "instalarch")
 if [ "$?" = "1" ]
 then clock
@@ -330,6 +345,7 @@ fi
 usernamez
 }
 usernamez(){
+	title="Configurando usuarios - $titlep"
 username=$(zenity --entry --title="$title" --width=450 --ok-label="Siguiente" --cancel-label="Atras" --text "Por favor introduzca el nombre de usuario para el nuevo usuario.\nTodo en letras minusculas." --entry-text "miusuario")
 if [ "$?" = "1" ]
 then hostnamez
@@ -366,6 +382,7 @@ user_password
 
 
 user_password() {
+	title="Configurando usuarios - $titlep"
 userpasswd=$(zenity --entry --title="$title" --width=450 --ok-label="Siguiente" --cancel-label="Atras" --text "Introduzca la contraseña para $username." --hide-text)
 if [ "$?" = "1" ]
 then root_password
@@ -392,6 +409,7 @@ kernel
 ##
 
 kernel() {
+	title="Seleccion de kernel - $titlep"
 kernel=$(zenity --list  --ok-label="Siguiente" --cancel-label="Atras" --radiolist --height=500 --width=650 --title="$title" --text "Hay varios nucleos(kernel) disponibles:\n \n*El mas comun el el kernel linux.\nEste kernel es el más actualizado y proporciona el mejor soporte de hardware. Sin embargo, \npodría haber posibles errores en este núcleo, a pesar de las pruebas.\n \n*El kernel linux-lts esta enfocado mas en la estabilidad.\nSe basa en un núcleo antiguo, por lo que puede carecer de algunas características más nuevas.\n \n*El kernel linux-hardened esta enfocado en la seguridad\nContiene el parche de Grsecurity Patchset y PaX para una maxima seguridad.\n \n*El kernel linux-zen es el resultado de la colaboracion de hackers\npara proveer el mejor kernel posible para uso diario.\n \nSeleccione el kernel que desea instalar." --column "Seleccion" --column "Kernel" TRUE linux FALSE linux-lts FALSE linux-hardened FALSE linux-zen)
 
 if [ "$?" = "1" ]
@@ -402,6 +420,7 @@ videocont
 ##
 
 videocont() {
+	title="Controlador de video - $titlep"
 videocontroller=$(zenity --list --title="$title" --radiolist --ok-label="Siguiente" --cancel-label="Atras" --height=500 --width=650 --text "Seleccione su tarjeta grafica:" --column "Seleccion" --column "Controlador" --column "Descripcion" TRUE "xf86-video-vesa" "Controlador generico" FALSE "xf86-video-ati" "Controlador AMD ATI / Radeon - opensource" FALSE "xf86-video-amdgpu" "Controlador AMD Radeon (ultimos modelos) - opensource" FALSE "xf86-video-intel" "Graficas Intel - opensource" FALSE "xf86-video-nouveau" "Graficas nvidia - opensource" FALSE "nvidia" "Graficas envidia - propietario" FALSE "nvidia-390xx" "Graficas nvidia-390xx - propietario")
 if [ "$?" = "1" ]
 then kernel
@@ -411,6 +430,7 @@ desktop
 
 desktop() {
 # Choosing Desktop
+title="Seleccion de escritorio - $titlep"
 desktops=$(zenity --list --height=500 --width=650 --ok-label="Siguiente" --cancel-label="Atras" --title="$title" --radiolist --text "Cual entorno de escritorio desea instalar?" --column Seleccion --column Escritorio --column Descripcion TRUE "awesome" "Awesome WM + Pack Customizado")
 if [ "$?" = "1" ]
 then videocont
@@ -419,6 +439,7 @@ displaymanager
 }
 
 displaymanager() {
+	title="Gestor de pantalla - $titlep"
 dm=$(zenity --list --title="$title" --radiolist --ok-label="Siguiente" --cancel-label="Atras" --height=500 --width=650 --text "Cual gestor de pantalla desea instalar?" --column "Select" --column "Display Manager" TRUE "sddm" FALSE "lxdm" FALSE "lightdm" FALSE "gdm")
 if [ "$?" = "1" ]
 then desktop
@@ -427,18 +448,21 @@ multilib
 }
 
 instalarchrepo() {
+	title="Repositorios - $titlep"
 zenity --question --title="$title" --ok-label="Si" --cancel-label="No" --height=100 --width=350 --text="Desea agregar el repositorio oficial de Instalarch?     "
 rr="$?"
 multilib
 }
 
 multilib() {
+	title="Repositorios - $titlep"
 zenity --question --height=100 --width=550 --ok-label="Si" --cancel-label="No" --title="$title" --text="Desea habilitar los repositorios multilib? Puedes necesitar esto para Steam, Wine, o cualquier otro software 32-bit."
 multilib="$?"
 packagemanager
 }
 
 packagemanager() {
+	title="Seleccion de paquetes - $titlep"
 zenity --question --title="$title" --ok-label="Si" --cancel-label="No" --height=100 --width=550 --text="¿Desea instalar un administrador de paquetes gráfico?\nEsto le permitirá instalar y eliminar aplicaciones sin tener que lidiar con la línea de comando." 
 pm="$?"
 if [ "$pm" = "0" ] 
@@ -456,6 +480,7 @@ archuserrepo
 }
 
 archuserrepo() {
+	title="Seleccion de paquetes - $titlep"
 zenity --question --height=100 --width=550 --ok-label="Si" --cancel-label="No" --title="$title" --text "Desea instalar yay (AUR Herlper)? Podras instalar paquetes del repositorio de usuarios."
 abs="$?"
 bootloader
@@ -464,7 +489,7 @@ bootloader
 
 # bootloader?
 bootloader() {
-
+title="Bootloader - $titlep"
 grub=$(zenity --question --height=100 --width=550 --ok-label="Si" --cancel-label="No" --title="$title" --text "Desea instalar un cargador de arranque?\nLa respuesta usualmente es [SI], a menos que tenga otro arrancador que desee conservar")
 grb="$?"
 if [ "$grb" = "0" ]
@@ -488,12 +513,13 @@ installing
 
 # Installation
 installing() {
+	title="Instalacion - $titlep"
 zenity --question --height=150 --width=550 --ok-label="Continuar" --cancel-label="Abortar" --title="$title" --text "El proceso de instalacion esta por iniciar, todos los paquetes seran descargados desde internet, asi que asegurese de contar con una conexion constante a internet.\nEste proceso puede demorar."
 
 if [ "$?" = "1" ]
 	then exit
 else 
-
+title="Instalando - $titlep"
 
 (
 
@@ -1265,10 +1291,10 @@ fi
 test
 
 }
-title="Instalarch [$SYSTEM]"
+titlep="Instalarch [$SYSTEM]"
 ########################### End nmcli ###########################
 start() {
-zenity --question --height=120 --width=650 --title="$title" --ok-label="Iniciar instalacion" --cancel-label="Salir" --text 'El proceso de instalacion esta por iniciar, asegurese de hacer un backup de su informacion mas importante por su seguridad.'
+zenity --question --height=120 --width=650 --title="$titlep" --ok-label="Iniciar instalacion" --cancel-label="Salir" --text 'El proceso de instalacion esta por iniciar, asegurese de hacer un backup de su informacion mas importante por su seguridad.'
 
 if [ "$?" = "1" ]
 	then exit
