@@ -2,6 +2,7 @@
 
 # Instalarch 1.4
 # Fork Revenge_Installer
+#
 
 man_partition() {
 
