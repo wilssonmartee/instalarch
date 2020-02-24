@@ -524,7 +524,7 @@ bootloader
 # bootloader?
 bootloader() {
 title="Bootloader - $titlep"
-grub=$(zenity --question --height=100 --width=550 --ok-label="Si" --cancel-label="No" --title="$title" --text "Desea instalar un cargador de arranque?\nLa respuesta usualmente es [SI], a menos que tenga otro arrancador que desee conservar")
+grub=$(zenity --question --height=100 --width=550 --ok-label="Si" --cancel-label="No" --title="$title" --text "Desea instalar un cargador de arranque?\nLa respuesta usualmente es [ SI ], a menos que tenga otro arrancador que desee conservar")
 grb="$?"
 if [ "$grb" = "0" ]
 	then 
