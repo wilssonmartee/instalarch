@@ -982,9 +982,7 @@ localectl set-x11-keymap $keymap
 cp /etc/vconsole.conf /mnt/etc/vconsole.conf
 cp /etc/X11/xorg.conf.d/* /etc/X11/xorg.conf.d/
 
-
 echo "83"
-
 
 #setting timezone
 echo "# Configurando zona horaria..."
