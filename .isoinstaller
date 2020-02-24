@@ -721,7 +721,7 @@ echo "# Instalando servidor grafico..."
 xorgdownloaded=""
 while [ "$xorgdownloaded" == "" ] ; do
 pacstrap /mnt xorg xorg-apps xorg-xinit xorg-twm xorg-xclock $videocontroller
-arch_chroot "pacman Rns xorg-docs"
+arch_chroot "pacman -Rns xorg-docs --noconfirm"
 arch_chroot "pacman -Qqe > pkglist.txt"
 if grep -q xorg-xinit "/mnt/pkglist.txt"; then
 xorgdownloaded="yes"
