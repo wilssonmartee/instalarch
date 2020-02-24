@@ -55,7 +55,14 @@ root_part
 root_part() {
 	greplist="Disk"
 	# Select root partition
-	root_part=$(zenity --list --radiolist --ok-label="Siguiente" --cancel-label="Atras" --height=500 --width=650 --title="$title" --text="Seleccione la particion para ROOT\nAdvertencia! la lista muestra todas las particiones disponibles.\nPor favor elige con cuidado." --column 'Seleccione' --column "Particiones                   " --column 'Tamaño    ' --column 'Tipo' $(sudo fdisk -l $dev | grep dev | grep -v $greplist | awk '{print $1 " " $5 " " $6}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
+	if [ "$SYSTEM" = "UEFI" ]
+ 			then
+		root_part=$(zenity --list --radiolist --ok-label="Siguiente" --cancel-label="Atras" --height=500 --width=650 --title="$title" --text="Seleccione la particion para ROOT\nAdvertencia! la lista muestra todas las particiones disponibles.\nPor favor elige con cuidado." --column 'Seleccione' --column "Particiones                   " --column 'Tamaño    ' --column 'Tipo' $(sudo fdisk -l $dev | grep dev | grep -v $greplist | awk '{print $1 " " $5 " " $6}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
+	
+	else
+
+		root_part=$(zenity --list --radiolist --ok-label="Siguiente" --cancel-label="Atras" --height=500 --width=650 --title="$title" --text="Seleccione la particion para ROOT\nAdvertencia! la lista muestra todas las particiones disponibles.\nPor favor elige con cuidado." --column 'Seleccione' --column "Particiones                   " --column 'Tamaño    ' --column 'Tipo' $(sudo fdisk -l $dev | grep dev | grep -v $greplist | awk '{print $1 " " $5 " " $7}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
+	fi
 	#mounting root partition
 
 if [ "$?" = "1" ]
@@ -75,7 +82,14 @@ swap_partition() {
 			
 	zenity --question --height=100 --width=350 --ok-label="Si" --cancel-label="No" --title="$title" --text " \n Desea utilizar una particion swap?                             "
 		if [ "$?" = "0" ]
-		then swap_part=$(zenity --list  --radiolist --ok-label="Siguiente" --cancel-label="Atras" --height=500 --width=650 --title="$title" --text="Seleccione la particion SWAP\nAdvertencia! la lista muestra todas las particiones disponibles.\nPor favor elige con cuidado." --column 'Seleccione' --column "Particiones                   " --column 'Tamaño    ' --column 'Tipo' $(sudo fdisk -l $dev | grep dev | grep -v $greplist | awk '{print $1 " " $5 " " $6}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
+		then 
+
+			if [ "$SYSTEM" = "UEFI" ]
+ 			then
+				swap_part=$(zenity --list  --radiolist --ok-label="Siguiente" --cancel-label="Atras" --height=500 --width=650 --title="$title" --text="Seleccione la particion SWAP\nAdvertencia! la lista muestra todas las particiones disponibles.\nPor favor elige con cuidado." --column 'Seleccione' --column "Particiones                   " --column 'Tamaño    ' --column 'Tipo' $(sudo fdisk -l $dev | grep dev | grep -v $greplist | awk '{print $1 " " $5 " " $6}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
+			else
+				swap_part=$(zenity --list  --radiolist --ok-label="Siguiente" --cancel-label="Atras" --height=500 --width=650 --title="$title" --text="Seleccione la particion SWAP\nAdvertencia! la lista muestra todas las particiones disponibles.\nPor favor elige con cuidado." --column 'Seleccione' --column "Particiones                   " --column 'Tamaño    ' --column 'Tipo' $(sudo fdisk -l $dev | grep dev | grep -v $greplist | awk '{print $1 " " $5 " " $7}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
+			fi
 
 		if [ "$?" = "1" ]
 		then swap_partition
@@ -127,7 +141,16 @@ home_partition() {
 	# Home Partition?
 		zenity --question --height=100 --width=350 --ok-label="Si" --cancel-label="No" --title="$title" --text " \n Desea utilizar una particion separada para /home?  "
 		if [ "$?" = "0" ]
-		then home_part=$(zenity --list  --radiolist --ok-label="Siguiente" --cancel-label="Atras" --height=500 --width=650 --title="$title" --text="Seleccione la particion para HOME\nAdvertencia! la lista muestra todas las particiones disponibles.\nPor favor elige con cuidado." --column 'Seleccione' --column "Particiones                   " --column 'Tamaño    ' --column 'Tipo' $(sudo fdisk -l $dev | grep dev | grep -v $greplist | awk '{print $1 " " $5 " " $6}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
+		then 
+
+			if [ "$SYSTEM" = "UEFI" ]
+ 			then
+				home_part=$(zenity --list  --radiolist --ok-label="Siguiente" --cancel-label="Atras" --height=500 --width=650 --title="$title" --text="Seleccione la particion para HOME\nAdvertencia! la lista muestra todas las particiones disponibles.\nPor favor elige con cuidado." --column 'Seleccione' --column "Particiones                   " --column 'Tamaño    ' --column 'Tipo' $(sudo fdisk -l $dev | grep dev | grep -v $greplist | awk '{print $1 " " $5 " " $6}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
+			else
+
+				home_part=$(zenity --list  --radiolist --ok-label="Siguiente" --cancel-label="Atras" --height=500 --width=650 --title="$title" --text="Seleccione la particion para HOME\nAdvertencia! la lista muestra todas las particiones disponibles.\nPor favor elige con cuidado." --column 'Seleccione' --column "Particiones                   " --column 'Tamaño    ' --column 'Tipo' $(sudo fdisk -l $dev | grep dev | grep -v $greplist | awk '{print $1 " " $5 " " $7}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
+
+			fi
 		# mounting home partition
 		if [ "$?" = "1" ]
 		then home_partition
