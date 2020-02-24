@@ -994,6 +994,7 @@ echo "# Configurando idioma..."
 echo "LANG=\"${locale}\"" > /mnt/etc/locale.conf
 echo "${locale} UTF-8" > /mnt/etc/locale.gen
 arch_chroot "locale-gen"
+arch_chroot "export LANG=${locale}"
 export LANG=${locale}
 echo "# Configurando mapa del teclado..."
 #setting keymap
