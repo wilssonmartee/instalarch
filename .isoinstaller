@@ -32,7 +32,13 @@ if [ "$?" = "0" ]
 		gparted $dev & 
 		sleep 5
 		(sleep 3 && wmctrl -F -a "$title" -b add,above) &
- 		(zenity --list --title="$title" --ok-label="He terminado" --cancel-label="Atras" --text="Sugerencia de particionado: \nUna vez termine el proceso pulse [He terminado] para continuar la instalacion. \n*no ciere esta ventana" --column "Particion     " --column "Nombre       " --column "Sistema de archivos" --column "Tamaño" --width=450 --height=250 "${dev}Y" "ROOT" "ext4" "16GiB+" "${dev}Z" "EFI" "fat32" "256-512MiB") ;
+		 if [ "$SYSTEM" = "UEFI" ]
+ 		then
+ 		(zenity --list --title="$title" --ok-label="He terminado" --cancel-label="Atras" --text="Sugerencia de particionado [UEFI]: \nUna vez termine el proceso pulse [He terminado] para continuar la instalacion. \n*no ciere esta ventana" --column "Particion     " --column "Nombre       " --column "Sistema de archivos" --column "Tamaño" --width=450 --height=250 "${dev}X" "ROOT" "ext4" "16GiB+" "${dev}Y" "EFI" "fat32" "256-512MiB") ;
+ 		else
+ 		(zenity --list --title="$title" --ok-label="He terminado" --cancel-label="Atras" --text="Sugerencia de particionado [BIOS]: \nUna vez termine el proceso pulse [He terminado] para continuar la instalacion. \n*no ciere esta ventana" --column "Particion     " --column "Nombre       " --column "Sistema de archivos" --column "Tamaño" --width=450 --height=250 "${dev}Y" "ROOT" "ext4" "16GiB+") ;
+ 		fi
+		
 		if [ "$?" = "0" ]; then 
 			pkill gparted 
 		else
@@ -95,7 +101,7 @@ boot_partition() {
  if [ "$SYSTEM" = "UEFI" ]
  then
 
-		zenity --question --height=100 --width=550 --ok-label="Si" --cancel-label="No" --title="$title" --text "Desea instalar boot en la misma particion root? (recomendado). \nSi la espuesta es [SI] la particion EFI sera destinada exclusivamente para el gestor de arranque, de lo contrario se compartira con boot"
+		zenity --question --height=100 --width=550 --ok-label="Si" --cancel-label="No" --title="$title" --text "Desea compartir la particion ROOT con BOOT? (recomendado). \nSi la espuesta es [ SI ] la particion EFI sera destinada exclusivamente para el gestor de arranque, de lo contrario sera compartida con boot"
 		bootloc="$?"
 		
 			boot_part=$(zenity --list  --radiolist --ok-label="Siguiente" --cancel-label="Atras" --height=500 --width=650 --title="$title" --text="Seleccione la particion EFI\nAdvertencia! la lista muestra todas las particiones disponibles.\nPor favor elige con cuidado." --column 'Seleccione' --column "Particiones                   " --column 'Tamaño    ' --column 'Tipo' $(sudo fdisk -l $dev | grep dev | grep -v $greplist | awk '{print $1 " " $5 " " $6}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
@@ -203,7 +209,7 @@ title="Particionado automatico - $titlep"
 		swapon /mnt/swapfile
 		) | zenity --progress --title="$title" --text "Creando archivo swap..." --width=450 --pulsate --auto-close --no-cancel
 		(
-		echo "# Creando archivo swap [UEFI]..."
+		echo "# Creando archivo swap [BIOS]..."
 		echo "99"
 		swapfile="yes"
 		) | zenity --progress --percentage=0 --title="$title" --width=450 --no-cancel --auto-close
@@ -530,13 +536,23 @@ title="Instalando - $titlep"
 if [ "$ans" = "Particionado Manual" ]
 then
 	#montando home
+
 if [ "$root_part" != "" ]
 then
+
+	
 echo "# Montando particion root..."
 touch .root_part.txt    
 echo $root_part >> .root_part.txt
+	if [ "$SYSTEM" = "BIOS" ]
+	then
+	root_number=$(echo $root_part | sed "s#$dev##g")
+	Parted "set $root_number boot on"
+	fi
 mkfs.ext4 -F $root_part
 mount $root_part /mnt
+echo "# Montando particion root..."
+
 fi
 
 	#montando particion swap
@@ -909,10 +925,11 @@ if [ "$grb" = "0" ]
 
 		done
 
-
 		arch_chroot "grub-install --target=i386-pc $grub_device"
 		arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
+		
 		else
+		
 		echo "# Instalando Bootloader (UEFI)..."
 
 		if [ "$ans" = "Particionado Automatico" ]
