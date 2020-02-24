@@ -765,7 +765,6 @@ echo "40"
 ##
 
 ##
-
 echo "# Habilitando servicios..."
 # enabling network manager
 arch_chroot "systemctl enable dhcpcd"
