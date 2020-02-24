@@ -978,7 +978,9 @@ export LANG=${locale}
 echo "# Configurando mapa del teclado..."
 #setting keymap
 #echo KEYMAP=$keymap >> /mnt/etc/vconsole.conf
-arch_chroot "localectl set-x11-keymap $keymap"
+localectl set-x11-keymap $keymap
+cp /etc/vconsole.conf /mnt/etc/vconsole.conf
+cp /etc/X11/xorg.conf.d/* /etc/X11/xorg.conf.d/
 
 
 echo "83"
