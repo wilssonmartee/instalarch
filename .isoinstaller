@@ -34,9 +34,9 @@ if [ "$?" = "0" ]
 		(sleep 3 && wmctrl -F -a "$title" -b add,above) &
 		 if [ "$SYSTEM" = "UEFI" ]
  		then
- 		(zenity --list --title="$title" --ok-label="He terminado" --cancel-label="Atras" --text="Sugerencia de particionado [UEFI]: \nUna vez termine el proceso pulse [He terminado] para continuar la instalacion. \n*no ciere esta ventana" --column "Particion     " --column "Nombre       " --column "Sistema de archivos" --column "Tamaño" --width=450 --height=250 "${dev}X" "ROOT" "ext4" "16GiB+" "${dev}Y" "EFI" "fat32" "256-512MiB") ;
+ 		(zenity --list --title="$title" --ok-label="He terminado" --cancel-label="Atras" --text="Sugerencia de particionado [UEFI]: *Formato de disco GPT\nUna vez termine el proceso pulse [He terminado] para continuar la instalacion. \n*no ciere esta ventana" --column "Particion     " --column "Nombre       " --column "Sistema de archivos" --column "Tamaño" --width=450 --height=250 "${dev}X" "ROOT" "ext4" "16GiB+" "${dev}Y" "EFI" "fat32" "256-512MiB") ;
  		else
- 		(zenity --list --title="$title" --ok-label="He terminado" --cancel-label="Atras" --text="Sugerencia de particionado [BIOS]: \nUna vez termine el proceso pulse [He terminado] para continuar la instalacion. \n*no ciere esta ventana" --column "Particion     " --column "Nombre       " --column "Sistema de archivos" --column "Tamaño" --width=450 --height=250 "${dev}Y" "ROOT" "ext4" "16GiB+") ;
+ 		(zenity --list --title="$title" --ok-label="He terminado" --cancel-label="Atras" --text="Sugerencia de particionado [BIOS]: *Formato de disco MBR\nUna vez termine el proceso pulse [He terminado] para continuar la instalacion. \n*no ciere esta ventana" --column "Particion     " --column "Nombre       " --column "Sistema de archivos" --column "Tamaño" --width=450 --height=250 "${dev}Y" "ROOT" "ext4" "16GiB+") ;
  		fi
 		
 		if [ "$?" = "0" ]; then 
