@@ -234,6 +234,7 @@ title="Particionado automatico - $titlep"
 		mount ${dev}2 /mnt
 		mkdir -p /mnt/boot
 		mount ${dev}1 /mnt/boot
+		esp="/boot"
 		echo "# Creando archivo swap [UEFI]..."
 		echo "80"
 		) | zenity --progress --percentage=0 --title="$title" --width=450 --no-cancel --auto-close
