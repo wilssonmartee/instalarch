@@ -500,7 +500,8 @@ if [ "$grb" = "0" ]
 lsblk -lno NAME,TYPE,SIZE | grep 'disk' | awk '{print "/dev/" $1 " " $3}' | sort -u > .devices1.txt
 devices1=` awk '{print "FALSE " $0}' .devices1.txt `
 #
-		grub_device=$(zenity --list --radiolist --height=500 --ok-label="Siguiente" --cancel-label="Atras" --width=650 --title="$title" --text "Seleccione el disco para instalar el cargador de arranque. ($dev)" --column Seleccion --column "Disco                                           " --column Tamaño $devices1)
+devices1=$(echo $devices1 | sed "s#FALSE $dev#TRUE $dev#g")
+		grub_device=$(zenity --list --radiolist --height=500 --ok-label="Siguiente" --cancel-label="Atras" --width=650 --title="$title" --text "Seleccione el disco para instalar el cargador de arranque.($dev)" --column Seleccion --column "Disco                                           " --column Tamaño $devices1)
 probe="$?"
 if [ "$?" = "1" ]
 then bootloader
