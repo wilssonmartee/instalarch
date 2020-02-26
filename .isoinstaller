@@ -1120,10 +1120,18 @@ wget https://raw.githubusercontent.com/wilssonmartee/instalarch/master/src/.zshr
 cd /mnt/usr/share/fzf/
 rm -f completion.zsh
 wget https://raw.githubusercontent.com/wilssonmartee/instalarch/master/src/completion.zsh
-
+mkdir -p /mnt/home/$username/.config/reflector
+cd /mnt/home/$username/.config/reflector
+wget https://raw.githubusercontent.com/wilssonmartee/instalarch/master/src/reflector.sh
+wget https://raw.githubusercontent.com/wilssonmartee/instalarch/master/src/.lastsync.txt
 cd
 arch_chroot "chmod 755 /home/$username/.zshrc"
 arch_chroot "chown $username:users /home/$username/.zshrc"
+arch_chroot "chmod 755 /home/$username/.config/reflector/reflector.sh"
+arch_chroot "chown $username:users /home/$username/.config/reflector/reflector.sh"
+arch_chroot "chmod 755 /home/$username/.config/reflector/.lastsync.txt"
+arch_chroot "chown $username:users /home/$username/.config/reflector/.lastsync.txt"
+
 
 echo "# Instalando extras..."
 echo "95"
