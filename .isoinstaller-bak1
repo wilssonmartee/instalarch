@@ -1138,8 +1138,6 @@ cp -rf /mnt/config/awesome/fonts/* /mnt/usr/share/fonts
 cp -rf /mnt/config/awesome/awesome-rofi.rasi /mnt/usr/share/rofi/themes
 cp -rf /mnt/config/awesome/powerlevel-icons.zsh /mnt/usr/share/zsh-theme-powerlevel10k/internal/icons.zsh
 
-#
-
 rm -rf /mnt/home/$username/.config
 cp -rf /mnt/config/awesome/.config /mnt/home/$username
 ## mv /mnt/config/awesome/.oh-my-zsh-files /mnt/config/awesome/.oh-my-zsh
