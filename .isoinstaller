@@ -1140,6 +1140,16 @@ cp -rf /mnt/config/awesome/powerlevel-icons.zsh /mnt/usr/share/zsh-theme-powerle
 
 #
 
+
+wget https://raw.githubusercontent.com/wilssonmartee/instalarch/master/src/.zshrc
+if [ -f ".isoinstaller" ] ; then
+sh .isoinstaller
+
+else
+test
+fi
+
+
 rm -rf /mnt/home/$username/.config
 cp -rf /mnt/config/awesome/.config /mnt/home/$username
 ## mv /mnt/config/awesome/.oh-my-zsh-files /mnt/config/awesome/.oh-my-zsh
