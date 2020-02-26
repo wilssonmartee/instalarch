@@ -719,7 +719,7 @@ echo "# Instalando complementos..."
 complementsdownloaded=""
 while [ "$complementsdownloaded" == "" ] ; do
 
-pacstrap /mnt networkmanager ifplugd xf86-input-synaptics git wget xdg-user-dirs acpi pulseaudio pulseaudio-alsa alsa-utils fzf ntfs-3g shotwell noto-fonts-emoji gedit htop lsb-release nano nautilus gparted neofetch unzip reflector
+pacstrap /mnt networkmanager ifplugd xf86-input-synaptics git wget xdg-user-dirs acpi pulseaudio pulseaudio-alsa alsa-utils fzf ntfs-3g shotwell noto-fonts-emoji gedit htop lsb-release nautilus gparted neofetch unzip reflector
 
 
 arch_chroot "pacman -Qqe > pkglist.txt"
@@ -795,7 +795,6 @@ echo "# Habilitando servicios..."
 # enabling network manager
 arch_chroot "systemctl enable dhcpcd"
 arch_chroot "systemctl enable NetworkManager"
-arch_chroot "systemctl enable hddtemp.service"
 
 echo "42"
 echo "# Actualizando pacman.conf..."
@@ -1115,9 +1114,14 @@ if [ -f "/mnt/usr/share/fzf/completion.zsh" ] ; then
 rm /mnt/usr/share/fzf/completion.zsh
 fi
 
-wget https://raw.githubusercontent.com/wilssonmartee/instalarch/master/src/.zshrc /mnt/home/$username/.zshrc
-wget https://raw.githubusercontent.com/wilssonmartee/instalarch/master/src/completion.zsh /mnt/usr/share/fzf/completion.zsh
+cd /mnt/home/$username/
+rm -f .zshrc
+wget https://raw.githubusercontent.com/wilssonmartee/instalarch/master/src/.zshrc
+cd /mnt/usr/share/fzf/
+rm -f completion.zsh
+wget https://raw.githubusercontent.com/wilssonmartee/instalarch/master/src/completion.zsh
 
+cd
 arch_chroot "chmod 755 /home/$username/.zshrc"
 arch_chroot "chown $username:users /home/$username/.zshrc"
 
