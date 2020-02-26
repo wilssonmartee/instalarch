@@ -225,16 +225,13 @@ title="Particionado automatico - $titlep"
 	        mount ${dev}1 /mnt
 		echo "# Creando archivo swap [BIOS]..."
 		echo "80"	
-		) | zenity --progress --percentage=0 --title="$title" --width=450 --no-cancel --auto-close
-		(	
+		
 		touch /mnt/swapfile
 		dd if=/dev/zero of=/mnt/swapfile bs=1M count=${swap_space}
 		chmod 600 /mnt/swapfile
 		mkswap /mnt/swapfile
 		swapon /mnt/swapfile
-		) | zenity --progress --title="$title" --text "Creando archivo swap..." --width=450 --pulsate --auto-close --no-cancel
-		(
-		echo "# Creando archivo swap [BIOS]..."
+		
 		echo "99"
 		swapfile="yes"
 		) | zenity --progress --percentage=0 --title="$title" --width=450 --no-cancel --auto-close
@@ -260,15 +257,13 @@ title="Particionado automatico - $titlep"
 		esp="/boot"
 		echo "# Creando archivo swap [UEFI]..."
 		echo "80"
-		) | zenity --progress --percentage=0 --title="$title" --width=450 --no-cancel --auto-close
-		(
+		
 		touch /mnt/swapfile
 		dd if=/dev/zero of=/mnt/swapfile bs=1M count=${swap_space}
 		chmod 600 /mnt/swapfile
 		mkswap /mnt/swapfile
 		swapon /mnt/swapfile
-		) | zenity --progress --title="$title" --text "Creando archivo swap..." --width=450 --pulsate --auto-close --no-cancel
-		(
+		
 		echo "# Creando archivo swap [UEFI]..."
 		echo "99"
 		swapfile="yes"
