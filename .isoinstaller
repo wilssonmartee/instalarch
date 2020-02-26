@@ -719,7 +719,7 @@ echo "# Instalando complementos..."
 complementsdownloaded=""
 while [ "$complementsdownloaded" == "" ] ; do
 
-pacstrap /mnt networkmanager ifplugd xf86-input-synaptics git wget xdg-user-dirs acpi pulseaudio pulseaudio-alsa alsa-utils fzf ntfs-3g polkit-gnome shotwell noto-fonts-emoji gedit htop lsb-release nano nautilus gparted neofetch network-manager-applet rofi scrot ttf-dejavu udiskie unzip xfce4-power-manager termite hddtemp reflector light
+pacstrap /mnt networkmanager ifplugd xf86-input-synaptics git wget xdg-user-dirs acpi pulseaudio pulseaudio-alsa alsa-utils fzf ntfs-3g shotwell noto-fonts-emoji gedit htop lsb-release nano nautilus gparted neofetch unzip reflector
 
 
 arch_chroot "pacman -Qqe > pkglist.txt"
@@ -1104,76 +1104,27 @@ fi
 
 
 # copying files and configs
-echo "# Descargando configuraciones..."
 echo "90"
-configdownloaded=""
-while [ "$configdownloaded" == "" ] ; do
+echo "# Obteniendo configuraciones..."
 
-git clone https://github.com/wilssonmartee/config.git /mnt/config
-
-arch_chroot "pacman -Qqe > pkglist.txt"
-		if [ -d "/mnt/config" ]; then
-		configdownloaded="yes"
-		else
-
-		res=$(zenity --error --height=100 --width=550 --extra-button="Reintentar" --ok-label="Reiniciar" --title="$title" --text "Ha ocurrido un error al descargar los paquetes, verifique su conexion a internet y pulse [Reintentar]. Si el problema persiste reinicie la instalacion")
-
-		if [ "$res" != "Reintentar" ]
-		then
-		reboot
-		fi
-
-		fi
-
-		done
-
-echo "95"
-
-echo "# Guardando configuraciones..."
-cp -rf /mnt/config/awesome/themes/* /mnt/usr/share/themes/
-rm -rf /mnt/usr/share/icons/Adwaita
-rm -rf /mnt/usr/share/icons/default
-cp -rf /mnt/config/awesome/icons/* /mnt/usr/share/icons/
-cp -rf /mnt/config/awesome/fonts/* /mnt/usr/share/fonts
-cp -rf /mnt/config/awesome/awesome-rofi.rasi /mnt/usr/share/rofi/themes
-cp -rf /mnt/config/awesome/powerlevel-icons.zsh /mnt/usr/share/zsh-theme-powerlevel10k/internal/icons.zsh
-
-#
-
-
-wget https://raw.githubusercontent.com/wilssonmartee/instalarch/master/src/.zshrc
-if [ -f ".isoinstaller" ] ; then
-sh .isoinstaller
-
-else
-test
+if [ -f "/mnt/home/$username/.zshrc" ] ; then
+rm /mnt/home/$username/.zshrc
 fi
 
+if [ -f "/mnt/usr/share/fzf/completion.zsh" ] ; then
+rm /mnt/usr/share/fzf/completion.zsh
+fi
 
-rm -rf /mnt/home/$username/.config
-cp -rf /mnt/config/awesome/.config /mnt/home/$username
-## mv /mnt/config/awesome/.oh-my-zsh-files /mnt/config/awesome/.oh-my-zsh
-## cp -rf /mnt/config/awesome/.oh-my-zsh /mnt/home/$username
-cp -rf /mnt/config/awesome/.zshrc /mnt/home/$username
-cp -rf /mnt/config/awesome/.p10k.zsh /mnt/home/$username
-cp -rf /mnt/config/awesome/completion.zsh /mnt/usr/share/fzf
-# Ojo
-##cp -f /mnt/config/awesome/pacman.conf /mnt/etc/pacman.conf
-echo "97"
-arch_chroot "chmod -R 755 /home/$username/.config"
-#arch_chroot "chmod -R 755 /home/$username/.oh-my-zsh"
+wget https://raw.githubusercontent.com/wilssonmartee/instalarch/master/src/.zshrc /mnt/home/$username/.zshrc
+wget https://raw.githubusercontent.com/wilssonmartee/instalarch/master/src/completion.zsh /mnt/usr/share/fzf/completion.zsh
+
 arch_chroot "chmod 755 /home/$username/.zshrc"
-arch_chroot "chmod 755 /home/$username/.p10k.zsh"
-arch_chroot "chown -R $username:users /home/$username/.config"
-# arch_chroot "chown -R $username:users /home/$username/.oh-my-zsh"
 arch_chroot "chown $username:users /home/$username/.zshrc"
-arch_chroot "chown $username:users /home/$username/.p10k.zsh"
 
-cp -rf /mnt/config/awesome/gtkrc /mnt/usr/share/gtk-2.0
-cp -rf /mnt/config/awesome/settings.ini /mnt/usr/share/gtk-3.0
-echo "# Eliminando archivos temporales..."
-echo "99"
-rm -rf /mnt/config
+echo "# Instalando extras..."
+echo "95"
+
+arch_chroot "pacman -S awesome-utils-ia --noconfirm"
 
 
 # unmounting partitions
