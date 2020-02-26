@@ -1106,20 +1106,17 @@ fi
 echo "90"
 echo "# Obteniendo configuraciones..."
 
-if [ -f "/mnt/home/$username/.zshrc" ] ; then
-rm /mnt/home/$username/.zshrc
-fi
-
-if [ -f "/mnt/usr/share/fzf/completion.zsh" ] ; then
-rm /mnt/usr/share/fzf/completion.zsh
-fi
-
+# Zshrc file
 cd /mnt/home/$username/
 rm -f .zshrc
 wget https://raw.githubusercontent.com/wilssonmartee/instalarch/master/src/.zshrc
+
+# fzf completion file
 cd /mnt/usr/share/fzf/
 rm -f completion.zsh
 wget https://raw.githubusercontent.com/wilssonmartee/instalarch/master/src/completion.zsh
+
+# reflector file
 mkdir -p /mnt/home/$username/.config/reflector
 cd /mnt/home/$username/.config/reflector
 wget https://raw.githubusercontent.com/wilssonmartee/instalarch/master/src/reflector.sh
