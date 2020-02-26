@@ -674,7 +674,7 @@ fi
 done
 
 echo "# Instalando kernel (esto puede demorar)..."
-echo "15"
+echo "25"
 kerneldownloaded=""
 while [ "$kerneldownloaded" == "" ] ; do
 
@@ -704,7 +704,7 @@ fi
 
 done
 
-echo "20"
+echo "40"
 
 echo "# Generando tabla de particiones..."
 genfstab -p /mnt >> /mnt/etc/fstab
@@ -713,7 +713,7 @@ sed -i '/swapfile/d' /mnt/etc/fstab
 echo "/swapfile		none	swap	defaults	0	0" >> /mnt/etc/fstab
 fi
 
-echo "25"
+echo "43"
 echo "# Instalando complementos..."
 
 complementsdownloaded=""
@@ -738,7 +738,7 @@ fi
 
 done
 
-echo "30"
+echo "53"
 echo "# Instalando servidor grafico..."
 
 xorgdownloaded=""
@@ -761,7 +761,7 @@ fi
 
 done
 
-echo "35"
+echo "63"
 
 # virtualbox
 echo "# Instalando escritorio..."
@@ -787,7 +787,7 @@ fi
 done
 
 
-echo "40"
+echo "68"
 ##
 
 ##
@@ -796,14 +796,14 @@ echo "# Habilitando servicios..."
 arch_chroot "systemctl enable dhcpcd"
 arch_chroot "systemctl enable NetworkManager"
 
-echo "42"
+echo "69"
 echo "# Actualizando pacman.conf..."
 # adding revenge_repo
 echo -e "\n[instalarch_repo]" >> /mnt/etc/pacman.conf;echo -e "SigLevel = Optional TrustAll" >> /mnt/etc/pacman.conf;echo -e "Server = https://wilssonmartee.github.io/instalarch_repo/x86_64\n" >> /mnt/etc/pacman.conf
 echo "# Sincronizando base de datos..."
 arch_chroot "pacman -Syy"
 
-echo "45"
+echo "70"
 # installing pamac-aur
 if [ "$pm" = "0" ]
 then
@@ -830,7 +830,7 @@ fi
 done
 
 fi
-echo "50"
+echo "73"
 #multilib
 if [ "$multilib" = "0" ]
 then
@@ -839,7 +839,7 @@ echo -e "\n[multilib]" >> /mnt/etc/pacman.conf;echo -e "Include = /etc/pacman.d/
 echo "# Sincronizando base de datos..."
 arch_chroot "pacman -Syy"
 fi
-echo "55"
+echo "74"
 # AUR
 if [ "$abs" = "0" ]
 	then 
@@ -868,7 +868,7 @@ done
 
 
 fi
-echo "60"
+echo "78"
 echo "# Instalando ucode..."
 # installing ucode
 ucodedownloaded=""
@@ -897,7 +897,7 @@ fi
 
 done
 
-echo "65"
+echo "83"
 if [ "$grb" = "0" ]
 	then 
 		echo "# Instalando os-prober..."
@@ -924,7 +924,7 @@ if [ "$grb" = "0" ]
 
 
 
-		echo "68"
+		echo "86"
 		if [ "$SYSTEM" = 'BIOS' ]
 		then echo "# Instalando Bootloader (BIOS)..."
 		
@@ -989,11 +989,11 @@ if [ "$grb" = "0" ]
 
 		fi
 fi
-echo "70"
+echo "89"
 # running mkinit
 echo "# Ejecutando mkinitcpio..."
 arch_chroot "mkinitcpio -p $kernel"
-echo "75"
+echo "91"
 
 #root password
 echo "# Configurando usuario root..."
@@ -1010,7 +1010,7 @@ touch .passwd
 echo -e "$userpasswd\n$userpasswd2" > .passwd
 arch_chroot "passwd $username" < .passwd >/dev/null
 rm .passwd
-echo "80"
+echo "93"
 #setting locale
 
 echo "# Configurando idioma..."
@@ -1026,7 +1026,7 @@ localectl set-x11-keymap $keymap
 cp /etc/vconsole.conf /mnt/etc/vconsole.conf
 cp /etc/X11/xorg.conf.d/* /mnt/etc/X11/xorg.conf.d/
 
-echo "83"
+echo "95"
 
 #setting timezone
 echo "# Configurando zona horaria..."
@@ -1072,7 +1072,7 @@ fi
 
 done
 
-echo "85"
+echo "97"
 
 # starting desktop manager
 
@@ -1103,7 +1103,7 @@ fi
 
 
 # copying files and configs
-echo "90"
+echo "98"
 echo "# Obteniendo configuraciones..."
 
 # Zshrc file
@@ -1131,7 +1131,7 @@ arch_chroot "chown $username:users /home/$username/.config/reflector/.lastsync.t
 
 
 echo "# Instalando extras..."
-echo "95"
+echo "99"
 
 arch_chroot "pacman -S awesome-utils-ia zsh-theme-powerlevel10k --noconfirm"
 
