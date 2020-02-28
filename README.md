@@ -1,4 +1,4 @@
 ## Instalarch
 
 ### +Info
-* [ArchInstaller/instalarch](https://github.com/wilssonmartee/archinstaller)
+* [Instalarch/Sourceforge](https://instalarch.sourceforge.io/)
