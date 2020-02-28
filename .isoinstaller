@@ -480,10 +480,12 @@ instalarchrepo() {
 	title="Repositorios - $titlep"
 zenity --question --title="$title" --ok-label="Si" --cancel-label="No" --height=100 --width=350 --text="Desea agregar el repositorio oficial de Instalarch?     "
 rr="$?"
-multilib
+packagemanager
 }
 
 multilib() {
+
+	## Disabled
 	title="Repositorios - $titlep"
 zenity --question --height=100 --width=550 --ok-label="Si" --cancel-label="No" --title="$title" --text="Desea habilitar los repositorios multilib? Puedes necesitar esto para Steam, Wine, o cualquier otro software 32-bit."
 multilib="$?"
@@ -498,7 +500,7 @@ if [ "$pm" = "0" ]
 then  
 pack=$(zenity --list --radiolist --title="$title" --ok-label="Siguiente" --cancel-label="Atras" --height=500 --width=650 --text="Que administrador de paquetes desea instalar?" --column Seleccion --column "Adm de paquetes" --column "Descripcion" FALSE "octopi" "Plasma o libreria qt" FALSE "pamac-aur" "Gnome o libreria gtk") 
 if [ "$?" = "1" ]
-then multilib
+then instalarchrepo
 fi
 if [ "$pack" = "" ]
 then packagemanager
@@ -794,7 +796,7 @@ arch_chroot "systemctl enable NetworkManager"
 echo "69"
 echo "# Actualizando pacman.conf..."
 # adding revenge_repo
-echo -e "\n[instalarch_repo]" >> /mnt/etc/pacman.conf;echo -e "SigLevel = Optional TrustAll" >> /mnt/etc/pacman.conf;echo -e "Server = https://wilssonmartee.github.io/instalarch_repo/x86_64\n" >> /mnt/etc/pacman.conf
+echo -e "\n[instalarch]" >> /mnt/etc/pacman.conf;echo -e "SigLevel = Optional TrustAll" >> /mnt/etc/pacman.conf;echo -e "Server = http://downloads.sourceforge.net/project/instalarch/x86_64\n" >> /mnt/etc/pacman.conf
 echo "# Sincronizando base de datos..."
 arch_chroot "pacman -Syy"
 
@@ -827,6 +829,7 @@ done
 fi
 echo "73"
 #multilib
+multilib="1"
 if [ "$multilib" = "0" ]
 then
 echo "# Habilitando multilib..."
