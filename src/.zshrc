@@ -1,4 +1,6 @@
-alias vpn="sh ~/VPN/start.sh"
+## By BinBash
+#
+
 sudo() {
     if [[ $@ == "pacman -S"* ]]; then
 	command sh ~/.config/reflector/reflector.sh
