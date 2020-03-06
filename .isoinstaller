@@ -473,10 +473,11 @@ dm=$(zenity --list --title="$title" --radiolist --ok-label="Siguiente" --cancel-
 if [ "$?" = "1" ]
 then desktop
 fi
-multilib
+packagemanager
 }
 
 instalarchrepo() {
+	## Disabled
 	title="Repositorios - $titlep"
 zenity --question --title="$title" --ok-label="Si" --cancel-label="No" --height=100 --width=350 --text="Desea agregar el repositorio oficial de Instalarch?     "
 rr="$?"
@@ -500,7 +501,7 @@ if [ "$pm" = "0" ]
 then  
 pack=$(zenity --list --radiolist --title="$title" --ok-label="Siguiente" --cancel-label="Atras" --height=500 --width=650 --text="Que administrador de paquetes desea instalar?" --column Seleccion --column "Adm de paquetes" --column "Descripcion" FALSE "octopi" "Plasma o libreria qt" FALSE "pamac-aur" "Gnome o libreria gtk") 
 if [ "$?" = "1" ]
-then instalarchrepo
+then displaymanager
 fi
 if [ "$pack" = "" ]
 then packagemanager
@@ -1133,7 +1134,28 @@ arch_chroot "chown $username:users /home/$username/.config/reflector/.lastsync.t
 echo "# Instalando extras..."
 echo "99"
 
+
+utilsdownloaded=""
+		while [ "$utilsdownloaded" == "" ] ; do
+	
 arch_chroot "pacman -S awesome-utils-ia zsh-theme-powerlevel10k --noconfirm"
+
+
+		arch_chroot "pacman -Qqe > pkglist.txt"
+		if grep -q awesome-utils-ia "/mnt/pkglist.txt"; then
+		utilsdownloaded="yes"
+		else
+
+		res=$(zenity --error --height=100 --width=550 --extra-button="Reintentar" --ok-label="Reiniciar" --title="$title" --text "Ha ocurrido un error al descargar los paquetes, verifique su conexion a internet y pulse [Reintentar]. Si el problema persiste reinicie la instalacion")
+
+		if [ "$res" != "Reintentar" ]
+		then
+		reboot
+		fi
+
+		fi
+
+		done
 
 
 # unmounting partitions
