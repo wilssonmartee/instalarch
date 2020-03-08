@@ -1114,8 +1114,8 @@ wget https://raw.githubusercontent.com/wilssonmartee/instalarch/master/src/.zshr
 
 # fzf completion file
 cd /mnt/usr/share/fzf/
-rm -f completion.zsh
-wget https://raw.githubusercontent.com/wilssonmartee/instalarch/master/src/completion.zsh
+#rm -f completion.zsh
+wget https://raw.githubusercontent.com/wilssonmartee/instalarch/master/src/completion-ia.zsh
 
 # reflector file
 mkdir -p /mnt/home/$username/.config/reflector
