@@ -1138,7 +1138,7 @@ echo "99"
 utilsdownloaded=""
 		while [ "$utilsdownloaded" == "" ] ; do
 	
-arch_chroot "pacman -S awesome-utils-ia zsh-theme-powerlevel10k --noconfirm"
+arch_chroot "pacman -S awesome-utils-ia zsh-theme-powerlevel10k-ia --noconfirm"
 
 
 		arch_chroot "pacman -Qqe > pkglist.txt"
