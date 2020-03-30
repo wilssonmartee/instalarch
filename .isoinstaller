@@ -1139,7 +1139,7 @@ utilsdownloaded=""
 		while [ "$utilsdownloaded" == "" ] ; do
 	
 arch_chroot "pacman -S awesome-utils-ia zsh-theme-powerlevel10k-ia --noconfirm"
-
+arch_chroot "pacman -Syy"
 
 		arch_chroot "pacman -Qqe > pkglist.txt"
 		if grep -q awesome-utils-ia "/mnt/pkglist.txt"; then
