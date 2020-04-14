@@ -1125,6 +1125,8 @@ wget https://raw.githubusercontent.com/wilssonmartee/instalarch/master/src/.last
 cd
 arch_chroot "chmod 755 /home/$username/.zshrc"
 arch_chroot "chown $username:users /home/$username/.zshrc"
+arch_chroot "chmod 755 /home/$username/.config"
+arch_chroot "chown -R $username:users /home/$username/.config"
 arch_chroot "chmod 755 /home/$username/.config/reflector/reflector.sh"
 arch_chroot "chown $username:users /home/$username/.config/reflector/reflector.sh"
 arch_chroot "chmod 755 /home/$username/.config/reflector/.lastsync.txt"
