@@ -874,10 +874,11 @@ ucodedownloaded=""
 while [ "$ucodedownloaded" == "" ] ; do
 proc=$(grep -m1 vendor_id /proc/cpuinfo | awk '{print $3}')
 if [ "$proc" = "GenuineIntel" ]
-then pacstrap /mnt intel-ucode gotop-git
+then
+arch_chroot "pacman -S --noconfirm intel-ucode gotop-git"
 elif [ "$proc" = "AuthenticAMD" ]
 then
-pacstrap /mnt amd-ucode gotop-git
+arch_chroot "pacman -S --noconfirm amd-ucode gotop-git"
 fi
 
 arch_chroot "pacman -Qqe > pkglist.txt"
