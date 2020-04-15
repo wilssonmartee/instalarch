@@ -809,7 +809,7 @@ echo "# Instalando gestor de paquetes grafico..."
 
 gpgdownloaded=""
 while [ "$gpgdownloaded" == "" ] ; do
-arch_chroot "pacman -S --noconfirm $pack"
+arch_chroot "pacman -Sy --noconfirm $pack"
 
 arch_chroot "pacman -Qqe > pkglist.txt"
 if grep -q $pack "/mnt/pkglist.txt"; then
@@ -847,7 +847,7 @@ echo "# Instalando AUR Herlper..."
 
 yaydownloaded=""
 while [ "$yaydownloaded" == "" ] ; do
-arch_chroot "pacman -S --noconfirm yay"
+arch_chroot "pacman -Sy --noconfirm yay"
 
 arch_chroot "pacman -Qqe > pkglist.txt"
 if grep -q yay "/mnt/pkglist.txt"; then
@@ -878,7 +878,7 @@ then
 arch_chroot "pacman -S --noconfirm intel-ucode gotop-git"
 elif [ "$proc" = "AuthenticAMD" ]
 then
-arch_chroot "pacman -S --noconfirm amd-ucode gotop-git"
+arch_chroot "pacman -Sy --noconfirm amd-ucode gotop-git"
 fi
 
 arch_chroot "pacman -Qqe > pkglist.txt"
