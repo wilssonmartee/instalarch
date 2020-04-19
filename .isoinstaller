@@ -797,7 +797,7 @@ arch_chroot "systemctl enable NetworkManager"
 echo "69"
 echo "# Actualizando pacman.conf..."
 # adding revenge_repo
-echo -e "\n[instalarch]" >> /mnt/etc/pacman.conf;echo -e "SigLevel = Optional TrustAll" >> /mnt/etc/pacman.conf;echo -e "Server = https://downloads.sourceforge.net/project/instalarch/x86_64\n" >> /mnt/etc/pacman.conf
+echo -e "\n[instalarch]" >> /mnt/etc/pacman.conf;echo -e "SigLevel = Optional TrustAll" >> /mnt/etc/pacman.conf;echo -e "Server = https://github.com/wilssonmartee/instalarch/releases/download/1/\nServer = https://downloads.sourceforge.net/project/instalarch/x86_64\n" >> /mnt/etc/pacman.conf
 echo "# Sincronizando base de datos..."
 arch_chroot "pacman -Syy"
 
