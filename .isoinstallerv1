@@ -326,8 +326,9 @@ fi
 if [ "$keymap" = "" ]
 then keymap
 fi
-timezone
+clock
 }
+
 timezone() {
 zones=$(cat /usr/share/zoneinfo/zone.tab | awk '{print $3}' | grep "/" | sed "s/\/.*//g" | sort -ud | sort | awk '{ printf " FALSE ""\0"$0"\0" }')
 
@@ -357,7 +358,7 @@ clock() {
 # Getting Clock Preference
 clock=$(zenity --list --radiolist --ok-label="Siguiente" --cancel-label="Atras" --height=500 --width=650 --title="$title" --text "Desea utilizar UTC o Local Time\nUTC es recomenado si no tienes dual boot con Windows." --column Seleccion --column Tiempo TRUE utc FALSE localtime)
 if [ "$?" = "1" ]
-then subzones
+then keymap
 fi
 hostnamez
 }
@@ -554,7 +555,10 @@ if [ "$?" = "1" ]
 else 
 title="Instalando - $titlep"
 
-(
+
+yadconfig="--progress --center --no-buttons --auto-close  --width=800 --height=500 --log-expanded --log-on-top --log-height=400 --no-cancel"
+i=0
+{   
 
 #start partitions
 if [ "$ans" = "Particionado Manual" ]
@@ -643,14 +647,11 @@ fi
 #End partitions
 
 echo "# Buscando los servidores mas rapidos..."
-rank=$(curl -s "https://www.archlinux.org/mirrorlist/?country="$country"&protocol=https&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors -n 10 -)
-echo -e "$rank" > /etc/pacman.d/mirrorlrankmirrorist
-echo -e "$rank" > .mirrors.txt
+reflector -l 10 --sort rate --save /etc/pacman.d/mirrorlist
 # updating pacman cache
 echo "5"
 echo "# Sincronizando base de datos y claves..."
-pacman -Syy
-pacman-key --populate archlinux
+pacman -Sy archlinux-keyring --noconfirm
 echo "10"
 #installing base
 echo "# Instalando Base (esto puede demorar)..."
@@ -685,7 +686,7 @@ elif [ "$kernel" = "linux-hardened" ]
 elif [ "$kernel" = "linux-zen" ]
 	then pacstrap /mnt linux-firmware mkinitcpio linux-headers linux-zen
 fi
-
+cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
 arch_chroot "pacman -Qqe > pkglist.txt"
 if grep -q linux-firmware "/mnt/pkglist.txt"; then
 kerneldownloaded="yes"
@@ -1033,7 +1034,7 @@ echo "95"
 #setting timezone
 echo "# Configurando zona horaria..."
 arch_chroot "rm /etc/localtime"
-arch_chroot "ln -s /usr/share/zoneinfo/${zone}/${subzone} /etc/localtime"
+arch_chroot "ln -s /usr/share/zoneinfo/$(curl https://ipapi.co/timezone) /etc/localtime"
 
 #setting hw clock
 echo "# Configurando hora del sistema..."
@@ -1166,6 +1167,19 @@ echo "# Desmontando particiones..."
 umount -R /mnt
 echo "100"
 echo "# Instalacion finalizada!"
+
+
+#### Commands
+   
+} | while read -r line; do 
+    echo "# ${line}"
+    ((i++))
+    echo $i; done | yad ${yadconfig} --percentage=0  --title="${title}" --enable-log="Descargando paquetes"
+
+(
+	echo "# Instalacion finalizada!"
+echo "100"
+
 ) | zenity --progress --percentage=0 --title="$title" --ok-label="Reiniciar" --width=450 --no-cancel
 reboot
 fi
@@ -1207,7 +1221,10 @@ else
         echo "0" >> $redfile
                 
 fi
+
 ) | zenity --progress --title="$title" --width=450 --no-cancel --pulsate --auto-close
+
+
 
 int=$(cat "/tmp/.networks")
 if [ "$int" = "1" ]
@@ -1348,13 +1365,12 @@ fi
 wmctrldownloaded=""
 while [ "$wmctrldownloaded" == "" ] ; do
 echo "# Sincronizando base de datos... Espere un momento"
-pacman -Syy
 echo "# Actualizando claves... Espere un momento"
-pacman-key --populate archlinux 
+pacman -Sy archlinux-keyring --noconfirm
 echo "# Descargando dependencias... Espere un momento"
-pacman -S wmctrl --noconfirm
+pacman -S wmctrl yad reflector --noconfirm
 pacman -Qqe > pkglist.txt
-if grep -q wmctrl "pkglist.txt"; then
+if grep -q yad "pkglist.txt"; then
 wmctrldownloaded="yes"
 else
 res=$(zenity --error --height=100 --width=550 --extra-button="Reintentar" --ok-label="Reiniciar" --title="$titlep" --text "Ha ocurrido un error al descargar los paquetes, verifique su conexion a internet y pulse [Reintentar]. Si el problema persiste reinicie la instalacion")
