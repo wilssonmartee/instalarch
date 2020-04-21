@@ -292,17 +292,6 @@ fi
 configure() {
 	title="Configuraciones - $titlep"
 # Getting Locale
-country=$(zenity --list --radiolist --ok-label="Siguiente" --cancel-label="Atras" --title="$title" --height=500 --width=650 --column Seleccion --column Pais --text="Seleccion el codigo de su pais. Esto sera utilizado para buscar sevidores mas cerca de usted." TRUE TODOS FALSE AU FALSE AT FALSE BD FALSE BY FALSE BE FALSE BA FALSE BR FALSE BG FALSE CA FALSE CL FALSE CN FALSE CO FALSE HR FALSE CZ FALSE DE FALSE DK FALSE EE FALSE ES FALSE FR FALSE GB FALSE HU FALSE IE FALSE IL FALSE IN FALSE IT FALSE JP FALSE KR FALSE KZ FALSE LK FALSE LU FALSE LV FALSE MK FALSE NL FALSE NO FALSE NZ FALSE PT FALSE RO FALSE RS FALSE RU FALSE SU FALSE SG FALSE SK FALSE TR FALSE TW FALSE UA FALSE US FALSE UZ FALSE VN FALSE ZA)
-
-if [ "$?" = "1" ]
-then partition
-fi
-
-if [ "$country" = "TODOS" ]
-then 
-country="all"
-fi
-
 locales
 }
 
@@ -312,7 +301,7 @@ locales=$(cat /etc/locale.gen | grep -v "#  " | sed 's/#//g' | sed 's/ UTF-8//g'
 locale=$(zenity --list --radiolist --ok-label="Siguiente" --cancel-label="Atras" --height=500 --width=650 --title="$title" --text "Seleccione su idioma.\nPor defecto es Ingles Americano 'en_US.UTF-8'." --column Seleccion --column Idioma TRUE en_US.UTF-8 $locales)
 
 if [ "$?" = "1" ]
-then configure
+then partition
 fi
 keymap
 }
@@ -461,10 +450,17 @@ desktop
 desktop() {
 # Choosing Desktop
 title="Seleccion de escritorio - $titlep"
-desktops=$(zenity --list --height=500 --width=650 --ok-label="Siguiente" --cancel-label="Atras" --title="$title" --radiolist --text "Cual entorno de escritorio desea instalar?" --column Seleccion --column Escritorio --column Descripcion TRUE "awesome" "Awesome WM + Pack Customizado")
+desktops=$(zenity --list --height=500 --width=650 --ok-label="Siguiente" --cancel-label="Atras" --title="$title" --radiolist --text "Cual gestos de pantalla (WM) desea instalar?" --column Seleccion --column Paquete --column Descripcion TRUE "Ninguno" "Solo instalar Xorg" FALSE "awesome" "Awesome WM + Pack Customizado" FALSE "xmonad" "Proximamente" FALSE "i3-gaps" "Proximamente" FALSE "qtile" "Proximamente")
+
 if [ "$?" = "1" ]
 then videocont
 fi
+
+if [ "$desktops" != "awesome" ]
+then
+desktops="Ninguno"
+fi
+
 displaymanager
 }
 
@@ -474,14 +470,6 @@ dm=$(zenity --list --title="$title" --radiolist --ok-label="Siguiente" --cancel-
 if [ "$?" = "1" ]
 then desktop
 fi
-packagemanager
-}
-
-instalarchrepo() {
-	## Disabled
-	title="Repositorios - $titlep"
-zenity --question --title="$title" --ok-label="Si" --cancel-label="No" --height=100 --width=350 --text="Desea agregar el repositorio oficial de Instalarch?     "
-rr="$?"
 packagemanager
 }
 
@@ -554,8 +542,7 @@ if [ "$?" = "1" ]
 	then exit
 else 
 title="Instalando - $titlep"
-
-
+echo "0" >> percent
 yadconfig="--progress --center --no-buttons --auto-close  --width=800 --height=500 --log-expanded --log-on-top --log-height=400 --no-cancel"
 i=0
 {   
@@ -567,8 +554,6 @@ then
 
 if [ "$root_part" != "" ]
 then
-
-	
 echo "# Montando particion root..."
 touch .root_part.txt    
 echo $root_part >> .root_part.txt
@@ -650,8 +635,10 @@ echo "# Buscando los servidores mas rapidos..."
 reflector -l 10 --sort rate --save /etc/pacman.d/mirrorlist
 # updating pacman cache
 echo "5" >> percent
-echo "# Sincronizando base de datos y claves..."
-pacman -Sy archlinux-keyring --noconfirm
+echo "# Sincronizando base de datos..."
+pacman -Syy
+echo "# Actualizando claves..."
+pacman -S archlinux-keyring --noconfirm
 echo "10" >> percent
 #installing base
 echo "# Instalando Base (esto puede demorar)..."
@@ -676,16 +663,7 @@ echo "# Instalando kernel (esto puede demorar)..."
 echo "25" >> percent
 kerneldownloaded=""
 while [ "$kerneldownloaded" == "" ] ; do
-
-if [ "$kernel" = "linux" ]
-	then pacstrap /mnt linux-firmware mkinitcpio linux-headers linux
-elif [ "$kernel" = "linux-lts" ]
-	then pacstrap /mnt linux-firmware mkinitcpio linux-headers linux-lts
-elif [ "$kernel" = "linux-hardened" ]
-	then pacstrap /mnt linux-firmware mkinitcpio linux-headers linux-hardened
-elif [ "$kernel" = "linux-zen" ]
-	then pacstrap /mnt linux-firmware mkinitcpio linux-headers linux-zen
-fi
+pacstrap /mnt linux-firmware mkinitcpio linux-headers $kernel
 cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
 arch_chroot "pacman -Qqe > pkglist.txt"
 if grep -q linux-firmware "/mnt/pkglist.txt"; then
@@ -718,11 +696,10 @@ echo "# Instalando complementos..."
 complementsdownloaded=""
 while [ "$complementsdownloaded" == "" ] ; do
 
-pacstrap /mnt networkmanager ifplugd xf86-input-synaptics git wget xdg-user-dirs acpi pulseaudio pulseaudio-alsa alsa-utils fzf ntfs-3g shotwell noto-fonts-emoji gedit htop lsb-release nautilus gparted neofetch unzip reflector
-
+pacstrap /mnt networkmanager ifplugd xf86-input-synaptics gtk2 gtk3 wget xdg-user-dirs acpi pulseaudio pulseaudio-alsa alsa-utils fzf ntfs-3g htop lsb-release neofetch unzip reflector
 
 arch_chroot "pacman -Qqe > pkglist.txt"
-if grep -q git "/mnt/pkglist.txt"; then
+if grep -q fzf "/mnt/pkglist.txt"; then
 complementsdownloaded="yes"
 else
 
@@ -743,6 +720,7 @@ echo "# Instalando servidor grafico..."
 xorgdownloaded=""
 while [ "$xorgdownloaded" == "" ] ; do
 pacstrap /mnt xorg xorg-apps xorg-xinit xorg-twm xorg-xclock $videocontroller
+echo "59" >> percent
 arch_chroot "pacman -Rns xorg-docs --noconfirm"
 arch_chroot "pacman -Qqe > pkglist.txt"
 if grep -q xorg-xinit "/mnt/pkglist.txt"; then
@@ -784,11 +762,8 @@ else
 fi
 
 done
-
-
 echo "68" >> percent
 ##
-
 ##
 echo "# Habilitando servicios..."
 # enabling network manager
@@ -803,7 +778,7 @@ echo "# Sincronizando base de datos..."
 arch_chroot "pacman -Syy"
 
 echo "70" >> percent
-# installing pamac-aur
+# installing pamac-aur - octopi
 if [ "$pm" = "0" ]
 then
 echo "# Instalando gestor de paquetes grafico..."
@@ -825,20 +800,9 @@ else
 	fi
 
 fi
-
 done
+fi
 
-fi
-echo "73" >> percent
-#multilib
-multilib="1"
-if [ "$multilib" = "0" ]
-then
-echo "# Habilitando multilib..."
-echo -e "\n[multilib]" >> /mnt/etc/pacman.conf;echo -e "Include = /etc/pacman.d/mirrorlist\n" >> /mnt/etc/pacman.conf
-echo "# Sincronizando base de datos..."
-arch_chroot "pacman -Syy"
-fi
 echo "74" >> percent
 # AUR
 if [ "$abs" = "0" ]
@@ -848,7 +812,7 @@ echo "# Instalando AUR Herlper..."
 
 yaydownloaded=""
 while [ "$yaydownloaded" == "" ] ; do
-arch_chroot "pacman -Sy --noconfirm yay"
+arch_chroot "pacman -Sy yay --noconfirm"
 
 arch_chroot "pacman -Qqe > pkglist.txt"
 if grep -q yay "/mnt/pkglist.txt"; then
@@ -869,7 +833,7 @@ done
 
 fi
 echo "78" >> percent
-echo "# Instalando ucode..."
+echo "# Instalando ucode y gotop..."
 # installing ucode
 ucodedownloaded=""
 while [ "$ucodedownloaded" == "" ] ; do
@@ -922,8 +886,6 @@ if [ "$grb" = "0" ]
 		fi
 
 		done
-
-
 
 		echo "86" >> percent
 		if [ "$SYSTEM" = 'BIOS' ]
@@ -992,12 +954,8 @@ if [ "$grb" = "0" ]
 
 		fi
 fi
-echo "89" >> percent
-# running mkinit
-echo "# Ejecutando mkinitcpio..."
-arch_chroot "mkinitcpio -p $kernel"
-echo "91" >> percent
 
+echo "91" >> percent
 #root password
 echo "# Configurando usuario root..."
 touch .passwd
@@ -1054,7 +1012,7 @@ shelldownloaded=""
 while [ "$shelldownloaded" == "" ] ; do
 
 if [ "$shell" = "zsh" ]
-then arch_chroot "pacman -S --noconfirm zsh zsh-syntax-highlighting zsh-completions zsh-autosuggestions;chsh -s /usr/bin/zsh $username"
+then arch_chroot "pacman -S --noconfirm zsh zsh-syntax-highlighting zsh-completions zsh-autosuggestions zsh-theme-powerlevel10k-ia;chsh -s /usr/bin/zsh $username"
 elif [ "$shell" = "bash" ]
 then arch_chroot "pacman -S --noconfirm bash;chsh -s /bin/bash $username"
 elif [ "$shell" = "fish" ]
@@ -1138,15 +1096,16 @@ arch_chroot "chown $username:users /home/$username/.config/reflector/.lastsync.t
 echo "# Instalando extras..."
 echo "99" >> percent
 
-
+if [ "$desktops" != "Ninguno" ]
+then
 utilsdownloaded=""
 		while [ "$utilsdownloaded" == "" ] ; do
-	
-arch_chroot "pacman -S awesome-utils-ia zsh-theme-powerlevel10k-ia --noconfirm"
+
+arch_chroot "pacman -S ${desktops}-utils-ia --noconfirm"
 arch_chroot "pacman -Sy"
 
 		arch_chroot "pacman -Qqe > pkglist.txt"
-		if grep -q awesome-utils-ia "/mnt/pkglist.txt"; then
+		if grep -q ${desktops}-utils-ia "/mnt/pkglist.txt"; then
 		utilsdownloaded="yes"
 		else
 
@@ -1160,7 +1119,7 @@ arch_chroot "pacman -Sy"
 		fi
 
 		done
-
+fi
 
 # unmounting partitions
 echo "# Desmontando particiones..."
@@ -1204,156 +1163,7 @@ Parted() {
 
 ######### iso ##########
 
-test(){
-(
-echo "# Verificando conexion a internet..."
-redfile="/tmp/.networks"
-> $redfile
-wget -q --tries=10 --timeout=20 --spider http://google.com
-if [[ $? -eq 0 ]]; then
-		sleep 2
-        echo "# Estas conectado!"
-        echo "1" >> $redfile
-     
-else
-		sleep 2
-        echo "# Fallo conexion"
-        echo "0" >> $redfile
-                
-fi
-
-) | zenity --progress --title="$title" --width=450 --no-cancel --pulsate --auto-close
-
-
-
-int=$(cat "/tmp/.networks")
-if [ "$int" = "1" ]
-then
-		
-        getpackets
-     
-else
-		nointernet
-                
-fi
-
-}
-
-getpackets() {
-
-wget https://raw.githubusercontent.com/wilssonmartee/instalarch/master/.isoinstaller
-if [ -f ".isoinstaller" ] ; then
-sh .isoinstaller
-
-else
-test
-fi
-}
-nointernet() {
-zenity --question --height=100 --width=450 --title="$title" --ok-label="Utilizar red wifi" --cancel-label="Atras" --text "Ups! Parece que no tienes acceso a internet, si deseas conectarte a una red wifi pulsa Utilizar red wifi, si ya estas conectado via cable o wifi asegurate de contar con una buena conexion."
-
-if [ "$?" = "1" ]
-then 
-start
-else
-connection
-fi
-
-}
-
-connection() {
-(
-echo "# Escaneando redes disponibles..."
-nmcli dev wifi rescan
-
-########################### Start nmcli ###########################	
-ssidred="None"
-declare -i nrr=2
-
-while [ "$ssidred" != "" ] ; do
-ssidred="$(echo 'print devices' | nmcli -f ssid dev wifi list | awk '{if (NR=='"$nrr"') {print}}')" 
-securityred="$(echo 'print devices' | nmcli -f security dev wifi list | awk '{if (NR=='"$nrr"') {print}}')" 
-bars="$(echo 'print devices' | nmcli -f bars dev wifi list | awk '{if (NR=='"$nrr"') {print}}')" 
-
-
-if [ "$ssidred" != "" ] ; then
-ssid="$(echo $ssidred | sed 's/ *$//g')"
-securityred="$(echo $securityred | sed 's/ *$//g')"
-networks="$(echo -e "'FALSE' \ '"$ssid"' \ '"$securityred"' \ '"$bars"' \ ")"
-net=$net" "$networks
-fi
-nrr=$nrr+1
-done
-
-
-net="$(echo $net | sed 's/'\''/"/g')"
-netfile="/tmp/.networks"
-> $netfile
-
-echo "zenity --list --print-column='ALL' --ok-label="Conectar" --cancel-label="Atras" --title='Conectate a una red wifi' --text='Seleccione la red que desea utilizar' --width=650 --height=500 --radiolist \\" >> $netfile
-echo "--column='Seleccione' \\" >> $netfile
-echo "--column='SSID            ' \\" >> $netfile
-echo "--column='Seguridad    ' \\" >> $netfile
-echo "--column='Señal' \\" >> $netfile
-echo $net >> $netfile
-) | zenity --progress --title="Escaneando" --width=450 --no-cancel --pulsate --auto-close
-selected=$(source "/tmp/.networks")
-if [ "$?" = "1" ]
-then start
-fi
-
-if [ "$selected" = "" ]
-then
-	zenity --error --height=100 --width=350 --title="Error" --text "Debe seleccionar una red.                                "
-	connection
-fi
-
-IFS='|' read -a conexion <<< "$selected"
-ssidselect=$(echo ${conexion[0]} | sed -e 's/^ *//g' -e 's/ *$//g')
-sec=$(echo ${conexion[1]} | sed "s# ##g")
-
-pass
-}
-
-
-pass() {
-
-if [ $sec == "--" ] 
-then
-	if [ "$int" = "0" ]
-		then
-(
-echo "# Conectandose a $ssidselect..."
-nmcli dev wifi connect "$ssidselect"
-) | zenity --progress --title="Conectando" --width=450 --no-cancel --pulsate --auto-close
-fi
-fi
-
-if [ $sec != "--" ] 
-then
-redpass=$(zenity --entry --title="Contraseña" --width=450 --ok-label="Siguiente" --cancel-label="Atras" --text "Introduzca la contraseña de ${conexion[0]}." )
-
-if [ "$?" = "1" ]
-then 
-connection
-fi
-
-	if [ "$redpass" != "" ]
-	then
-		if [ "$int" = "0" ]
-		then
-		(
-	echo "# Conectandose a $ssidselect..."
-	nmcli dev wifi connect "$ssidselect" password "$redpass"
-	) | zenity --progress --title="Conectando" --width=450 --no-cancel --pulsate --auto-close
-	fi
-fi
-fi	
-test
-
-}
 titlep="Instalarch [$SYSTEM]"
-########################### End nmcli ###########################
 start() {
 zenity --question --height=120 --width=650 --title="$titlep" --ok-label="Iniciar instalacion" --cancel-label="Salir" --text 'El proceso de instalacion esta por iniciar, asegurese de hacer un backup de su informacion mas importante por su seguridad.'
 
@@ -1389,5 +1199,5 @@ partition
 n="0"
 if [ "$n" = "0" ]
 	then 
-start
+partition
 fi
