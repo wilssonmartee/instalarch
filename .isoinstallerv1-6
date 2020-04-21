@@ -450,7 +450,7 @@ desktop
 desktop() {
 # Choosing Desktop
 title="Seleccion de escritorio - $titlep"
-desktops=$(zenity --list --height=500 --width=650 --ok-label="Siguiente" --cancel-label="Atras" --title="$title" --radiolist --text "Cual gestos de pantalla (WM) desea instalar?" --column Seleccion --column Paquete --column Descripcion TRUE "Ninguno" "Solo instalar Xorg" FALSE "awesome" "Awesome WM + Pack Customizado" FALSE "xmonad" "Proximamente" FALSE "i3-gaps" "Proximamente" FALSE "qtile" "Proximamente")
+desktops=$(zenity --list --height=500 --width=650 --ok-label="Siguiente" --cancel-label="Atras" --title="$title" --radiolist --text "Cual gestor de ventanas (WM) desea instalar?" --column Seleccion --column Paquete --column Descripcion TRUE "Ninguno" "Solo instalar Xorg" FALSE "awesome" "Awesome WM + Pack Customizado" FALSE "xmonad" "Proximamente" FALSE "i3-gaps" "Proximamente" FALSE "qtile" "Proximamente")
 
 if [ "$?" = "1" ]
 then videocont
@@ -564,7 +564,6 @@ echo $root_part >> .root_part.txt
 	fi
 ##mkfs.ext4 -F $root_part
 mount $root_part /mnt
-echo "# Montando particion root..."
 
 fi
 
@@ -696,7 +695,7 @@ echo "# Instalando complementos..."
 complementsdownloaded=""
 while [ "$complementsdownloaded" == "" ] ; do
 
-pacstrap /mnt networkmanager ifplugd xf86-input-synaptics gtk2 gtk3 wget xdg-user-dirs acpi pulseaudio pulseaudio-alsa alsa-utils fzf ntfs-3g htop lsb-release neofetch unzip reflector
+pacstrap /mnt networkmanager ifplugd xf86-input-synaptics gtk2 gtk3 wget xdg-user-dirs acpi pulseaudio pulseaudio-alsa alsa-utils fzf ntfs-3g htop lsb-release neofetch unzip reflector udiskie
 
 arch_chroot "pacman -Qqe > pkglist.txt"
 if grep -q fzf "/mnt/pkglist.txt"; then
@@ -1012,7 +1011,7 @@ shelldownloaded=""
 while [ "$shelldownloaded" == "" ] ; do
 
 if [ "$shell" = "zsh" ]
-then arch_chroot "pacman -S --noconfirm zsh zsh-syntax-highlighting zsh-completions zsh-autosuggestions zsh-theme-powerlevel10k-ia;chsh -s /usr/bin/zsh $username"
+then arch_chroot "pacman -S --noconfirm zsh zsh-syntax-highlighting zsh-completions zsh-autosuggestions;chsh -s /usr/bin/zsh $username"
 elif [ "$shell" = "bash" ]
 then arch_chroot "pacman -S --noconfirm bash;chsh -s /bin/bash $username"
 elif [ "$shell" = "fish" ]
@@ -1101,7 +1100,7 @@ then
 utilsdownloaded=""
 		while [ "$utilsdownloaded" == "" ] ; do
 
-arch_chroot "pacman -S ${desktops}-utils-ia --noconfirm"
+arch_chroot "pacman -S ${desktops}-utils-ia zsh-theme-powerlevel10k-ia --noconfirm"
 arch_chroot "pacman -Sy"
 
 		arch_chroot "pacman -Qqe > pkglist.txt"
