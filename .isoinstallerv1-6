@@ -543,7 +543,7 @@ if [ "$?" = "1" ]
 else 
 title="Instalando - $titlep"
 echo "0" >> percent
-yadconfig="--progress --center --no-buttons --auto-close  --width=800 --height=500 --log-expanded --log-on-top --log-height=400 --no-cancel"
+yadconfig="--progress --center --no-buttons --auto-close  --width=700 --height=400 --log-expanded --log-on-top --log-height=380 --no-cancel"
 i=0
 {   
 
