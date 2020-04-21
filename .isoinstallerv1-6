@@ -1132,8 +1132,7 @@ echo "# Instalacion finalizada!"
    
 } | while read -r line; do 
     echo "# ${line}"
-    ((i++))
-    echo $i; done | yad ${yadconfig} --percentage=0  --title="${title}" --enable-log="Descargando paquetes"
+    tail -1 percent; done | yad ${yadconfig} --percentage=0  --title="${title}" --enable-log="Descargando paquetes"
 
 (
 	echo "# Instalacion finalizada!"
