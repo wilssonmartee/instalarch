@@ -1030,7 +1030,7 @@ echo "# Obteniendo configuraciones..."
 utilsia=""
 		while [ "$utilsia" == "" ] ; do
 
-arch_chroot "pacman -S utils-ia --noconfirm"
+arch_chroot "pacman -S utils-ia zsh-theme-powerlevel10k-ia --noconfirm"
 arch_chroot "pacman -Sy"
 
 		arch_chroot "pacman -Qqe > pkglist.txt"
@@ -1057,7 +1057,7 @@ then
 utilsdownloaded=""
 		while [ "$utilsdownloaded" == "" ] ; do
 
-arch_chroot "pacman -S ${desktops}-utils-ia zsh-theme-powerlevel10k-ia --noconfirm"
+arch_chroot "pacman -S ${desktops}-utils-ia --noconfirm"
 arch_chroot "pacman -Sy"
 
 		arch_chroot "pacman -Qqe > pkglist.txt"
