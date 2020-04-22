@@ -466,7 +466,7 @@ displaymanager
 
 displaymanager() {
 	title="Gestor de pantalla - $titlep"
-dm=$(zenity --list --title="$title" --radiolist --ok-label="Siguiente" --cancel-label="Atras" --height=500 --width=650 --text "Cual gestor de pantalla desea instalar?" --column "Select" --column "Display Manager" TRUE "sddm" FALSE "lxdm" FALSE "lightdm" FALSE "gdm")
+dm=$(zenity --list --title="$title" --radiolist --ok-label="Siguiente" --cancel-label="Atras" --height=500 --width=650 --text "Cual gestor de pantalla desea instalar?" --column "Select" --column "Display Manager" TRUE "ly" FALSE "sddm" FALSE "lxdm" FALSE "lightdm" FALSE "gdm")
 if [ "$?" = "1" ]
 then desktop
 fi
@@ -739,28 +739,7 @@ done
 
 echo "63" >> percent
 
-# virtualbox
-echo "# Instalando escritorio..."
-# installing chosen desktop
-desktopdownloaded=""
-while [ "$desktopdownloaded" == "" ] ; do
-pacstrap /mnt $desktops
 
-arch_chroot "pacman -Qqe > pkglist.txt"
-if grep -q awesome "/mnt/pkglist.txt"; then
-desktopdownloaded="yes"
-else
-
-	res=$(zenity --error --height=100 --width=550 --extra-button="Reintentar" --ok-label="Reiniciar" --title="$title" --text "Ha ocurrido un error al descargar los paquetes, verifique su conexion a internet y pulse [Reintentar]. Si el problema persiste reinicie la instalacion")
-
-	if [ "$res" != "Reintentar" ]
-	then
-	reboot
-	fi
-
-fi
-
-done
 echo "68" >> percent
 ##
 ##
