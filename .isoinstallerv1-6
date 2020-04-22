@@ -750,7 +750,7 @@ arch_chroot "systemctl enable NetworkManager"
 
 echo "69" >> percent
 echo "# Actualizando pacman.conf..."
-# adding revenge_repo
+# adding repo
 echo -e "\n[instalarch]" >> /mnt/etc/pacman.conf;echo -e "SigLevel = Optional TrustAll" >> /mnt/etc/pacman.conf;echo -e "Server = https://github.com/wilssonmartee/instalarch/releases/download/1/\nServer = https://downloads.sourceforge.net/project/instalarch/x86_64\n" >> /mnt/etc/pacman.conf
 echo "# Sincronizando base de datos..."
 arch_chroot "pacman -Syy"
@@ -813,8 +813,6 @@ fi
 echo "78" >> percent
 echo "# Instalando ucode y gotop..."
 # installing ucode
-ucodedownloaded=""
-while [ "$ucodedownloaded" == "" ] ; do
 proc=$(grep -m1 vendor_id /proc/cpuinfo | awk '{print $3}')
 if [ "$proc" = "GenuineIntel" ]
 then
@@ -823,22 +821,6 @@ elif [ "$proc" = "AuthenticAMD" ]
 then
 arch_chroot "pacman -Sy --noconfirm amd-ucode gotop-git"
 fi
-
-arch_chroot "pacman -Qqe > pkglist.txt"
-if grep -q gotop-git "/mnt/pkglist.txt"; then
-ucodedownloaded="yes"
-else
-
-	res=$(zenity --error --height=100 --width=550 --extra-button="Reintentar" --ok-label="Reiniciar" --title="$title" --text "Ha ocurrido un error al descargar los paquetes, verifique su conexion a internet y pulse [Reintentar]. Si el problema persiste reinicie la instalacion")
-
-	if [ "$res" != "Reintentar" ]
-	then
-	reboot
-	fi
-
-fi
-
-done
 
 echo "83" >> percent
 if [ "$grb" = "0" ]
