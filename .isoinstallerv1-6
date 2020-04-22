@@ -450,13 +450,13 @@ desktop
 desktop() {
 # Choosing Desktop
 title="Seleccion de escritorio - $titlep"
-desktops=$(zenity --list --height=500 --width=650 --ok-label="Siguiente" --cancel-label="Atras" --title="$title" --radiolist --text "Cual gestor de ventanas (WM) desea instalar?" --column Seleccion --column Paquete --column Descripcion TRUE "Ninguno" "Solo instalar Xorg" FALSE "awesome" "Awesome WM + Pack Customizado" FALSE "xmonad" "Proximamente" FALSE "i3-gaps" "Proximamente" FALSE "qtile" "Proximamente")
+desktops=$(zenity --list --height=300 --width=650 --ok-label="Siguiente" --cancel-label="Atras" --title="$title" --radiolist --text "Cual gestor de ventanas (WM) desea instalar?" --column Seleccion --column Paquete --column Descripcion TRUE "Ninguno" "Solo instalar Xorg" FALSE "awesome" "Awesome WM + Pack Customizado" FALSE "xmonad" "Xmonad + Xmobar (Navy Blue)" FALSE "i3-gaps" "Proximamente" FALSE "qtile" "Proximamente")
 
 if [ "$?" = "1" ]
 then videocont
 fi
 
-if [ "$desktops" != "awesome" ]
+if [ "$desktops" = "i3-gaps" ] || [ "$desktops" = "qtile" ]
 then
 desktops="Ninguno"
 fi
