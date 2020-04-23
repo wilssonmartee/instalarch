@@ -450,7 +450,7 @@ desktop
 desktop() {
 # Choosing Desktop
 title="Seleccion de escritorio - $titlep"
-desktops=$(zenity --list --height=300 --width=650 --ok-label="Siguiente" --cancel-label="Atras" --title="$title" --radiolist --text "Cual gestor de ventanas (WM) desea instalar?" --column Seleccion --column Paquete --column Descripcion TRUE "Ninguno" "Solo instalar Xorg" FALSE "awesome" "Awesome WM + Pack Customizado" FALSE "xmonad" "Xmonad + Xmobar (Navy Blue)" FALSE "i3-gaps" "i3-gaps + Polybar (multicolor)" FALSE "qtile" "Proximamente")
+desktops=$(zenity --list --height=300 --width=650 --ok-label="Siguiente" --cancel-label="Atras" --title="$title" --radiolist --text "Cual gestor de ventanas (WM) desea instalar?" --column Seleccion --column Paquete --column Descripcion TRUE "awesome" "Awesome WM + Pack Customizado" FALSE "xmonad" "Xmonad + Xmobar (Navy Blue)" FALSE "i3-gaps" "i3-gaps + Polybar (multicolor)" FALSE "qtile" "Proximamente" FALSE "Ninguno" "Solo instalar Xorg" )
 
 if [ "$?" = "1" ]
 then videocont
@@ -466,7 +466,7 @@ displaymanager
 
 displaymanager() {
 	title="Gestor de pantalla - $titlep"
-dm=$(zenity --list --title="$title" --radiolist --ok-label="Siguiente" --cancel-label="Atras" --height=500 --width=650 --text "Cual gestor de pantalla desea instalar?" --column "Select" --column "Display Manager" TRUE "sddm" FALSE "lxdm" FALSE "lightdm" FALSE "gdm")
+dm=$(zenity --list --title="$title" --radiolist --ok-label="Siguiente" --cancel-label="Atras" --height=300 --width=650 --text "Cual gestor de pantalla desea instalar?" --column "Seleccion" --column "Display Manager" TRUE "ly" FALSE "sddm" FALSE "lxdm" FALSE "lightdm" FALSE "gdm" FALSE "Ninguno")
 if [ "$?" = "1" ]
 then desktop
 fi
@@ -816,7 +816,7 @@ echo "# Instalando ucode y gotop..."
 proc=$(grep -m1 vendor_id /proc/cpuinfo | awk '{print $3}')
 if [ "$proc" = "GenuineIntel" ]
 then
-arch_chroot "pacman -S --noconfirm intel-ucode gotop-git"
+arch_chroot "pacman -Sy --noconfirm intel-ucode gotop-git"
 elif [ "$proc" = "AuthenticAMD" ]
 then
 arch_chroot "pacman -Sy --noconfirm amd-ucode gotop-git"
@@ -994,8 +994,9 @@ done
 
 echo "97" >> percent
 
-# starting desktop manager
-
+if [ "$dm" != "Ninguno" ]
+then
+# desktop manager
 echo "# Configurando gestor de pantalla..."
 
 		dmdownloaded=""
@@ -1020,7 +1021,7 @@ fi
 		fi
 
 		done
-
+fi
 
 # copying files and configs
 echo "98" >> percent
