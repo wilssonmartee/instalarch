@@ -695,7 +695,7 @@ echo "# Instalando complementos..."
 complementsdownloaded=""
 while [ "$complementsdownloaded" == "" ] ; do
 
-pacstrap /mnt networkmanager ifplugd xf86-input-synaptics gtk2 gtk3 wget xdg-user-dirs acpi pulseaudio pulseaudio-alsa alsa-utils fzf ntfs-3g htop lsb-release neofetch unzip reflector udiskie
+pacstrap /mnt networkmanager ifplugd xf86-input-synaptics gtk2 gtk3 wget xdg-user-dirs acpi pulseaudio pulseaudio-alsa alsa-utils fzf ntfs-3g htop lsb-release neofetch unzip gvfs reflector udiskie
 
 arch_chroot "pacman -Qqe > pkglist.txt"
 if grep -q fzf "/mnt/pkglist.txt"; then
