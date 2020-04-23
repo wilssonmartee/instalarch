@@ -25,7 +25,7 @@ fi
 
 # Partitioning
 # Allow user to partition using gparted
-zenity --question --height=150 --width=450 --ok-label="Deseo particionar" --cancel-label="Ya he particionado" --title="$title" --text "Necesita particionar el disco $dev?\n \nDe ser asi formatee el disco o las particiones de ser necesario.\nEl instalador no formateara las particiones despues de esto."
+zenity --question --height=150 --width=450 --ok-label="Deseo particionar" --cancel-label="Ya he particionado" --title="$title" --text "Necesita particionar el disco $dev?\n \nDe ser asi formatee el disco o las particiones de ser necesario.\nEl instalador no realizara ningun cambio ni formateara las particiones despues de esto."
 if [ "$?" = "0" ]
 	then 
 
@@ -429,7 +429,7 @@ kernel
 
 kernel() {
 	title="Seleccion de kernel - $titlep"
-kernel=$(zenity --list  --ok-label="Siguiente" --cancel-label="Atras" --radiolist --height=500 --width=650 --title="$title" --text "Hay varios nucleos(kernel) disponibles:\n \n*El mas comun el el kernel linux.\nEste kernel es el más actualizado y proporciona el mejor soporte de hardware. Sin embargo, \npodría haber posibles errores en este núcleo, a pesar de las pruebas.\n \n*El kernel linux-lts esta enfocado mas en la estabilidad.\nSe basa en un núcleo antiguo, por lo que puede carecer de algunas características más nuevas.\n \n*El kernel linux-hardened esta enfocado en la seguridad\nContiene el parche de Grsecurity Patchset y PaX para una maxima seguridad.\n \n*El kernel linux-zen es el resultado de la colaboracion de hackers\npara proveer el mejor kernel posible para uso diario.\n \nSeleccione el kernel que desea instalar." --column "Seleccion" --column "Kernel" TRUE linux FALSE linux-lts FALSE linux-hardened FALSE linux-zen)
+kernel=$(zenity --list  --ok-label="Siguiente" --cancel-label="Atras" --radiolist --height=500 --width=650 --title="$title" --text "Hay varios nucleos(kernel) disponibles:\n \n*El mas comun es el kernel linux.\nEste kernel es el más actualizado y proporciona el mejor soporte de hardware. Sin embargo, \npodría haber posibles errores en este núcleo, a pesar de las pruebas.\n \n*El kernel linux-lts esta enfocado mas en la estabilidad.\nSe basa en un núcleo antiguo, por lo que puede carecer de algunas características más nuevas.\n \n*El kernel linux-hardened esta enfocado en la seguridad\nContiene el parche de Grsecurity Patchset y PaX para una maxima seguridad.\n \n*El kernel linux-zen es el resultado de la colaboracion de hackers\npara proveer el mejor kernel posible para uso diario.\n" --column "Seleccion" --column "Kernel" TRUE linux FALSE linux-lts FALSE linux-hardened FALSE linux-zen)
 
 if [ "$?" = "1" ]
 then user_password
