@@ -872,8 +872,7 @@ if [ "$grb" = "0" ]
 
 		done
 
-		#arch_chroot "grub-install --target=i386-pc $grub_device"
-		arch_chroot "grub-install $grub_device"
+		arch_chroot "grub-install --target=i386-pc $grub_device"
 		arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
 		
 		else
