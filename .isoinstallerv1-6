@@ -65,7 +65,7 @@ if [ "$?" = "1" ]
 then man_partition
 fi
 
-if [[ "$root_part" != *[!\ ]* ]]
+if [[ "$root_part" != *[!\ ]* ]] || [ "$root_part" = "(null)" ]
 then root_part
 else
 greplist=$greplist"\|"$root_part
@@ -80,7 +80,7 @@ swap_partition() {
 		if [ "$?" = "0" ]
 		then 
 
-			swapwap_part=$(zenity --list  --radiolist --ok-label="Siguiente" --cancel-label="Atras" --height=500 --width=650 --title="$title" --text="Seleccione la particion SWAP\nAdvertencia! la lista muestra todas las particiones disponibles.\nPor favor elige con cuidado." --column 'Seleccione' --column "Particiones                                               " --column 'Tamaño    ' --column 'Tipo' $(fdisk -l $dev -o Device,Size,Type | grep dev | grep -v $greplist | awk '{print $1 " " $2 " " $3}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
+			swap_part=$(zenity --list  --radiolist --ok-label="Siguiente" --cancel-label="Atras" --height=500 --width=650 --title="$title" --text="Seleccione la particion SWAP\nAdvertencia! la lista muestra todas las particiones disponibles.\nPor favor elige con cuidado." --column 'Seleccione' --column "Particiones                                               " --column 'Tamaño    ' --column 'Tipo' $(fdisk -l $dev -o Device,Size,Type | grep dev | grep -v $greplist | awk '{print $1 " " $2 " " $3}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
 			
 				
 			
@@ -89,7 +89,7 @@ swap_partition() {
 		then swap_partition
 		fi
 		
-		if [[ "$swap_part" != *[!\ ]* ]]
+		if [[ "$swap_part" != *[!\ ]* ]] || [ "$swap_part" = "(null)" ]
 		then swap_partition
 		else
 		greplist=$greplist"\|"$swap_part
@@ -121,7 +121,7 @@ boot_partition() {
 		then boot_partition
 		fi
 		
-		if [[ "$boot_part" != *[!\ ]* ]]
+		if [[ "$boot_part" != *[!\ ]* ]] || [ "$boot_part" = "(null)" ]
 		then boot_partition
 		else
 		greplist=$greplist"\|"$boot_part
@@ -146,7 +146,7 @@ home_partition() {
 		then home_partition
 		fi
 		
-		if [[ "$home_part" != *[!\ ]* ]]
+		if [[ "$home_part" != *[!\ ]* ]] || [ "$home_part" = "(null)" ]
 		then home_partition
 			
 		fi		
