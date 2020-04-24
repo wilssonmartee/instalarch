@@ -65,7 +65,7 @@ if [ "$?" = "1" ]
 then man_partition
 fi
 
-if [ "$root_part" = "" ]
+if [[ "$root_part" != *[!\ ]* ]]
 then root_part
 else
 greplist=$greplist"\|"$root_part
@@ -88,7 +88,8 @@ swap_partition() {
 		if [ "$?" = "1" ]
 		then swap_partition
 		fi
-		if [ "$swap_part" = "" ]
+		
+		if [[ "$swap_part" != *[!\ ]* ]]
 		then swap_partition
 		else
 		greplist=$greplist"\|"$swap_part
@@ -119,8 +120,8 @@ boot_partition() {
 		if [ "$?" = "1" ]
 		then boot_partition
 		fi
-
-		if [ "$boot_part" = "" ]
+		
+		if [[ "$boot_part" != *[!\ ]* ]]
 		then boot_partition
 		else
 		greplist=$greplist"\|"$boot_part
@@ -144,8 +145,8 @@ home_partition() {
 		if [ "$?" = "1" ]
 		then home_partition
 		fi
-
-		if [ "$home_part" = "" ]
+		
+		if [[ "$home_part" != *[!\ ]* ]]
 		then home_partition
 			
 		fi		
