@@ -24,8 +24,8 @@ then man_partition
 fi
 
 # Partitioning
-# Allow user to partition using gparted
-zenity --question --height=150 --width=450 --ok-label="Deseo particionar" --cancel-label="Ya he particionado" --title="$title" --text "Necesita particionar el disco $dev?\n \nDe ser asi formatee el disco o las particiones de ser necesario.\nEl instalador no realizara ningun cambio ni formateara las particiones despues de esto."
+# using gparted
+zenity --question --height=150 --width=650 --ok-label="Deseo particionar" --cancel-label="Ya he particionado" --title="$title" --text "Necesita particionar y/o formatear el disco $dev?\n \nDe ser asi seleccione [Deseo particionar] y realice todos los cambios pertinentes.\nEl instalador no realizara ningun cambio ni formateara las particiones despues de esto."
 if [ "$?" = "0" ]
 	then 
 
