@@ -196,19 +196,19 @@ title="Particionado automatico - $titlep"
         then
 	       (
 	       	echo "# Formateando disco [BIOS]..."
-		echo "25"
+		
 	        dd if=/dev/zero of=$dev bs=512 count=1
 		echo "# Creando particiones [BIOS]..."
-		echo "40"
+		
 	        Parted "mklabel msdos"
 	        Parted "mkpart primary ext4 1MiB 100%"
 	        Parted "set 1 boot on"
 	        mkfs.ext4 -F ${dev}1
 		echo "# Montando particiones [BIOS]..."
-		echo "60"
+		
 	        mount ${dev}1 /mnt
 		echo "# Creando archivo swap [BIOS]..."
-		echo "80"	
+		
 		
 		touch /mnt/swapfile
 		dd if=/dev/zero of=/mnt/swapfile bs=1M count=${swap_space}
@@ -216,17 +216,17 @@ title="Particionado automatico - $titlep"
 		mkswap /mnt/swapfile
 		swapon /mnt/swapfile
 		
-		echo "99"
+		
 		swapfile="yes"
-		) | zenity --progress --percentage=0 --title="$title" --width=450 --no-cancel --auto-close
+		) | zenity --progress --pulsate --title="$title" --width=450 --no-cancel --auto-close
 
 	    else
         (
         echo "# Formateando disco [UEFI]..."
-		echo "25"
+		
             	dd if=/dev/zero of=$dev bs=512 count=1
 		echo "# Creando particiones [UEFI]..."
-		echo "40"
+		
         Parted "mklabel gpt"
         Parted "mkpart primary fat32 1MiB 513MiB"
 		Parted "mkpart primary ext4 513MiB 100%"
@@ -234,13 +234,13 @@ title="Particionado automatico - $titlep"
 		mkfs.fat -F32 ${dev}1
 		mkfs.ext4 -F ${dev}2
 		echo "# Montando particiones [UEFI]..."
-		echo "60"
+		
 		mount ${dev}2 /mnt
 		mkdir -p /mnt/efi
 		mount ${dev}1 /mnt/efi
 		esp="/efi"
 		echo "# Creando archivo swap [UEFI]..."
-		echo "80"
+		
 		
 		touch /mnt/swapfile
 		dd if=/dev/zero of=/mnt/swapfile bs=1M count=${swap_space}
@@ -249,9 +249,9 @@ title="Particionado automatico - $titlep"
 		swapon /mnt/swapfile
 		
 		echo "# Creando archivo swap [UEFI]..."
-		echo "99"
+		
 		swapfile="yes"
-		) | zenity --progress --percentage=0 --title="$title" --width=450 --no-cancel --auto-close
+		) | zenity --progress --pulsate --title="$title" --width=450 --no-cancel --auto-close
 	fi
 	configure		
 }
