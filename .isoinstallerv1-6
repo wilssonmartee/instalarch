@@ -340,6 +340,7 @@ yad --image=error --text="Debe completar todos los campos, vuelva a intentarlo."
 userinfof
 fi
 
+# uppercase or character special
 if [[ "${userinfo[0]}" == *['!'@#\$%^\&*()_+]* ]] || [[ "${userinfo[0]}" == *[A-Z]* ]]
 then
  yad --image=error --text="No debe utilizar espacio, caracteres especiales o mayusculas en el nombre de usuario." --title="$title" --center --button=Reintentar --height=100 --width=550
