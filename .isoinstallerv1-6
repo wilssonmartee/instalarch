@@ -168,12 +168,6 @@ title="Particionado automatico - $titlep"
 
 	zenity --question --height=120 --ok-label="Siguiente" --cancel-label="Atras" --width=650 --title="$title" --text " \nAdvertencia! Esto borrará todos los datos en $dev\. $dev1 Esta seguro que desea continuar?"
         yn="$?"
-	> .root_part.txt
-        touch .root_part.txt
-        if [ "$SYSTEM" = "BIOS" ]
-	then echo ${dev}"1" >> .root_part.txt
-	else echo ${dev}"2" >> .root_part.txt
-        fi 
 	if [ "$yn" = "1" ]
 	then partition
 	fi
@@ -505,8 +499,7 @@ then
 if [ "$root_part" != "" ]
 then
 echo "# Montando particion root..."
-touch .root_part.txt    
-echo $root_part >> .root_part.txt
+
 	if [ "$SYSTEM" = "BIOS" ]
 	then
 	root_number=$(echo $root_part | sed "s#$dev##g")
