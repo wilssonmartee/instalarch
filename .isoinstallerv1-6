@@ -770,18 +770,19 @@ done
 
 fi
 echo "78" >> percent
-echo "# Instalando ucode y gotop..."
+echo "# Instalando gotop..."
 # installing ucode
-proc=$(grep -m1 vendor_id /proc/cpuinfo | awk '{print $3}')
-if [ "$proc" = "GenuineIntel" ]
-then
-arch_chroot "pacman -Sy --noconfirm intel-ucode gotop-git"
-elif [ "$proc" = "AuthenticAMD" ]
-then
-arch_chroot "pacman -Sy --noconfirm amd-ucode gotop-git"
-fi
+#proc=$(grep -m1 vendor_id /proc/cpuinfo | awk '{print $3}')
+#if [ "$proc" = "GenuineIntel" ]
+#then
+#arch_chroot "pacman -Sy --noconfirm intel-ucode gotop-git"
+#elif [ "$proc" = "AuthenticAMD" ]
+#then
+#arch_chroot "pacman -Sy --noconfirm amd-ucode gotop-git"
+#fi
 
-echo "83" >> percent
+arch_chroot "pacman -Sy --noconfirm gotop-git"
+echo "80" >> percent
 if [ "$grb" = "0" ]
 	then 
 		echo "# Instalando os-prober..."
@@ -806,7 +807,7 @@ if [ "$grb" = "0" ]
 
 		done
 
-		echo "86" >> percent
+		echo "84" >> percent
 		if [ "$SYSTEM" = 'BIOS' ]
 		then echo "# Instalando Bootloader (BIOS)..."
 		
@@ -871,7 +872,7 @@ if [ "$grb" = "0" ]
 		fi
 fi
 
-echo "91" >> percent
+echo "88" >> percent
 #root password
 echo "# Configurando usuario root..."
 touch .passwd
@@ -887,7 +888,7 @@ touch .passwd
 echo -e "$userpasswd\n$userpasswd2" > .passwd
 arch_chroot "passwd $username" < .passwd >/dev/null
 rm .passwd
-echo "93" >> percent
+echo "89" >> percent
 #setting locale
 
 echo "# Configurando idioma..."
@@ -903,7 +904,7 @@ localectl set-x11-keymap $keymap
 cp /etc/vconsole.conf /mnt/etc/vconsole.conf
 cp /etc/X11/xorg.conf.d/* /mnt/etc/X11/xorg.conf.d/
 
-echo "95" >> percent
+echo "90" >> percent
 
 #setting timezone
 echo "# Configurando zona horaria..."
@@ -949,7 +950,7 @@ fi
 
 done
 
-echo "97" >> percent
+echo "93" >> percent
 
 if [ "$dm" != "Ninguno" ]
 then
@@ -981,7 +982,7 @@ fi
 fi
 
 # copying files and configs
-echo "98" >> percent
+echo "95" >> percent
 echo "# Obteniendo configuraciones..."
 
 utilsia=""
@@ -1007,7 +1008,7 @@ arch_chroot "pacman -Sy"
 		done
 
 echo "# Instalando extras..."
-echo "99" >> percent
+echo "96" >> percent
 
 if [ "$desktops" != "Ninguno" ]
 then
@@ -1033,14 +1034,13 @@ arch_chroot "pacman -Sy"
 
 		done
 fi
-
+echo "99" >> percent
 # unmounting partitions
 echo "# Desmontando particiones..."
 #umount -l /mnt
 umount -R /mnt
 echo "100" >> percent
 echo "# Instalacion finalizada!"
-
 
 #### Commands
    
