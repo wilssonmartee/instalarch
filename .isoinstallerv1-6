@@ -302,31 +302,6 @@ fi
 clock
 }
 
-timezone() {
-zones=$(cat /usr/share/zoneinfo/zone.tab | awk '{print $3}' | grep "/" | sed "s/\/.*//g" | sort -ud | sort | awk '{ printf " FALSE ""\0"$0"\0" }')
-
-zone=$(zenity --list --radiolist --ok-label="Siguiente" --cancel-label="Atras" --height=500 --width=650 --title="$title" --text "Seleccione la zona de su pais." --column Seleccion --column Zona $zones)
-if [ "$?" = "1" ]
-then keymap
-fi
-if [ "$zone" = "" ]
-then timezone
-fi
-subzones
-}
-subzones() {
-subzones=$(cat /usr/share/zoneinfo/zone.tab | awk '{print $3}' | grep "$zone/" | sed "s/$zone\///g" | sort -ud | sort | awk '{ printf " FALSE ""\0"$0"\0" }')
-
-subzone=$(zenity --list --radiolist --ok-label="Siguiente" --cancel-label="Atras" --height=500 --width=650 --title="$title" --text "Seleccione su sub-zona." --column Seleccion --column Sub-Zona $subzones)
-if [ "$?" = "1" ]
-then timezone
-fi
-if [ "$subzone" = "" ]
-then subzones
-fi
-clock
-}
-
 clock() {
 # Getting Clock Preference
 clock=$(zenity --list --radiolist --ok-label="Siguiente" --cancel-label="Atras" --height=220 --width=650 --title="$title" --text "Desea utilizar UTC o Local Time\nUTC es recomenado si no tienes dual boot con Windows." --column Seleccion --column Tiempo TRUE utc FALSE localtime)
@@ -335,7 +310,7 @@ then keymap
 fi
 hostnamez
 }
-# Getting hostname, username, root password, and user password
+# Getting hostname, user info, root password
 hostnamez() {
 	title="Configuraciones - $titlep"
 hname=$(zenity --entry --title="$title" --width=450 --ok-label="Siguiente" --cancel-label="Atras" --text "Por favor introduzca el hostname para su equipo.\nTodas las letras deben ser minusculas." --entry-text "instalarch")
@@ -345,67 +320,58 @@ fi
 if [ "$hname" = "" ]
 then hostnamez
 fi
-usernamez
+userinfof
 }
-usernamez(){
+
+userinfof() {
 	title="Configurando usuarios - $titlep"
-username=$(zenity --entry --title="$title" --width=450 --ok-label="Siguiente" --cancel-label="Atras" --text "Por favor introduzca el nombre de usuario para el nuevo usuario.\nTodo en letras minusculas." --entry-text "miusuario")
+userinfo=$(yad --image=list-add-user --title="$title" --text="Configuracion de usuario" --center --button=Atras:1 --button=Siguiente:0 --text-align=center --height=200 --width=650 --form --field="Digite el nuevo usuario:" --field="Introduzca una contraseña:":H --field="Confirme la contraseña:":H)
+
 if [ "$?" = "1" ]
 then hostnamez
 fi
-if [ "$username" = "" ]
-then usernamez
+
+userinfo=(${userinfo//|/ })
+
+if [[ "${userinfo[0]}" != *[!\ ]* ]] || [[ "${userinfo[1]}" != *[!\ ]* ]] || [[ "${userinfo[2]}" != *[!\ ]* ]]
+then
+yad --image=error --text="Debe completar todos los campos, vuelva a intentarlo." --title="$title" --center --button=Reintentar --height=100 --width=550
+userinfof
 fi
-root_password
+
+if [ "${userinfo[1]}" != "${userinfo[2]}" ]
+then
+yad --image=error --text="Las contraseñas no coinciden, vuelva a intentarlo." --title="$title" --center --button=Reintentar --height=100 --width=550
+userinfof
+fi
+username=${userinfo[0]}
+userpasswd=${userinfo[1]}
+userpasswd2=${userinfo[2]}
+rootinfof
 }
 
-root_password() {
-rtpasswd=$(zenity --entry --title="$title" --width=450 --ok-label="Siguiente" --cancel-label="Atras" --text "Introduzca la contraseña para root." --hide-text)
+rootinfof() {
+
+rootinfo=$(yad --image=im-kick-user --title="$title" --text="Configuracion del superusuario (root)" --center --button=Atras:1 --button=Siguiente:0 --text-align=center --height=200 --width=650 --form --field="Introduzca una contraseña:":H --field="Confirme la contraseña:":H)
+
 if [ "$?" = "1" ]
-then usernamez
-fi
-if [ "$rtpasswd" = "" ]
-then 
-zenity --error --height=100 --width=350 --title="$title" --text "No puede dejar este campo vacio."
-	root_password
+then userinfof
 fi
 
-rtpasswd2=$(zenity --entry --title="$title" --width=450 --ok-label="Siguiente" --cancel-label="Atras" --text "Vuelva a introducir la contraseña de root" --hide-text)
-if [ "$?" = "1" ]
-then root_password
-fi
-	if [ "$rtpasswd" != "$rtpasswd2" ]
-		then zenity --error --height=100 --width=350 --title="$title" --text "Las contraseñas no coinciden, vuelva a intentarlo."
-		root_password
-	fi
+rootinfo=(${rootinfo//|/ })
 
-
-user_password
-}
-
-
-user_password() {
-	title="Configurando usuarios - $titlep"
-userpasswd=$(zenity --entry --title="$title" --width=450 --ok-label="Siguiente" --cancel-label="Atras" --text "Introduzca la contraseña para $username." --hide-text)
-if [ "$?" = "1" ]
-then root_password
-fi
-if [ "$userpasswd" = "" ]
-then 
-zenity --error --height=100 --width=350 --title="$title" --text "No puede dejar este campo vacio."
-	user_password
+if [[ "${rootinfo[0]}" != *[!\ ]* ]] || [[ "${rootinfo[1]}" != *[!\ ]* ]]
+then
+yad --image=error --text="Debe completar todos los campos, vuelva a intentarlo." --center --button=Reintentar --height=100 --width=550
 fi
 
-userpasswd2=$(zenity --entry --title="$title" --width=450 --ok-label="Siguiente" --cancel-label="Atras" --text "Vuelva a introducir la contraseña para $username." --hide-text)
-if [ "$?" = "1" ]
-then user_password
+if [ "${rootinfo[0]}" != "${rootinfo[1]}" ]
+then
+yad --image=error --text="Las contraseñas no coinciden, vuelva a intentarlo." --center --button=Reintentar --height=100 --width=550
+echo "Reintentar" 
 fi
-
-	if [ "$userpasswd" != "$userpasswd2" ]
-		then zenity --error --height=100 --width=450 --title="$title" --text "Las contraseñas no coinciden, vuelva a intentarlo."
-		user_password
-	fi
-
+rtpasswd=${rootinfo[0]}
+rtpasswd2=${rootinfo[1]}
 kernel
 }
 
@@ -416,7 +382,7 @@ kernel() {
 kernel=$(zenity --list  --ok-label="Siguiente" --cancel-label="Atras" --radiolist --height=520 --width=650 --title="$title" --text "Hay varios nucleos(kernel) disponibles:\n \n*El mas comun es el kernel linux.\nEste kernel es el más actualizado y proporciona el mejor soporte de hardware. Sin embargo, \npodría haber posibles errores en este núcleo, a pesar de las pruebas.\n \n*El kernel linux-lts esta enfocado mas en la estabilidad.\nSe basa en un núcleo antiguo, por lo que puede carecer de algunas características más nuevas.\n \n*El kernel linux-hardened esta enfocado en la seguridad\nContiene el parche de Grsecurity Patchset y PaX para una maxima seguridad.\n \n*El kernel linux-zen es el resultado de la colaboracion de hackers\npara proveer el mejor kernel posible para uso diario.\n" --column "Seleccion" --column "Kernel" TRUE linux FALSE linux-lts FALSE linux-hardened FALSE linux-zen)
 
 if [ "$?" = "1" ]
-then user_password
+then rootinfof
 fi
 videocont
 }
