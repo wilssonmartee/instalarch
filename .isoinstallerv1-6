@@ -1036,6 +1036,7 @@ fi
 
 # unmounting partitions
 echo "# Desmontando particiones..."
+#umount -l /mnt
 umount -R /mnt
 echo "100" >> percent
 echo "# Instalacion finalizada!"
