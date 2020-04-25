@@ -324,6 +324,7 @@ if [ "$?" = "1" ]
 then hostnamez
 fi
 
+# contain space
 if [[ "$userinfo" =~ \ |\' ]]
 then
 yad --image=error --text="No debe utilizar espacio ni caracteres especiales." --title="$title" --center --button=Reintentar --height=100 --width=550
@@ -332,12 +333,14 @@ fi
 
 userinfo=(${userinfo//|/ })
 
+# field empty
 if [[ "${userinfo[0]}" != *[!\ ]* ]] || [[ "${userinfo[1]}" != *[!\ ]* ]] || [[ "${userinfo[2]}" != *[!\ ]* ]]
 then
 yad --image=error --text="Debe completar todos los campos, vuelva a intentarlo." --title="$title" --center --button=Reintentar --height=100 --width=550
 userinfof
 fi
 
+# no matches
 if [[ "${userinfo[0]}" == *['!'@#\$%^\&*()_+]* ]] || [[ "${userinfo[0]}" == *[A-Z]* ]]
 then
  yad --image=error --text="No debe utilizar espacio, caracteres especiales o mayusculas en el nombre de usuario." --title="$title" --center --button=Reintentar --height=100 --width=550
