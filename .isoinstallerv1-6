@@ -266,7 +266,6 @@ fi
 
 }
 
-
 configure() {
 	title="Configuraciones - $titlep"
 # Getting Locale
@@ -819,7 +818,10 @@ if [ "$grb" = "0" ]
 		arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
 		
 		else
-		
+		if [ "$ans" = "Particionado Automatico" ]
+		then
+			esp="/efi"
+		fi
 		echo "# Instalando Bootloader (UEFI)..."
 
 		#instalando grub
