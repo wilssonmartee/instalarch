@@ -495,6 +495,7 @@ installing
 
 # Installation
 installing() {
+export LANG=${locale}
 	title="Instalacion - $titlep"
 zenity --question --height=150 --width=550 --ok-label="Continuar" --cancel-label="Abortar" --title="$title" --text "El proceso de instalacion esta por iniciar, todos los paquetes seran descargados desde internet, asi que asegurese de contar con una conexion constante a internet.\nEste proceso puede demorar."
 
@@ -895,7 +896,6 @@ echo "LANG=\"${locale}\"" > /mnt/etc/locale.conf
 echo "${locale} UTF-8" > /mnt/etc/locale.gen
 arch_chroot "locale-gen"
 arch_chroot "export LANG=${locale}"
-export LANG=${locale}
 echo "# Configurando mapa del teclado..."
 #setting keymap
 echo KEYMAP=$keymap >> /mnt/etc/vconsole.conf
