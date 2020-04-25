@@ -162,7 +162,7 @@ title="Particionado automatico - $titlep"
 	then partition
 	fi
 
-	if [ "$dev" = "" ]
+	if [[ "$dev" != *[!\ ]* ]] || [ "$dev" = "(null)" ]
 	then auto_partition
 	fi
 
