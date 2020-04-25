@@ -426,7 +426,7 @@ displaymanager
 
 displaymanager() {
 	title="Gestor de pantalla - $titlep"
-dm=$(zenity --list --title="$title" --radiolist --ok-label="Siguiente" --cancel-label="Atras" --height=300 --width=650 --text "Cual gestor de pantalla desea instalar?" --column "Seleccion" --column "Display Manager" TRUE "ly" FALSE "sddm" FALSE "lxdm" FALSE "lightdm" FALSE "gdm" FALSE "Ninguno")
+dm=$(zenity --list --title="$title" --radiolist --ok-label="Siguiente" --cancel-label="Atras" --height=300 --width=650 --text "Cual gestor de pantalla desea instalar?" --column "Seleccion" --column "Display Manager" TRUE "ly" FALSE "sddm" FALSE "lxdm" FALSE "lightdm" FALSE "Ninguno")
 if [ "$?" = "1" ]
 then desktop
 fi
