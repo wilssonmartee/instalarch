@@ -469,12 +469,14 @@ archuserrepo() {
 	title="Seleccion de paquetes - $titlep"
 zenity --question --height=100 --width=550 --ok-label="Si" --cancel-label="No" --title="$title" --text "Desea instalar yay (AUR Herlper)? Podras instalar paquetes del repositorio de usuarios."
 abs="$?"
-bootloader
+installing
 }
 
 
 # bootloader?
 bootloader() {
+
+####### disabled
 title="Bootloader - $titlep"
 grub=$(zenity --question --height=100 --width=550 --ok-label="Si" --cancel-label="No" --title="$title" --text "Desea instalar un cargador de arranque?\nLa respuesta usualmente es [ SI ], a menos que tenga otro arrancador que desee conservar")
 grb="$?"
@@ -789,8 +791,7 @@ echo "# Instalando gotop..."
 
 arch_chroot "pacman -Sy --noconfirm gotop-git"
 echo "80" >> percent
-if [ "$grb" = "0" ]
-	then 
+
 		echo "# Instalando os-prober..."
 		
 		osdownloaded=""
@@ -838,7 +839,7 @@ if [ "$grb" = "0" ]
 
 		done
 
-		arch_chroot "grub-install --target=i386-pc $grub_device"
+		arch_chroot "grub-install --target=i386-pc $dev"
 		arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
 		
 		else
@@ -876,7 +877,6 @@ if [ "$grb" = "0" ]
 				
 
 		fi
-fi
 
 echo "88" >> percent
 #root password
