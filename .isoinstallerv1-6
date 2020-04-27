@@ -376,13 +376,13 @@ rootinfo=(${rootinfo//|/ })
 
 if [[ "${rootinfo[0]}" != *[!\ ]* ]] || [[ "${rootinfo[1]}" != *[!\ ]* ]]
 then
-yad --image=error --text="Debe completar todos los campos, vuelva a intentarlo." --center --button=Reintentar --height=100 --width=550
+yad --image=error --text="Debe completar todos los campos, vuelva a intentarlo." --title="$title" --center --button=Reintentar --height=100 --width=550
 rootinfof
 fi
 
 if [ "${rootinfo[0]}" != "${rootinfo[1]}" ]
 then
-yad --image=error --text="Las contraseñas no coinciden, vuelva a intentarlo." --center --button=Reintentar --height=100 --width=550
+yad --image=error --text="Las contraseñas no coinciden, vuelva a intentarlo." --title="$title" --center --button=Reintentar --height=100 --width=550
 rootinfof
 fi
 rtpasswd=${rootinfo[0]}
