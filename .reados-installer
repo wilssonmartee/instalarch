@@ -25,7 +25,7 @@ fi
 
 # Partitioning
 # using gparted
-zenity --question --height=150 --width=650 --ok-label="Deseo particionar" --cancel-label="Ya he particionado" --title="$title" --text "Necesita particionar y/o formatear el disco $dev?\n \nDe ser asi seleccione [Deseo particionar] y realice todos los cambios pertinentes.\nEl instalador no realizara ningun cambio ni formateara las particiones despues de esto."
+zenity --question --height=150 --width=650 --ok-label="Deseo particionar" --cancel-label="Ya he particionado" --title="$title" --text "Necesita particionar y/o formatear el disco $dev?\n \nDe ser así seleccione [Deseo particionar] y realice todos los cambios pertinentes.\nEl instalador no realizará ningún cambio ni formateará las particiones después de esto."
 if [ "$?" = "0" ]
 	then 
 
@@ -35,10 +35,10 @@ if [ "$?" = "0" ]
 		 if [ "$SYSTEM" = "UEFI" ]
  		then
  		(sleep 3 && wmctrl -F -a "$title" -b add,above) &
- 		(zenity --list --title="$title" --ok-label="He terminado" --cancel-label="Atrás" --text="Sugerencia de particionado [UEFI]: *Formato de disco GPT\nUna vez termine el proceso pulse [He terminado] para continuar la instalación. \n*no ciere esta ventana.\n*formatee las particiones de ser necesario.\n*el instalador no formateara las particiones despues de esto." --column "Partición     " --column "Nombre       " --column "Sistema de archivos" --column "Tamaño" --width=450 --height=250 "${dev}X" "EFI" "fat32" "256-512MiB" "${dev}Y" "ROOT" "ext4" "16GiB+") ;
+ 		(zenity --list --title="$title" --ok-label="He terminado" --cancel-label="Atrás" --text="Sugerencia de particionado [UEFI]: *Formato de disco GPT\nUna vez termine el proceso pulse [He terminado] para continuar la instalación. \n*no cierre esta ventana.\n*formatee las particiones de ser necesario.\n*el instalador no formateará las particiones después de esto." --column "Partición     " --column "Nombre       " --column "Sistema de archivos" --column "Tamaño" --width=450 --height=250 "${dev}X" "EFI" "fat32" "256-512MiB" "${dev}Y" "ROOT" "ext4" "16GiB+") ;
  		else
  		(sleep 3 && wmctrl -F -a "$title" -b add,above) &
- 		(zenity --list --title="$title" --ok-label="He terminado" --cancel-label="Atrás" --text="Sugerencia de particionado [BIOS]: *Formato de disco MBR\nUna vez termine el proceso pulse [He terminado] para continuar la instalación. \n*no ciere esta ventana.\n*formatee las particiones de ser necesario.\n*el instalador no formateara las particiones despues de esto." --column "Partición     " --column "Nombre       " --column "Sistema de archivos" --column "Tamaño" --width=450 --height=250 "${dev}X" "ROOT" "ext4" "16GiB+") ;
+ 		(zenity --list --title="$title" --ok-label="He terminado" --cancel-label="Atrás" --text="Sugerencia de particionado [BIOS]: *Formato de disco MBR\nUna vez termine el proceso pulse [He terminado] para continuar la instalación. \n*no cierre esta ventana.\n*formatee las particiones de ser necesario.\n*el instalador no formateará las particiones después de esto." --column "Partición     " --column "Nombre       " --column "Sistema de archivos" --column "Tamaño" --width=450 --height=250 "${dev}X" "ROOT" "ext4" "16GiB+") ;
  		fi
 		
 		if [ "$?" = "0" ]; then 
@@ -311,7 +311,7 @@ hostnamez
 # Getting hostname, user info, root password
 hostnamez() {
 	title="Configuraciones - $titlep"
-hname=$(zenity --entry --title="$title" --width=450 --ok-label="Siguiente" --cancel-label="Atrás" --text "Por favor introduzca el hostname para su equipo.\nTodas las letras deben ser minusculas." --entry-text "instalarch")
+hname=$(zenity --entry --title="$title" --width=450 --ok-label="Siguiente" --cancel-label="Atrás" --text "Por favor introduzca el hostname para su equipo.\nTodas las letras deben ser minusculas." --entry-text "reados")
 if [ "$?" = "1" ]
 then clock
 fi
@@ -871,7 +871,7 @@ echo "80" >> percent
 
 		done
 
-		arch_chroot "grub-install --target=x86_64-efi --efi-directory=$esp --bootloader-id=Instalarch"
+		arch_chroot "grub-install --target=x86_64-efi --efi-directory=$esp --bootloader-id=Reados"
 		arch_chroot "grub-install --target=x86_64-efi --efi-directory=$esp --removable"
 		arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
 				
@@ -1082,7 +1082,7 @@ Parted() {
 
 ######### iso ##########
 
-titlep="Instalarch [$SYSTEM]"
+titlep="ReadOS - [$SYSTEM]"
 start() {
 zenity --question --height=120 --width=650 --title="$titlep" --ok-label="Iniciar instalación" --cancel-label="Salir" --text 'El proceso de instalación esta por iniciar, asegurese de hacer un backup de su informacion mas importante por su seguridad.'
 
