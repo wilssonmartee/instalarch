@@ -1,0 +1,1122 @@
+#!/bin/sh
+
+# Instalarch 1.6
+# Fork Revenge_Installer
+# á é í ó ú
+
+man_partition() {
+
+#
+title="Particionado manual - $titlep"
+> .devices1.txt
+lsblk -lno NAME,TYPE,SIZE | grep 'disk' | awk '{print "/dev/" $1 " " $3}' | sort -u > .devices1.txt
+devices1=` awk '{print "FALSE " $0}' .devices1.txt `
+#
+
+dev=$(zenity --list --ok-label="Siguiente" --cancel-label="Atrás" --radiolist --height=300 --width=650 --title="$title" --text "Seleccione el disco que desea utilizar para la instalación." --column Seleccione --column="Discos                 " --column Tamaño $devices1 )
+
+if [ "$?" = "1" ]
+then partition
+fi
+
+if [ "$dev" = "" ]
+then man_partition
+fi
+
+# Partitioning
+# using gparted
+zenity --question --height=150 --width=650 --ok-label="Deseo particionar" --cancel-label="Ya he particionado" --title="$title" --text "Necesita particionar y/o formatear el disco $dev?\n \nDe ser asi seleccione [Deseo particionar] y realice todos los cambios pertinentes.\nEl instalador no realizara ningun cambio ni formateara las particiones despues de esto."
+if [ "$?" = "0" ]
+	then 
+
+		gparted $dev & 
+		sleep 5
+		
+		 if [ "$SYSTEM" = "UEFI" ]
+ 		then
+ 		(sleep 3 && wmctrl -F -a "$title" -b add,above) &
+ 		(zenity --list --title="$title" --ok-label="He terminado" --cancel-label="Atrás" --text="Sugerencia de particionado [UEFI]: *Formato de disco GPT\nUna vez termine el proceso pulse [He terminado] para continuar la instalación. \n*no ciere esta ventana.\n*formatee las particiones de ser necesario.\n*el instalador no formateara las particiones despues de esto." --column "Partición     " --column "Nombre       " --column "Sistema de archivos" --column "Tamaño" --width=450 --height=250 "${dev}X" "EFI" "fat32" "256-512MiB" "${dev}Y" "ROOT" "ext4" "16GiB+") ;
+ 		else
+ 		(sleep 3 && wmctrl -F -a "$title" -b add,above) &
+ 		(zenity --list --title="$title" --ok-label="He terminado" --cancel-label="Atrás" --text="Sugerencia de particionado [BIOS]: *Formato de disco MBR\nUna vez termine el proceso pulse [He terminado] para continuar la instalación. \n*no ciere esta ventana.\n*formatee las particiones de ser necesario.\n*el instalador no formateara las particiones despues de esto." --column "Partición     " --column "Nombre       " --column "Sistema de archivos" --column "Tamaño" --width=450 --height=250 "${dev}X" "ROOT" "ext4" "16GiB+") ;
+ 		fi
+		
+		if [ "$?" = "0" ]; then 
+			pkill gparted 
+		else
+			pkill gparted
+			man_partition
+		fi
+
+fi
+root_part
+}
+
+root_part() {
+	greplist="Disk"
+	# Select root partition
+	
+ 			
+		root_part=$(zenity --list --radiolist --ok-label="Siguiente" --cancel-label="Atrás" --height=500 --width=650 --title="$title" --text="Seleccione la partición para ROOT\nAdvertencia! la lista muestra todas las particiones disponibles.\nPor favor elige con cuidado." --column 'Seleccione' --column "Particiones                                               " --column 'Tamaño    ' --column 'Tipo' $(fdisk -l $dev -o Device,Size,Type | grep dev | grep -v $greplist | awk '{print $1 " " $2 " " $3}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
+	
+	#mounting root partition
+
+if [ "$?" = "1" ]
+then man_partition
+fi
+
+if [[ "$root_part" != *[!\ ]* ]] || [ "$root_part" = "(null)" ]
+then root_part
+else
+greplist=$greplist"\|"$root_part
+fi
+
+swap_partition
+}
+swap_partition() {
+	# Swap partition?
+			
+	zenity --question --height=100 --width=350 --ok-label="Si" --cancel-label="No" --title="$title" --text " \n Desea utilizar una partición swap?                             "
+		if [ "$?" = "0" ]
+		then 
+
+			swap_part=$(zenity --list  --radiolist --ok-label="Siguiente" --cancel-label="Atrás" --height=500 --width=650 --title="$title" --text="Seleccione la partición SWAP\nAdvertencia! la lista muestra todas las particiones disponibles.\nPor favor elige con cuidado." --column 'Seleccione' --column "Particiones                                               " --column 'Tamaño    ' --column 'Tipo' $(fdisk -l $dev -o Device,Size,Type | grep dev | grep -v $greplist | awk '{print $1 " " $2 " " $3}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
+			
+				
+			
+
+		if [ "$?" = "1" ]
+		then swap_partition
+		fi
+		
+		if [[ "$swap_part" != *[!\ ]* ]] || [ "$swap_part" = "(null)" ]
+		then swap_partition
+		else
+		greplist=$greplist"\|"$swap_part
+		fi
+		
+		else
+		zenity --question --height=100 --width=350 --ok-label="Si" --cancel-label="No" --title="$title" --text " \nDesea crear un archivo swap?                                   "
+		if [ "$?" = "0" ]
+	 	then swapfile="yes"
+	 	
+		fi
+		fi
+
+boot_partition
+}
+
+boot_partition() {
+	# Boot Partition?
+	if [ "$SYSTEM" = "UEFI" ]
+ 		then
+
+ 			zenity --question --height=100 --width=550 --ok-label="Si" --cancel-label="No" --title="$title" --text "Desea compartir la partición ROOT con BOOT? (recomendado). \nSi la respuesta es [ SI ] la partición EFI sera destinada exclusivamente para el gestor de arranque, de lo contrario sera compartida con boot"
+		bootloc="$?"
+
+		boot_part=$(zenity --list  --radiolist --ok-label="Siguiente" --cancel-label="Atrás" --height=500 --width=650 --title="$title" --text="Seleccione la partición de arranque [EFI]\nAdvertencia! la lista muestra todas las particiones disponibles.\nPor favor elige con cuidado." --column 'Seleccione' --column "Particiones                                               " --column 'Tamaño    ' --column 'Tipo' $(fdisk -l $dev -o Device,Size,Type | grep dev | grep -v $greplist | awk '{print $1 " " $2 " " $3}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
+
+		if [ "$?" = "1" ]
+		then boot_partition
+		fi
+		
+		if [[ "$boot_part" != *[!\ ]* ]] || [ "$boot_part" = "(null)" ]
+		then boot_partition
+		else
+		greplist=$greplist"\|"$boot_part
+		fi	
+	fi
+
+home_partition
+
+}
+
+home_partition() {
+	# Home Partition?
+		zenity --question --height=100 --width=350 --ok-label="Si" --cancel-label="No" --title="$title" --text " \n Desea utilizar una partición separada para /home?  "
+		if [ "$?" = "0" ]
+		then 
+
+		
+				home_part=$(zenity --list  --radiolist --ok-label="Siguiente" --cancel-label="Atrás" --height=500 --width=650 --title="$title" --text="Seleccione la partición para HOME\nAdvertencia! la lista muestra todas las particiones disponibles.\nPor favor elige con cuidado." --column 'Seleccione' --column "Particiones                                               " --column 'Tamaño    ' --column 'Tipo' $(fdisk -l $dev -o Device,Size,Type | grep dev | grep -v $greplist | awk '{print $1 " " $2 " " $3}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
+			
+		# mounting home partition
+		if [ "$?" = "1" ]
+		then home_partition
+		fi
+		
+		if [[ "$home_part" != *[!\ ]* ]] || [ "$home_part" = "(null)" ]
+		then home_partition
+			
+		fi		
+
+		fi
+
+		configure
+}
+
+auto_partition() {
+title="Particionado automatico - $titlep"
+	#
+	> .devices1.txt
+	lsblk -lno NAME,TYPE,SIZE | grep 'disk' | awk '{print "/dev/" $1 " " $3}' | sort -u > .devices1.txt
+	devices1=` awk '{print "FALSE " $0}' .devices1.txt `
+	#
+	dev=$(zenity --list --ok-label="Siguiente" --cancel-label="Atrás" --radiolist --height=300 --width=650 --title="$title" --text "Seleccione el disco que desea utilizar para la instalación." --column Seleccione --column="Disco                                           " --column Tamaño $devices1 )
+	if [ "$?" = "1" ]
+	then partition
+	fi
+
+	if [[ "$dev" != *[!\ ]* ]] || [ "$dev" = "(null)" ]
+	then auto_partition
+	fi
+
+	zenity --question --height=120 --ok-label="Siguiente" --cancel-label="Atrás" --width=650 --title="$title" --text " \nAdvertencia! Esto borrará todos los datos en $dev\. $dev1 Esta seguro que desea continuar?"
+        yn="$?"
+	if [ "$yn" = "1" ]
+	then partition
+	fi
+
+	# Find total amount of RAM
+	ram=$(grep MemTotal /proc/meminfo | awk '{print $2/1024}' | sed 's/\..*//')
+	# Find where swap partition stops
+	num=4000
+
+	if [ "$ram" -gt "$num" ]
+		then swap_space=4096
+		else swap_space=$ram
+	fi
+	
+	uefi_swap=$(($swap_space + 513))
+
+
+	#BIOS or UEFI
+    if [ "$SYSTEM" = "BIOS" ]
+        then
+	       (
+	       	echo "# Formateando disco [BIOS]..."
+		
+	        dd if=/dev/zero of=$dev bs=512 count=1
+		echo "# Creando particiones [BIOS]..."
+		
+	        Parted "mklabel msdos"
+	        Parted "mkpart primary ext4 1MiB 100%"
+	        Parted "set 1 boot on"
+	        mkfs.ext4 -F ${dev}1
+		echo "# Montando particiones [BIOS]..."
+		
+	        mount ${dev}1 /mnt
+		echo "# Creando archivo swap [BIOS]..."
+		
+		
+		touch /mnt/swapfile
+		dd if=/dev/zero of=/mnt/swapfile bs=1M count=${swap_space}
+		chmod 600 /mnt/swapfile
+		mkswap /mnt/swapfile
+		swapon /mnt/swapfile
+		
+		
+		swapfile="yes"
+		) | zenity --progress --pulsate --title="$title" --width=450 --no-cancel --auto-close
+
+	    else
+        (
+        echo "# Formateando disco [UEFI]..."
+		
+            	dd if=/dev/zero of=$dev bs=512 count=1
+		echo "# Creando particiones [UEFI]..."
+		
+        Parted "mklabel gpt"
+        Parted "mkpart primary fat32 1MiB 513MiB"
+		Parted "mkpart primary ext4 513MiB 100%"
+		Parted "set 1 boot on"
+		mkfs.fat -F32 ${dev}1
+		mkfs.ext4 -F ${dev}2
+		echo "# Montando particiones [UEFI]..."
+		
+		mount ${dev}2 /mnt
+		mkdir -p /mnt/efi
+		mount ${dev}1 /mnt/efi
+		esp="/efi"
+		echo "# Creando archivo swap [UEFI]..."
+		
+		
+		touch /mnt/swapfile
+		dd if=/dev/zero of=/mnt/swapfile bs=1M count=${swap_space}
+		chmod 600 /mnt/swapfile
+		mkswap /mnt/swapfile
+		swapon /mnt/swapfile
+		
+		echo "# Creando archivo swap [UEFI]..."
+		
+		swapfile="yes"
+		) | zenity --progress --pulsate --title="$title" --width=450 --no-cancel --auto-close
+	fi
+	configure		
+}
+
+partition() {
+	title="Particionado - $titlep"
+	ans=$(zenity --list --radiolist --height=220 --width=650 --ok-label="Siguiente" --cancel-label="Salir" --title="$title" --text "¿Desea utilizar el particionamiento automático o desea particionar el disco usted mismo?\nEl Particionamiento automático borrará completamente el disco que seleccione e instalará Arch." --column Seleccione --column Opcion TRUE "Particionado Automatico" FALSE "Particionado Manual")
+
+if [ "$ans" = "" ]
+	then start
+
+fi
+	if [ "$ans" = "Particionado Automatico" ]
+	then auto_partition
+	else
+	man_partition
+	fi
+
+}
+
+configure() {
+	title="Configuraciones - $titlep"
+# Getting Locale
+locales
+}
+
+locales() {
+locales=$(cat /etc/locale.gen | grep -v "#  " | sed 's/#//g' | sed 's/ UTF-8//g' | grep .UTF-8 | sort | awk '{ printf "FALSE ""\0"$0"\0" }')
+
+locale=$(zenity --list --radiolist --ok-label="Siguiente" --cancel-label="Atrás" --height=500 --width=650 --title="$title" --text "Seleccione su idioma.\nPor defecto es Ingles Americano 'en_US.UTF-8'." --column Seleccion --column Idioma TRUE en_US.UTF-8 $locales)
+
+if [ "$?" = "1" ]
+then partition
+fi
+keymap
+}
+
+
+keymap() {
+keymap=$(zenity --list --radiolist --height=500 --ok-label="Siguiente" --cancel-label="Atrás" --width=650 --ok-label="Siguiente" --cancel-label="Atrás" --title="$title" --text="Seleccione su keymap (mapa del teclado)" --column Seleccion --column Keymap TRUE us FALSE es FALSE latam $(localectl list-x11-keymap-layouts | awk '{ printf " FALSE ""\0"$0"" }'))
+if [ "$?" = "1" ]
+then locales
+fi
+if [ "$keymap" = "" ]
+then keymap
+fi
+clock
+}
+
+clock() {
+# Getting Clock Preference
+clock=$(zenity --list --radiolist --ok-label="Siguiente" --cancel-label="Atrás" --height=220 --width=650 --title="$title" --text "Desea utilizar UTC o Local Time\nUTC es recomenado si no tienes dual boot con Windows." --column Seleccion --column Tiempo TRUE utc FALSE localtime)
+if [ "$?" = "1" ]
+then keymap
+fi
+hostnamez
+}
+# Getting hostname, user info, root password
+hostnamez() {
+	title="Configuraciones - $titlep"
+hname=$(zenity --entry --title="$title" --width=450 --ok-label="Siguiente" --cancel-label="Atrás" --text "Por favor introduzca el hostname para su equipo.\nTodas las letras deben ser minusculas." --entry-text "instalarch")
+if [ "$?" = "1" ]
+then clock
+fi
+if [ "$hname" = "" ]
+then hostnamez
+fi
+userinfof
+}
+
+userinfof() {
+	title="Configurando usuarios - $titlep"
+userinfo=$(yad --image=list-add-user --title="$title" --text="Configuración de usuario" --center --button=Atrás:1 --button=Siguiente:0 --text-align=center --height=200 --width=650 --form --field="Digite el nuevo usuario:" --field="Introduzca una contraseña:":H --field="Confirme la contraseña:":H)
+
+if [ "$?" = "1" ]
+then hostnamez
+fi
+
+# contain space
+if [[ "$userinfo" =~ \ |\' ]]
+then
+yad --image=error --text="No debe utilizar espacio ni caracteres especiales." --title="$title" --center --button=Reintentar --height=100 --width=550
+userinfof
+fi
+
+userinfo=(${userinfo//|/ })
+
+# field empty
+if [[ "${userinfo[0]}" != *[!\ ]* ]] || [[ "${userinfo[1]}" != *[!\ ]* ]] || [[ "${userinfo[2]}" != *[!\ ]* ]]
+then
+yad --image=error --text="Debe completar todos los campos, vuelva a intentarlo." --title="$title" --center --button=Reintentar --height=100 --width=550
+userinfof
+fi
+
+# uppercase or special character
+if [[ "${userinfo[0]}" == *['!'@#\$%^\&*()_+]* ]] || [[ "${userinfo[0]}" == *[A-Z]* ]]
+then
+ yad --image=error --text="No debe utilizar espacio, caracteres especiales o mayusculas en el nombre de usuario." --title="$title" --center --button=Reintentar --height=100 --width=550
+userinfof
+fi
+
+# no matches
+if [ "${userinfo[1]}" != "${userinfo[2]}" ]
+then
+yad --image=error --text="Las contraseñas no coinciden, vuelva a intentarlo." --title="$title" --center --button=Reintentar --height=100 --width=550
+userinfof
+fi
+username=${userinfo[0]}
+userpasswd=${userinfo[1]}
+userpasswd2=${userinfo[2]}
+rootinfof
+}
+
+rootinfof() {
+
+rootinfo=$(yad --image=im-kick-user --title="$title" --text="Configuración del superusuario (root)" --center --button=Atrás:1 --button=Siguiente:0 --text-align=center --height=200 --width=650 --form --field="Introduzca una contraseña:":H --field="Confirme la contraseña:":H)
+
+if [ "$?" = "1" ]
+then userinfof
+fi
+
+rootinfo=(${rootinfo//|/ })
+
+if [[ "${rootinfo[0]}" != *[!\ ]* ]] || [[ "${rootinfo[1]}" != *[!\ ]* ]]
+then
+yad --image=error --text="Debe completar todos los campos, vuelva a intentarlo." --title="$title" --center --button=Reintentar --height=100 --width=550
+rootinfof
+fi
+
+if [ "${rootinfo[0]}" != "${rootinfo[1]}" ]
+then
+yad --image=error --text="Las contraseñas no coinciden, vuelva a intentarlo." --title="$title" --center --button=Reintentar --height=100 --width=550
+rootinfof
+fi
+rtpasswd=${rootinfo[0]}
+rtpasswd2=${rootinfo[1]}
+kernel
+}
+
+##
+
+kernel() {
+	title="Seleccion de kernel - $titlep"
+kernel=$(zenity --list  --ok-label="Siguiente" --cancel-label="Atrás" --radiolist --height=520 --width=650 --title="$title" --text "Hay varios nucleos(kernel) disponibles:\n \n*El mas comun es el kernel linux.\nEste kernel es el más actualizado y proporciona el mejor soporte de hardware. Sin embargo, \npodría haber posibles errores en este núcleo, a pesar de las pruebas.\n \n*El kernel linux-lts esta enfocado mas en la estabilidad.\nSe basa en un núcleo antiguo, por lo que puede carecer de algunas características más nuevas.\n \n*El kernel linux-hardened esta enfocado en la seguridad\nContiene el parche de Grsecurity Patchset y PaX para una maxima seguridad.\n \n*El kernel linux-zen es el resultado de la colaboracion de hackers\npara proveer el mejor kernel posible para uso diario.\n" --column "Seleccion" --column "Kernel" TRUE linux FALSE linux-lts FALSE linux-hardened FALSE linux-zen)
+
+if [ "$?" = "1" ]
+then rootinfof
+fi
+videocont
+}
+##
+
+videocont() {
+	title="Controlador de video - $titlep"
+videocontroller=$(zenity --list --title="$title" --radiolist --ok-label="Siguiente" --cancel-label="Atrás" --height=300 --width=650 --text "Seleccione su tarjeta grafica:" --column "Seleccion" --column "Controlador" --column "Descripcion" TRUE "xf86-video-vesa" "Controlador generico" FALSE "xf86-video-ati" "Controlador AMD ATI / Radeon - opensource" FALSE "xf86-video-amdgpu" "Controlador AMD Radeon (ultimos modelos) - opensource" FALSE "xf86-video-intel" "Graficas Intel - opensource" FALSE "xf86-video-nouveau" "Graficas nvidia - opensource" FALSE "nvidia" "Graficas envidia - propietario")
+if [ "$?" = "1" ]
+then kernel
+fi
+desktop
+}
+
+desktop() {
+# Choosing Desktop
+title="Seleccion de escritorio - $titlep"
+desktops=$(zenity --list --height=300 --width=650 --ok-label="Siguiente" --cancel-label="Atrás" --title="$title" --radiolist --text "Cual gestor de ventanas (WM) desea instalar?" --column Seleccion --column Paquete --column Descripcion TRUE "awesome" "Awesome WM + Pack Customizado" FALSE "xmonad" "Xmonad + Xmobar (Navy Blue)" FALSE "i3-gaps" "i3-gaps + Polybar (multicolor)" FALSE "qtile" "Proximamente" FALSE "Ninguno" "Solo instalar Xorg" )
+
+if [ "$?" = "1" ]
+then videocont
+fi
+
+if [ "$desktops" = "qtile" ]
+then
+desktops="Ninguno"
+fi
+
+displaymanager
+}
+
+displaymanager() {
+	title="Gestor de pantalla - $titlep"
+dm=$(zenity --list --title="$title" --radiolist --ok-label="Siguiente" --cancel-label="Atrás" --height=300 --width=650 --text "Cual gestor de pantalla desea instalar?" --column "Seleccion" --column "Display Manager" TRUE "ly" FALSE "sddm" FALSE "lxdm" FALSE "lightdm" FALSE "Ninguno")
+if [ "$?" = "1" ]
+then desktop
+fi
+packagemanager
+}
+
+multilib() {
+
+	## Disabled
+	title="Repositorios - $titlep"
+zenity --question --height=100 --width=550 --ok-label="Si" --cancel-label="No" --title="$title" --text="Desea habilitar los repositorios multilib? Puedes necesitar esto para Steam, Wine, o cualquier otro software 32-bit."
+multilib="$?"
+packagemanager
+}
+
+packagemanager() {
+	title="Seleccion de paquetes - $titlep"
+zenity --question --title="$title" --ok-label="Si" --cancel-label="No" --height=100 --width=550 --text="¿Desea instalar un administrador de paquetes gráfico?\nEsto le permitirá instalar y eliminar aplicaciones sin tener que lidiar con la línea de comando." 
+pm="$?"
+if [ "$pm" = "0" ] 
+then  
+pack=$(zenity --list --radiolist --title="$title" --ok-label="Siguiente" --cancel-label="Atrás" --height=220 --width=650 --text="Que administrador de paquetes desea instalar?" --column Seleccion --column "Adm de paquetes" --column "Descripcion" FALSE "octopi" "Plasma o libreria qt" FALSE "pamac-aur" "Gnome o libreria gtk") 
+if [ "$?" = "1" ]
+then displaymanager
+fi
+if [ "$pack" = "" ]
+then packagemanager
+fi
+fi
+
+archuserrepo
+}
+
+archuserrepo() {
+	title="Seleccion de paquetes - $titlep"
+zenity --question --height=100 --width=550 --ok-label="Si" --cancel-label="No" --title="$title" --text "Desea instalar yay (AUR Herlper)? Podras instalar paquetes del repositorio de usuarios."
+abs="$?"
+installing
+}
+
+
+# bootloader?
+bootloader() {
+
+####### disabled
+title="Bootloader - $titlep"
+grub=$(zenity --question --height=100 --width=550 --ok-label="Si" --cancel-label="No" --title="$title" --text "Desea instalar un cargador de arranque?\nLa respuesta usualmente es [ SI ], a menos que tenga otro arrancador que desee conservar")
+grb="$?"
+if [ "$grb" = "0" ]
+	then 
+		> .devices1.txt
+lsblk -lno NAME,TYPE,SIZE | grep 'disk' | awk '{print "/dev/" $1 " " $3}' | sort -u > .devices1.txt
+devices1=` awk '{print "FALSE " $0}' .devices1.txt `
+#
+devices1=$(echo $devices1 | sed "s#FALSE $dev#TRUE $dev#g")
+		grub_device=$(zenity --list --radiolist --height=300 --ok-label="Siguiente" --cancel-label="Atrás" --width=650 --title="$title" --text "Seleccione el disco para instalar el cargador de arranque.($dev)" --column Seleccion --column "Disco                                           " --column Tamaño $devices1)
+probe="$?"
+if [ "$?" = "1" ]
+then bootloader
+fi
+if [ "$grub_device" = "" ]
+then bootloader
+fi
+
+fi
+installing
+}
+
+# Installation
+installing() {
+	title="Instalación - $titlep"
+zenity --question --height=150 --width=550 --ok-label="Continuar" --cancel-label="Abortar" --title="$title" --text "El proceso de instalación esta por iniciar, todos los paquetes seran descargados desde internet, asi que asegurese de contar con una conexion constante a internet.\nEste proceso puede demorar."
+
+if [ "$?" = "1" ]
+	then exit
+else 
+title="Instalando - $titlep"
+echo "0" >> percent
+yadconfig="--progress --center --no-buttons --auto-close  --width=700 --height=400 --log-expanded --log-on-top --log-height=380 --no-cancel"
+i=0
+{   
+
+#start partitions
+if [ "$ans" = "Particionado Manual" ]
+then
+	#montando home
+
+if [ "$root_part" != "" ]
+then
+echo "# Montando partición root..."
+
+	if [ "$SYSTEM" = "BIOS" ]
+	then
+	root_number=$(echo $root_part | sed "s#$dev##g")
+	Parted "set $root_number boot on"
+	fi
+##mkfs.ext4 -F $root_part
+mount $root_part /mnt
+
+fi
+
+	#montando partición swap
+if [ "$swap_part" != "" ]
+then
+	echo "# Montando partición swap..."
+swap_number=$(echo $swap_part | sed "s#$dev##g")
+Parted "set $swap_number swap on"
+mkswap $swap_part
+swapon $swap_part
+fi
+
+	#creando archivoswap
+if [ "$swapfile" = "yes" ]
+then
+	echo "# Creando archivo swap (esto puede demorarse)..."
+ram=$(grep MemTotal /proc/meminfo | awk '{print $2/1024}' | sed 's/\..*//')
+# Find where swap partition stops
+num=4000
+if [ "$ram" -gt "$num" ]
+then swap_space=4096
+else swap_space=$ram
+fi
+
+uefi_swap=$(($swap_space + 513))
+	
+touch /mnt/swapfile
+dd if=/dev/zero of=/mnt/swapfile bs=1M count=${swap_space}
+chmod 600 /mnt/swapfile
+mkswap /mnt/swapfile
+swapon /mnt/swapfile
+fi
+
+# Montando boot
+if [ "$boot_part" != "" ]
+then
+echo "# Montando partición de arranque..."
+boot_number=$(echo $boot_part | sed "s#$dev##g")
+Parted "set $boot_number boot on"
+#mkfs.fat -F32 $boot_part
+if [ "$bootloc" = "1" ]
+then
+mkdir -p /mnt/boot
+mount $boot_part /mnt/boot
+esp="/boot"
+else
+mkdir -p /mnt/efi
+mount $boot_part /mnt/efi
+esp="/efi"
+fi
+
+fi
+
+
+	#Montando home
+if [ "$home_part" != "" ]
+then
+	echo "# Montando partición home..."
+greplist=$greplist"\|"$home_part
+mkdir -p /mnt/home
+mount $home_part /mnt/home
+fi		
+
+fi
+#End partitions
+
+echo "# Buscando los servidores mas rapidos..."
+reflector -l 10 --sort rate --save /etc/pacman.d/mirrorlist
+# updating pacman cache
+echo "5" >> percent
+echo "# Sincronizando base de datos..."
+pacman -Syy
+echo "# Actualizando claves..."
+pacman -S archlinux-keyring --noconfirm
+echo "10" >> percent
+#installing base
+echo "# Instalando Base (esto puede demorar)..."
+basedownloaded=""
+while [ "$basedownloaded" == "" ] ; do
+pacstrap /mnt base base-devel nano dhcpcd netctl iwd net-tools
+
+if [ -f "/mnt/bin/bash" ] ; then
+ basedownloaded="yes"
+else
+	res=$(zenity --error --height=100 --width=550 --extra-button="Reintentar" --ok-label="Reiniciar" --title="$title" --text "Ha ocurrido un error al descargar los paquetes, verifique su conexión a internet y pulse [Reintentar]. Si el problema persiste reinicie la instalación")
+
+	if [ "$res" != "Reintentar" ]
+	then
+	reboot
+	fi
+
+fi
+done
+
+echo "# Instalando kernel (esto puede demorar)..."
+echo "25" >> percent
+kerneldownloaded=""
+while [ "$kerneldownloaded" == "" ] ; do
+pacstrap /mnt linux-firmware mkinitcpio linux-headers $kernel
+cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
+arch_chroot "pacman -Qqe > pkglist.txt"
+if grep -q linux-firmware "/mnt/pkglist.txt"; then
+kerneldownloaded="yes"
+else
+
+	res=$(zenity --error --height=100 --width=550 --extra-button="Reintentar" --ok-label="Reiniciar" --title="$title" --text "Ha ocurrido un error al descargar los paquetes, verifique su conexion a internet y pulse [Reintentar]. Si el problema persiste reinicie la instalación")
+
+	if [ "$res" != "Reintentar" ]
+	then
+	reboot
+	fi
+
+fi
+
+done
+
+echo "40" >> percent
+
+echo "# Generando tabla de particiones..."
+genfstab -p /mnt >> /mnt/etc/fstab
+if grep -q "/mnt/swapfile" "/mnt/etc/fstab"; then
+sed -i '/swapfile/d' /mnt/etc/fstab
+echo "/swapfile		none	swap	defaults	0	0" >> /mnt/etc/fstab
+fi
+
+echo "43" >> percent
+echo "# Instalando complementos..."
+
+complementsdownloaded=""
+while [ "$complementsdownloaded" == "" ] ; do
+
+pacstrap /mnt networkmanager ifplugd xf86-input-synaptics gtk2 gtk3 wget xdg-user-dirs acpi pulseaudio pulseaudio-alsa alsa-utils fzf ntfs-3g htop lsb-release neofetch unzip gvfs reflector
+
+arch_chroot "pacman -Qqe > pkglist.txt"
+if grep -q fzf "/mnt/pkglist.txt"; then
+complementsdownloaded="yes"
+else
+
+	res=$(zenity --error --height=100 --width=550 --extra-button="Reintentar" --ok-label="Reiniciar" --title="$title" --text "Ha ocurrido un error al descargar los paquetes, verifique su conexion a internet y pulse [Reintentar]. Si el problema persiste reinicie la instalación")
+
+	if [ "$res" != "Reintentar" ]
+	then
+	reboot
+	fi
+
+fi
+
+done
+
+echo "53" >> percent
+echo "# Instalando servidor grafico..."
+
+xorgdownloaded=""
+while [ "$xorgdownloaded" == "" ] ; do
+pacstrap /mnt xorg xorg-apps xorg-xinit xorg-twm xorg-xclock $videocontroller
+echo "59" >> percent
+arch_chroot "pacman -Rns xorg-docs --noconfirm"
+arch_chroot "pacman -Qqe > pkglist.txt"
+if grep -q xorg-xinit "/mnt/pkglist.txt"; then
+xorgdownloaded="yes"
+else
+
+	res=$(zenity --error --height=100 --width=550 --extra-button="Reintentar" --ok-label="Reiniciar" --title="$title" --text "Ha ocurrido un error al descargar los paquetes, verifique su conexión a internet y pulse [Reintentar]. Si el problema persiste reinicie la instalación")
+
+	if [ "$res" != "Reintentar" ]
+	then
+	reboot
+	fi
+
+fi
+
+done
+
+echo "63" >> percent
+
+
+echo "68" >> percent
+##
+##
+echo "# Habilitando servicios..."
+# enabling network manager
+arch_chroot "systemctl enable dhcpcd"
+arch_chroot "systemctl enable NetworkManager"
+
+echo "69" >> percent
+echo "# Actualizando pacman.conf..."
+# adding repo
+echo -e "\n[instalarch]" >> /mnt/etc/pacman.conf;echo -e "SigLevel = Optional TrustAll" >> /mnt/etc/pacman.conf;echo -e "Server = https://github.com/wilssonmartee/instalarch/releases/download/1/\nServer = https://downloads.sourceforge.net/project/instalarch/x86_64\n" >> /mnt/etc/pacman.conf
+echo "# Sincronizando base de datos..."
+arch_chroot "pacman -Syy"
+
+echo "70" >> percent
+# installing pamac-aur - octopi
+if [ "$pm" = "0" ]
+then
+echo "# Instalando gestor de paquetes grafico..."
+
+gpgdownloaded=""
+while [ "$gpgdownloaded" == "" ] ; do
+arch_chroot "pacman -Sy --noconfirm $pack"
+
+arch_chroot "pacman -Qqe > pkglist.txt"
+if grep -q $pack "/mnt/pkglist.txt"; then
+gpgdownloaded="yes"
+else
+
+	res=$(zenity --error --height=100 --width=550 --extra-button="Reintentar" --ok-label="Reiniciar" --title="$title" --text "Ha ocurrido un error al descargar los paquetes, verifique su conexion a internet y pulse [Reintentar]. Si el problema persiste reinicie la instalación")
+
+	if [ "$res" != "Reintentar" ]
+	then
+	reboot
+	fi
+
+fi
+done
+fi
+
+echo "74" >> percent
+# AUR
+if [ "$abs" = "0" ]
+	then 
+
+echo "# Instalando AUR Herlper..."
+
+yaydownloaded=""
+while [ "$yaydownloaded" == "" ] ; do
+arch_chroot "pacman -Sy yay --noconfirm"
+
+arch_chroot "pacman -Qqe > pkglist.txt"
+if grep -q yay "/mnt/pkglist.txt"; then
+yaydownloaded="yes"
+else
+
+	res=$(zenity --error --height=100 --width=550 --extra-button="Reintentar" --ok-label="Reiniciar" --title="$title" --text "Ha ocurrido un error al descargar los paquetes, verifique su conexion a internet y pulse [Reintentar]. Si el problema persiste reinicie la instalación")
+
+	if [ "$res" != "Reintentar" ]
+	then
+	reboot
+	fi
+
+fi
+
+done
+
+
+fi
+echo "78" >> percent
+echo "# Instalando gotop..."
+# installing ucode
+#proc=$(grep -m1 vendor_id /proc/cpuinfo | awk '{print $3}')
+#if [ "$proc" = "GenuineIntel" ]
+#then
+#arch_chroot "pacman -Sy --noconfirm intel-ucode gotop-git"
+#elif [ "$proc" = "AuthenticAMD" ]
+#then
+#arch_chroot "pacman -Sy --noconfirm amd-ucode gotop-git"
+#fi
+
+arch_chroot "pacman -Sy --noconfirm gotop-git"
+echo "80" >> percent
+
+		echo "# Instalando os-prober..."
+		
+		osdownloaded=""
+		while [ "$osdownloaded" == "" ] ; do
+		pacstrap /mnt os-prober
+
+		arch_chroot "pacman -Qqe > pkglist.txt"
+		if grep -q os-prober "/mnt/pkglist.txt"; then
+		osdownloaded="yes"
+		else
+
+		res=$(zenity --error --height=100 --width=550 --extra-button="Reintentar" --ok-label="Reiniciar" --title="$title" --text "Ha ocurrido un error al descargar los paquetes, verifique su conexion a internet y pulse [Reintentar]. Si el problema persiste reinicie la instalación")
+
+		if [ "$res" != "Reintentar" ]
+		then
+		reboot
+		fi
+
+		fi
+
+		done
+
+		echo "84" >> percent
+		if [ "$SYSTEM" = 'BIOS' ]
+		then echo "# Instalando Bootloader (BIOS)..."
+		
+
+		grubdownloaded=""
+		while [ "$grubdownloaded" == "" ] ; do
+		pacstrap /mnt grub
+
+		arch_chroot "pacman -Qqe > pkglist.txt"
+		if grep -q grub "/mnt/pkglist.txt"; then
+		grubdownloaded="yes"
+		else
+
+		res=$(zenity --error --height=100 --width=550 --extra-button="Reintentar" --ok-label="Reiniciar" --title="$title" --text "Ha ocurrido un error al descargar los paquetes, verifique su conexion a internet y pulse [Reintentar]. Si el problema persiste reinicie la instalación")
+
+		if [ "$res" != "Reintentar" ]
+		then
+		reboot
+		fi
+
+		fi
+
+		done
+
+		arch_chroot "grub-install --target=i386-pc $dev"
+		arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
+		
+		else
+		if [ "$ans" = "Particionado Automatico" ]
+		then
+			esp="/efi"
+		fi
+		echo "# Instalando Bootloader (UEFI)..."
+
+		#instalando grub
+
+		grubdownloaded=""
+		while [ "$grubdownloaded" == "" ] ; do
+		pacstrap /mnt grub efibootmgr
+
+		arch_chroot "pacman -Qqe > pkglist.txt"
+		if grep -q grub "/mnt/pkglist.txt"; then
+		grubdownloaded="yes"
+		else
+
+		res=$(zenity --error --height=100 --width=550 --extra-button="Reintentar" --ok-label="Reiniciar" --title="$title" --text "Ha ocurrido un error al descargar los paquetes, verifique su conexion a internet y pulse [Reintentar]. Si el problema persiste reinicie la instalación")
+
+		if [ "$res" != "Reintentar" ]
+		then
+		reboot
+		fi
+
+		fi
+
+		done
+
+		arch_chroot "grub-install --target=x86_64-efi --efi-directory=$esp --bootloader-id=Instalarch"
+		arch_chroot "grub-install --target=x86_64-efi --efi-directory=$esp --removable"
+		arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
+				
+
+		fi
+
+echo "88" >> percent
+#root password
+echo "# Configurando usuario root..."
+touch .passwd
+echo -e "$rtpasswd\n$rtpasswd2" > .passwd
+arch_chroot "passwd root" < .passwd >/dev/null
+rm .passwd
+
+#adding user
+echo "# Configurando nuevo usuario $username..."
+
+arch_chroot "useradd -m -g users -G adm,lp,wheel,power,audio,video,input,games,mail,scanner,storage,disk -s /bin/bash $username"
+touch .passwd
+echo -e "$userpasswd\n$userpasswd2" > .passwd
+arch_chroot "passwd $username" < .passwd >/dev/null
+rm .passwd
+echo "89" >> percent
+#setting locale
+
+echo "# Configurando idioma..."
+echo "LANG=\"${locale}\"" > /mnt/etc/locale.conf
+echo "${locale} UTF-8" > /mnt/etc/locale.gen
+arch_chroot "locale-gen"
+arch_chroot "export LANG=${locale}"
+export LANG=${locale}
+echo "# Configurando mapa del teclado..."
+#setting keymap
+echo KEYMAP=$keymap >> /mnt/etc/vconsole.conf
+localectl set-x11-keymap $keymap
+cp /etc/vconsole.conf /mnt/etc/vconsole.conf
+cp /etc/X11/xorg.conf.d/* /mnt/etc/X11/xorg.conf.d/
+
+echo "90" >> percent
+
+#setting timezone
+echo "# Configurando zona horaria..."
+arch_chroot "rm /etc/localtime"
+arch_chroot "ln -s /usr/share/zoneinfo/$(curl https://ipapi.co/timezone) /etc/localtime"
+
+#setting hw clock
+echo "# Configurando hora del sistema..."
+arch_chroot "hwclock --systohc --$clock"
+
+#setting hostname
+echo "# Configurando usuario..."
+arch_chroot "echo $hname > /etc/hostname"
+
+# setting n permissions
+echo "%wheel ALL=(ALL) ALL" >> /mnt/etc/sudoers
+
+echo "# Instalando shell..."
+# selecting shell
+shell="zsh"
+shelldownloaded=""
+while [ "$shelldownloaded" == "" ] ; do
+
+if [ "$shell" = "zsh" ]
+then arch_chroot "pacman -S --noconfirm zsh zsh-autosuggestions;chsh -s /usr/bin/zsh $username"
+elif [ "$shell" = "bash" ]
+then arch_chroot "pacman -S --noconfirm bash;chsh -s /bin/bash $username"
+elif [ "$shell" = "fish" ]
+then arch_chroot "pacman -S --noconfirm fish;chsh -s /usr/bin/fish $username"
+fi
+
+arch_chroot "pacman -Qqe > pkglist.txt"
+if grep -q zsh "/mnt/pkglist.txt"; then
+shelldownloaded="yes"
+else
+res=$(zenity --error --height=100 --width=550 --extra-button="Reintentar" --ok-label="Reiniciar" --title="$title" --text "Ha ocurrido un error al descargar los paquetes, verifique su conexion a internet y pulse [Reintentar]. Si el problema persiste reinicie la instalación")
+
+if [ "$res" != "Reintentar" ]
+then
+reboot
+fi
+fi
+
+done
+
+echo "93" >> percent
+
+if [ "$dm" != "Ninguno" ]
+then
+# desktop manager
+echo "# Configurando gestor de pantalla..."
+
+		dmdownloaded=""
+		while [ "$dmdownloaded" == "" ] ; do
+	
+if [ "$dm" = "lightdm" ]
+then pacstrap /mnt lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings;arch_chroot "systemctl enable lightdm.service"
+else pacstrap /mnt $dm;arch_chroot "systemctl enable $dm.service"
+fi
+		arch_chroot "pacman -Qqe > pkglist.txt"
+		if grep -q $dm "/mnt/pkglist.txt"; then
+		dmdownloaded="yes"
+		else
+
+		res=$(zenity --error --height=100 --width=550 --extra-button="Reintentar" --ok-label="Reiniciar" --title="$title" --text "Ha ocurrido un error al descargar los paquetes, verifique su conexion a internet y pulse [Reintentar]. Si el problema persiste reinicie la instalación")
+
+		if [ "$res" != "Reintentar" ]
+		then
+		reboot
+		fi
+
+		fi
+
+		done
+fi
+
+# copying files and configs
+echo "95" >> percent
+echo "# Obteniendo configuraciones..."
+
+utilsia=""
+		while [ "$utilsia" == "" ] ; do
+
+arch_chroot "pacman -S utils-ia zsh-theme-powerlevel10k-ia --noconfirm"
+arch_chroot "pacman -Sy"
+
+		arch_chroot "pacman -Qqe > pkglist.txt"
+		if grep -q utils-ia "/mnt/pkglist.txt"; then
+		utilsia="yes"
+		else
+
+		res=$(zenity --error --height=100 --width=550 --extra-button="Reintentar" --ok-label="Reiniciar" --title="$title" --text "Ha ocurrido un error al descargar los paquetes, verifique su conexion a internet y pulse [Reintentar]. Si el problema persiste reinicie la instalación")
+
+		if [ "$res" != "Reintentar" ]
+		then
+		reboot
+		fi
+
+		fi
+
+		done
+
+echo "# Instalando extras..."
+echo "96" >> percent
+
+if [ "$desktops" != "Ninguno" ]
+then
+utilsdownloaded=""
+		while [ "$utilsdownloaded" == "" ] ; do
+
+arch_chroot "pacman -S ${desktops}-utils-ia --noconfirm"
+arch_chroot "pacman -Sy"
+
+		arch_chroot "pacman -Qqe > pkglist.txt"
+		if grep -q ${desktops}-utils-ia "/mnt/pkglist.txt"; then
+		utilsdownloaded="yes"
+		else
+
+		res=$(zenity --error --height=100 --width=550 --extra-button="Reintentar" --ok-label="Reiniciar" --title="$title" --text "Ha ocurrido un error al descargar los paquetes, verifique su conexion a internet y pulse [Reintentar]. Si el problema persiste reinicie la instalación")
+
+		if [ "$res" != "Reintentar" ]
+		then
+		reboot
+		fi
+
+		fi
+
+		done
+fi
+echo "99" >> percent
+# unmounting partitions
+echo "# Desmontando particiones..."
+#umount -l /mnt
+umount -R /mnt
+echo "100" >> percent
+echo "# Instalación finalizada!"
+
+#### Commands
+   
+} | while read -r line; do 
+    echo "# ${line}"
+    tail -1 percent; done | yad ${yadconfig} --percentage=0  --title="${title}" --enable-log="Descargando paquetes"
+
+(
+	echo "# Instalación finalizada!"
+echo "100"
+
+) | zenity --progress --percentage=0 --title="$title" --ok-label="Reiniciar" --width=450 --no-cancel
+reboot
+fi
+}
+
+# execution
+# System Detection
+if [[ -d "/sys/firmware/efi/" ]]; then
+      SYSTEM="UEFI"
+      else
+      SYSTEM="BIOS"
+fi
+
+arch_chroot() {
+    arch-chroot /mnt /bin/bash -c "${1}"
+}
+
+Parted() {
+	parted --script $dev "$1"
+}
+
+
+######### iso ##########
+
+titlep="Instalarch [$SYSTEM]"
+start() {
+zenity --question --height=120 --width=650 --title="$titlep" --ok-label="Iniciar instalación" --cancel-label="Salir" --text 'El proceso de instalación esta por iniciar, asegurese de hacer un backup de su informacion mas importante por su seguridad.'
+
+if [ "$?" = "1" ]
+	then exit
+fi
+(
+	
+wmctrldownloaded=""
+while [ "$wmctrldownloaded" == "" ] ; do
+echo "# Sincronizando base de datos... Espere un momento"
+pacman -Syy
+echo "# Actualizando claves... Espere un momento"
+pacman -S archlinux-keyring --noconfirm
+echo "# Descargando dependencias... Espere un momento"
+pacman -S wmctrl yad reflector --noconfirm
+pacman -Qqe > pkglist.txt
+if grep -q yad "pkglist.txt"; then
+wmctrldownloaded="yes"
+else
+res=$(zenity --error --height=100 --width=550 --extra-button="Reintentar" --ok-label="Reiniciar" --title="$titlep" --text "Ha ocurrido un error al descargar los paquetes, verifique su conexion a internet y pulse [Reintentar]. Si el problema persiste reinicie la instalación")
+
+if [ "$res" != "Reintentar" ]
+then
+reboot
+fi
+fi
+done
+) | zenity --progress --title="$titlep" --width=450 --no-cancel --pulsate --auto-close
+partition
+}
+
+n="0"
+if [ "$n" = "0" ]
+	then 
+partition
+fi
