@@ -35,10 +35,10 @@ if [ "$?" = "0" ]
 		 if [ "$SYSTEM" = "UEFI" ]
  		then
  		(sleep 3 && wmctrl -F -a "$title" -b add,above) &
- 		(zenity --list --title="$title" --ok-label="He terminado" --cancel-label="Atrás" --text="Sugerencia de particionado [UEFI]: *Formato de disco GPT\nUna vez termine el proceso pulse [He terminado] para continuar la instalación. \n*no ciere esta ventana.\n*formatee las particiones de ser necesario.\n*el instalador no formateara las particiones despues de esto." --column "Partición     " --column "Nombre       " --column "Sistema de archivos" --column "Tamaño" --width=450 --height=250 "${dev}X" "EFI" "fat32" "256-512MiB" "${dev}Y" "ROOT" "ext4" "16GiB+") ;
+ 		(zenity --list --title="$title" --ok-label="He terminado" --cancel-label="Atrás" --text="Sugerencia de particionado [UEFI]: *Formato de disco GPT\nUna vez termine el proceso pulse [He terminado] para continuar la instalación. \n*no cierre esta ventana.\n*formatee las particiones de ser necesario.\n*el instalador no formateara las particiones despues de esto." --column "Partición     " --column "Nombre       " --column "Sistema de archivos" --column "Tamaño" --width=450 --height=250 "${dev}X" "EFI" "fat32" "256-512MiB" "${dev}Y" "ROOT" "ext4" "16GiB+") ;
  		else
  		(sleep 3 && wmctrl -F -a "$title" -b add,above) &
- 		(zenity --list --title="$title" --ok-label="He terminado" --cancel-label="Atrás" --text="Sugerencia de particionado [BIOS]: *Formato de disco MBR\nUna vez termine el proceso pulse [He terminado] para continuar la instalación. \n*no ciere esta ventana.\n*formatee las particiones de ser necesario.\n*el instalador no formateara las particiones despues de esto." --column "Partición     " --column "Nombre       " --column "Sistema de archivos" --column "Tamaño" --width=450 --height=250 "${dev}X" "ROOT" "ext4" "16GiB+") ;
+ 		(zenity --list --title="$title" --ok-label="He terminado" --cancel-label="Atrás" --text="Sugerencia de particionado [BIOS]: *Formato de disco MBR\nUna vez termine el proceso pulse [He terminado] para continuar la instalación. \n*no cierre esta ventana.\n*formatee las particiones de ser necesario.\n*el instalador no formateara las particiones despues de esto." --column "Partición     " --column "Nombre       " --column "Sistema de archivos" --column "Tamaño" --width=450 --height=250 "${dev}X" "ROOT" "ext4" "16GiB+") ;
  		fi
 		
 		if [ "$?" = "0" ]; then 
