@@ -57,7 +57,7 @@ root_part() {
 	# Select root partition
 	
  			
-		root_part=$(zenity --list --radiolist --ok-label="Siguiente" --cancel-label="Atrás" --height=500 --width=650 --title="$title" --text="Seleccione la partición para ROOT\nAdvertencia! la lista muestra todas las particiones disponibles.\nPor favor elige con cuidado." --column 'Seleccione' --column "Particiones                                               " --column 'Tamaño    ' --column 'Tipo' $(fdisk -l $dev -o Device,Size,Type | grep dev | grep -v $greplist | awk '{print $1 " " $2 " " $3 "/ " $4 "/ " $5 "/ " $6 "/ " $7 "/ " $8}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
+		root_part=$(zenity --list --radiolist --ok-label="Siguiente" --cancel-label="Atrás" --height=500 --width=650 --title="$title" --text="Seleccione la partición para ROOT\nAdvertencia! la lista muestra todas las particiones disponibles.\nPor favor elige con cuidado." --column 'Seleccione' --column "Particiones                                               " --column 'Tamaño    ' --column 'Tipo' $(fdisk -l $dev -o Device,Size,Type | grep dev | grep -v $greplist | awk '{print $1 " " $2 " " $3 "\ " $4 "\ " $5 "\ " $6 "\ " $7 "\ " $8}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
 	
 	#mounting root partition
 
@@ -366,7 +366,7 @@ rootinfof
 
 rootinfof() {
 
-rootinfo=$(yad --image=im-kick-user --title="$title" --text="Configuración del superusuario (root)" --center --button=Atrás:1 --button=Siguiente:0 --text-align=center --height=200 --width=650 --form --field="Introduzca una contraseña:":H --field="Confirme la contraseña:":H)
+rootinfo=$(yad --image=im-kick-user --title="$title" --text="Configuración del superusuario (root)" --center --button=Atrás:1 --button=Siguiente:0 --text-align=center --height=180 --width=650 --form --field="Introduzca una contraseña:":H --field="Confirme la contraseña:":H)
 
 if [ "$?" = "1" ]
 then userinfof
