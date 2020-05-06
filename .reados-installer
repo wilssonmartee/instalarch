@@ -856,11 +856,11 @@ echo "# Obteniendo configuraciones..."
 utilsia=""
 		while [ "$utilsia" == "" ] ; do
 
-arch_chroot "pacman -S utils-ia zsh-theme-powerlevel10k-ia --noconfirm"
+arch_chroot "pacman -S reados-utils zsh-theme-powerlevel10k-reados --noconfirm"
 arch_chroot "pacman -Sy"
 
 		arch_chroot "pacman -Qqe > pkglist.txt"
-		if grep -q utils-ia "/mnt/pkglist.txt"; then
+		if grep -q reados-utils "/mnt/pkglist.txt"; then
 		utilsia="yes"
 		else
 
@@ -883,11 +883,11 @@ then
 utilsdownloaded=""
 		while [ "$utilsdownloaded" == "" ] ; do
 
-arch_chroot "pacman -S ${desktops}-utils-ia --noconfirm"
+arch_chroot "pacman -S ${desktops}-utils --noconfirm"
 arch_chroot "pacman -Sy"
 
 		arch_chroot "pacman -Qqe > pkglist.txt"
-		if grep -q ${desktops}-utils-ia "/mnt/pkglist.txt"; then
+		if grep -q ${desktops}-utils "/mnt/pkglist.txt"; then
 		utilsdownloaded="yes"
 		else
 
