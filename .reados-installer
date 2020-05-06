@@ -386,96 +386,10 @@ videocontroller=$(zenity --list --title="$title" --radiolist --ok-label="Siguien
 if [ "$?" = "1" ]
 then rootinfof
 fi
-desktop
-}
-
-desktop() {
-# Choosing Desktop
-title="Seleccion de escritorio - $titlep"
-desktops=$(zenity --list --height=300 --width=650 --ok-label="Siguiente" --cancel-label="Atrás" --title="$title" --radiolist --text "Cual gestor de ventanas (WM) desea instalar?" --column Seleccion --column Paquete --column Descripcion TRUE "awesome" "Awesome WM + Pack Customizado" FALSE "xmonad" "Xmonad + Xmobar (Navy Blue)" FALSE "i3-gaps" "i3-gaps + Polybar (multicolor)" FALSE "qtile" "Proximamente" FALSE "Ninguno" "Solo instalar Xorg" )
-
-if [ "$?" = "1" ]
-then videocont
-fi
-
-if [ "$desktops" = "qtile" ]
-then
-desktops="Ninguno"
-fi
-
-displaymanager
-}
-
-displaymanager() {
-	title="Gestor de pantalla - $titlep"
-dm=$(zenity --list --title="$title" --radiolist --ok-label="Siguiente" --cancel-label="Atrás" --height=300 --width=650 --text "Cual gestor de pantalla desea instalar?" --column "Seleccion" --column "Display Manager" TRUE "ly" FALSE "sddm" FALSE "lxdm" FALSE "lightdm" FALSE "Ninguno")
-if [ "$?" = "1" ]
-then desktop
-fi
-packagemanager
-}
-
-multilib() {
-
-	## Disabled
-	title="Repositorios - $titlep"
-zenity --question --height=100 --width=550 --ok-label="Si" --cancel-label="No" --title="$title" --text="Desea habilitar los repositorios multilib? Puedes necesitar esto para Steam, Wine, o cualquier otro software 32-bit."
-multilib="$?"
-packagemanager
-}
-
-packagemanager() {
-	title="Seleccion de paquetes - $titlep"
-zenity --question --title="$title" --ok-label="Si" --cancel-label="No" --height=100 --width=550 --text="¿Desea instalar un administrador de paquetes gráfico?\nEsto le permitirá instalar y eliminar aplicaciones sin tener que lidiar con la línea de comando." 
-pm="$?"
-if [ "$pm" = "0" ] 
-then  
-pack=$(zenity --list --radiolist --title="$title" --ok-label="Siguiente" --cancel-label="Atrás" --height=220 --width=650 --text="Que administrador de paquetes desea instalar?" --column Seleccion --column "Adm de paquetes" --column "Descripcion" FALSE "octopi" "Plasma o libreria qt" FALSE "pamac-aur" "Gnome o libreria gtk") 
-if [ "$?" = "1" ]
-then displaymanager
-fi
-if [ "$pack" = "" ]
-then packagemanager
-fi
-fi
-
-archuserrepo
-}
-
-archuserrepo() {
-	title="Seleccion de paquetes - $titlep"
-zenity --question --height=100 --width=550 --ok-label="Si" --cancel-label="No" --title="$title" --text "Desea instalar yay (AUR Herlper)? Podras instalar paquetes del repositorio de usuarios."
-abs="$?"
 installing
 }
 
 
-# bootloader?
-bootloader() {
-
-####### disabled
-title="Bootloader - $titlep"
-grub=$(zenity --question --height=100 --width=550 --ok-label="Si" --cancel-label="No" --title="$title" --text "Desea instalar un cargador de arranque?\nLa respuesta usualmente es [ SI ], a menos que tenga otro arrancador que desee conservar")
-grb="$?"
-if [ "$grb" = "0" ]
-	then 
-		> .devices1.txt
-lsblk -lno NAME,TYPE,SIZE | grep 'disk' | awk '{print "/dev/" $1 " " $3}' | sort -u > .devices1.txt
-devices1=` awk '{print "FALSE " $0}' .devices1.txt `
-#
-devices1=$(echo $devices1 | sed "s#FALSE $dev#TRUE $dev#g")
-		grub_device=$(zenity --list --radiolist --height=300 --ok-label="Siguiente" --cancel-label="Atrás" --width=650 --title="$title" --text "Seleccione el disco para instalar el cargador de arranque.($dev)" --column Seleccion --column "Disco                                           " --column Tamaño $devices1)
-probe="$?"
-if [ "$?" = "1" ]
-then bootloader
-fi
-if [ "$grub_device" = "" ]
-then bootloader
-fi
-
-fi
-installing
-}
 
 # Installation
 installing() {
@@ -734,46 +648,9 @@ fi
 
 echo "74" >> percent
 # AUR
-if [ "$abs" = "0" ]
-	then 
 
-echo "# Instalando AUR Herlper..."
-
-yaydownloaded=""
-while [ "$yaydownloaded" == "" ] ; do
-arch_chroot "pacman -Sy yay --noconfirm"
-
-arch_chroot "pacman -Qqe > pkglist.txt"
-if grep -q yay "/mnt/pkglist.txt"; then
-yaydownloaded="yes"
-else
-
-	res=$(zenity --error --height=100 --width=550 --extra-button="Reintentar" --ok-label="Reiniciar" --title="$title" --text "Ha ocurrido un error al descargar los paquetes, verifique su conexion a internet y pulse [Reintentar]. Si el problema persiste reinicie la instalación")
-
-	if [ "$res" != "Reintentar" ]
-	then
-	reboot
-	fi
-
-fi
-
-done
-
-
-fi
 echo "78" >> percent
-echo "# Instalando gotop..."
-# installing ucode
-#proc=$(grep -m1 vendor_id /proc/cpuinfo | awk '{print $3}')
-#if [ "$proc" = "GenuineIntel" ]
-#then
-#arch_chroot "pacman -Sy --noconfirm intel-ucode gotop-git"
-#elif [ "$proc" = "AuthenticAMD" ]
-#then
-#arch_chroot "pacman -Sy --noconfirm amd-ucode gotop-git"
-#fi
-
-arch_chroot "pacman -Sy --noconfirm gotop-git"
+## 
 echo "80" >> percent
 
 		echo "# Instalando os-prober..."
