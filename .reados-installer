@@ -585,6 +585,11 @@ fi
 fi
 #End partitions
 
+# variables
+
+locale="es_ES.UTF-8"
+kernel="linux"
+
 echo "# Buscando los servidores mas rapidos..."
 reflector -l 10 --sort rate --save /etc/pacman.d/mirrorlist
 # updating pacman cache
@@ -884,7 +889,7 @@ arch_chroot "passwd $username" < .passwd >/dev/null
 rm .passwd
 echo "89" >> percent
 #setting locale
-locale="es_ES.UTF-8"
+
 echo "# Configurando idioma..."
 echo "LANG=\"${locale}\"" > /mnt/etc/locale.conf
 echo "${locale} UTF-8" > /mnt/etc/locale.gen
