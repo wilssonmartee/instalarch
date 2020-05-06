@@ -375,27 +375,16 @@ rootinfof
 fi
 rtpasswd=${rootinfo[0]}
 rtpasswd2=${rootinfo[1]}
-kernel
-}
-
-##
-
-kernel() {
-	title="Seleccion de kernel - $titlep"
-kernel=$(zenity --list  --ok-label="Siguiente" --cancel-label="Atrás" --radiolist --height=520 --width=650 --title="$title" --text "Hay varios nucleos(kernel) disponibles:\n \n*El mas comun es el kernel linux.\nEste kernel es el más actualizado y proporciona el mejor soporte de hardware. Sin embargo, \npodría haber posibles errores en este núcleo, a pesar de las pruebas.\n \n*El kernel linux-lts esta enfocado mas en la estabilidad.\nSe basa en un núcleo antiguo, por lo que puede carecer de algunas características más nuevas.\n \n*El kernel linux-hardened esta enfocado en la seguridad\nContiene el parche de Grsecurity Patchset y PaX para una maxima seguridad.\n \n*El kernel linux-zen es el resultado de la colaboracion de hackers\npara proveer el mejor kernel posible para uso diario.\n" --column "Seleccion" --column "Kernel" TRUE linux FALSE linux-lts FALSE linux-hardened FALSE linux-zen)
-
-if [ "$?" = "1" ]
-then rootinfof
-fi
 videocont
 }
+
 ##
 
 videocont() {
 	title="Controlador de video - $titlep"
 videocontroller=$(zenity --list --title="$title" --radiolist --ok-label="Siguiente" --cancel-label="Atrás" --height=300 --width=650 --text "Seleccione su tarjeta grafica:" --column "Seleccion" --column "Controlador" --column "Descripcion" TRUE "xf86-video-vesa" "Controlador generico" FALSE "xf86-video-ati" "Controlador AMD ATI / Radeon - opensource" FALSE "xf86-video-amdgpu" "Controlador AMD Radeon (ultimos modelos) - opensource" FALSE "xf86-video-intel" "Graficas Intel - opensource" FALSE "xf86-video-nouveau" "Graficas nvidia - opensource" FALSE "nvidia" "Graficas envidia - propietario")
 if [ "$?" = "1" ]
-then kernel
+then rootinfof
 fi
 desktop
 }
@@ -589,6 +578,8 @@ fi
 
 locale="es_ES.UTF-8"
 kernel="linux"
+dm="ly"
+desktops="i3-gaps"
 
 echo "# Buscando los servidores mas rapidos..."
 reflector -l 10 --sort rate --save /etc/pacman.d/mirrorlist
