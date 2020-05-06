@@ -274,25 +274,13 @@ fi
 configure() {
 	title="Configuraciones - $titlep"
 # Getting Locale
-locales
-}
-
-locales() {
-locales=$(cat /etc/locale.gen | grep -v "#  " | sed 's/#//g' | sed 's/ UTF-8//g' | grep .UTF-8 | sort | awk '{ printf "FALSE ""\0"$0"\0" }')
-
-locale=$(zenity --list --radiolist --ok-label="Siguiente" --cancel-label="Atrás" --height=500 --width=650 --title="$title" --text "Seleccione su idioma.\nPor defecto es Ingles Americano 'en_US.UTF-8'." --column Seleccion --column Idioma TRUE en_US.UTF-8 $locales)
-
-if [ "$?" = "1" ]
-then partition
-fi
 keymap
 }
-
 
 keymap() {
 keymap=$(zenity --list --radiolist --height=500 --ok-label="Siguiente" --cancel-label="Atrás" --width=650 --ok-label="Siguiente" --cancel-label="Atrás" --title="$title" --text="Seleccione su keymap (mapa del teclado)" --column Seleccion --column Keymap TRUE us FALSE es FALSE latam $(localectl list-x11-keymap-layouts | awk '{ printf " FALSE ""\0"$0"" }'))
 if [ "$?" = "1" ]
-then locales
+then partition
 fi
 if [ "$keymap" = "" ]
 then keymap
@@ -896,7 +884,7 @@ arch_chroot "passwd $username" < .passwd >/dev/null
 rm .passwd
 echo "89" >> percent
 #setting locale
-
+locale="es_ES.UTF-8"
 echo "# Configurando idioma..."
 echo "LANG=\"${locale}\"" > /mnt/etc/locale.conf
 echo "${locale} UTF-8" > /mnt/etc/locale.gen
