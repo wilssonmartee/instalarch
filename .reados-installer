@@ -323,7 +323,7 @@ userinfof
 
 userinfof() {
 	title="Configurando usuarios - $titlep"
-userinfo=$(yad --image=list-add-user --title="$title" --text="Configuración de usuario" --center --button=Atrás:1 --button=Siguiente:0 --text-align=center --height=200 --width=650 --form --field="Digite el nuevo usuario:" --field="Introduzca una contraseña:":H --field="Confirme la contraseña:":H)
+userinfo=$(yad --image=im-user --title="$title" --text="Configuración de usuario" --center --button=Atrás:1 --button=Siguiente:0 --text-align=center --height=200 --width=650 --form --field="Digite el nuevo usuario:" --field="Introduzca una contraseña:":H --field="Confirme la contraseña:":H)
 
 if [ "$?" = "1" ]
 then hostnamez
