@@ -1,0 +1,11 @@
+#!/bin/sh
+
+# Instalarch
+# Wilsson Martee
+# á é í ó ú
+
+yad --width=700 --text="  <span font_family='Nimbus Mono PS' foreground='#da1c1c' font='24'>       ERROR 404 </span>\n \n\
+<span font_family='Source Code Pro Light' foreground='white' font='14'>Aún no estamos listos... Regrese más tarde.</span>\
+
+
+" --button="Salir":1 --text-align=center --title="Error"
