@@ -769,7 +769,7 @@ shelldownloaded=""
 while [ "$shelldownloaded" == "" ] ; do
 
 if [ "$shell" = "zsh" ]
-then arch_chroot "pacman -S --noconfirm zsh zsh-autosuggestions;chsh -s /usr/bin/zsh $username"
+then arch_chroot "pacman -Sy --noconfirm zsh zsh-autosuggestions;chsh -s /usr/bin/zsh $username"
 elif [ "$shell" = "bash" ]
 then arch_chroot "pacman -S --noconfirm bash;chsh -s /bin/bash $username"
 elif [ "$shell" = "fish" ]
