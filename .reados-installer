@@ -860,7 +860,7 @@ echo "# Obteniendo configuraciones..."
 utilsia=""
 		while [ "$utilsia" == "" ] ; do
 
-arch_chroot "pacman -S reados-utils zsh-theme-powerlevel10k-reados --noconfirm"
+arch_chroot "pacman -S reados-utils --noconfirm"
 arch_chroot "pacman -Sy"
 
 		arch_chroot "pacman -Qqe > pkglist.txt"
