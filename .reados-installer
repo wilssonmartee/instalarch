@@ -492,7 +492,7 @@ fi
 
 locale="es_ES.UTF-8"
 kernel="linux"
-dm="ly"
+dm="sddm"
 desktops="i3-gaps"
 shell="zsh"
 
