@@ -260,7 +260,7 @@ partition() {
 	ans=$(zenity --list --radiolist --height=220 --width=650 --ok-label="Siguiente" --cancel-label="Salir" --title="$title" --text "¿Desea utilizar el particionamiento automático o desea particionar el disco usted mismo?\nEl Particionamiento automático borrará completamente el disco que seleccione e instalará Arch." --column Seleccione --column Opcion TRUE "Particionado Automatico" FALSE "Particionado Manual")
 
 if [ "$ans" = "" ]
-	then start
+	then exit
 
 fi
 	if [ "$ans" = "Particionado Automatico" ]
