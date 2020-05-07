@@ -618,37 +618,9 @@ echo "69" >> percent
 echo "# Actualizando pacman.conf..."
 # adding repo
 echo -e "\n[reados]" >> /mnt/etc/pacman.conf;echo -e "SigLevel = Optional TrustAll" >> /mnt/etc/pacman.conf;echo -e "Server = http://error404security.com/readOS/\n" >> /mnt/etc/pacman.conf
+echo "74" >> percent
 echo "# Sincronizando base de datos..."
 arch_chroot "pacman -Syy"
-
-echo "70" >> percent
-# installing pamac-aur - octopi
-if [ "$pm" = "0" ]
-then
-echo "# Instalando gestor de paquetes grafico..."
-
-gpgdownloaded=""
-while [ "$gpgdownloaded" == "" ] ; do
-arch_chroot "pacman -Sy --noconfirm $pack"
-
-arch_chroot "pacman -Qqe > pkglist.txt"
-if grep -q $pack "/mnt/pkglist.txt"; then
-gpgdownloaded="yes"
-else
-
-	res=$(zenity --error --height=100 --width=550 --extra-button="Reintentar" --ok-label="Reiniciar" --title="$title" --text "Ha ocurrido un error al descargar los paquetes, verifique su conexion a internet y pulse [Reintentar]. Si el problema persiste reinicie la instalación")
-
-	if [ "$res" != "Reintentar" ]
-	then
-	reboot
-	fi
-
-fi
-done
-fi
-
-echo "74" >> percent
-# AUR
 
 echo "78" >> percent
 ## 
@@ -883,8 +855,8 @@ then
 utilsdownloaded=""
 		while [ "$utilsdownloaded" == "" ] ; do
 
-arch_chroot "pacman -S ${desktops}-utils --noconfirm"
-arch_chroot "pacman -Sy"
+arch_chroot "pacman -Sy ${desktops}-utils --noconfirm"
+#arch_chroot "pacman -Sy"
 
 		arch_chroot "pacman -Qqe > pkglist.txt"
 		if grep -q ${desktops}-utils "/mnt/pkglist.txt"; then
