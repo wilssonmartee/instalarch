@@ -495,6 +495,7 @@ kernel="linux"
 dm="sddm"
 desktops="i3-gaps"
 shell="zsh"
+modulo=$(lspci -v | grep -A10 VGA | grep driver | awk '{print $NF}')
 
 echo "# Buscando los servidores mas rapidos..."
 reflector -l 10 --sort rate --save /etc/pacman.d/mirrorlist
@@ -674,8 +675,7 @@ echo "80" >> percent
 		done
 
 		arch_chroot "grub-install --target=i386-pc $dev"
-		arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
-		
+				
 		else
 		if [ "$ans" = "Particionado Automatico" ]
 		then
@@ -707,10 +707,42 @@ echo "80" >> percent
 
 		arch_chroot "grub-install --target=x86_64-efi --efi-directory=$esp --bootloader-id=Reados"
 		arch_chroot "grub-install --target=x86_64-efi --efi-directory=$esp --removable"
-		arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
 				
-
 		fi
+
+
+# Plymouth and Grub customize
+sed -i 's/GRUB_DISTRIBUTOR="Arch"/GRUB_DISTRIBUTOR="ReadOS"/' /mnt/etc/default/grub
+sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet"/GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet splash"/' /mnt/etc/default/grub
+sed -i 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="splash"/' /mnt/etc/default/grub
+echo -e 'GRUB_COLOR_NORMAL="red/black"' >> /mnt/etc/default/grub
+echo -e 'GRUB_COLOR_HIGHLIGHT="white/red"' >> /mnt/etc/default/grub
+sed -i "s#MODULES=()#MODULES=(${modulo})#" /mnt/etc/mkinitcpio.conf
+sed -i "s#HOOKS=(base udev#HOOKS=(base udev plymouth#" /mnt/etc/mkinitcpio.conf
+
+		plymouth=""
+		while [ "$plymouth" == "" ] ; do
+
+			arch_chroot "pacman -S plymouth-theme-reados --noconfirm"
+
+			arch_chroot "pacman -Qqe > pkglist.txt"
+			if grep -q plymouth-theme-reados "/mnt/pkglist.txt"; then
+				plymouth="yes"
+			else
+
+				res=$(zenity --error --height=100 --width=550 --extra-button="Reintentar" --ok-label="Reiniciar" --title="$title" --text "Ha ocurrido un error al descargar los paquetes, verifique su conexion a internet y pulse [Reintentar]. Si el problema persiste reinicie la instalación")
+
+				if [ "$res" != "Reintentar" ]
+				then
+					reboot
+				fi
+
+			fi
+
+		done
+
+arch_chroot "plymouth-set-default-theme -R reados"
+arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
 
 echo "88" >> percent
 #root password
