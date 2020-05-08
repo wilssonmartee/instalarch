@@ -855,12 +855,12 @@ fi
 
 # copying files and configs
 echo "95" >> percent
-echo "# Obteniendo configuraciones..."
+echo "# Instalando aplicaciones..."
 
 utilsia=""
 		while [ "$utilsia" == "" ] ; do
 
-arch_chroot "pacman -S reados-utils --noconfirm"
+arch_chroot "pacman -S reados-utils pcmanfm-gtk3 geany ristretto firefox pavucontrol gparted --noconfirm"
 arch_chroot "pacman -Sy"
 
 		arch_chroot "pacman -Qqe > pkglist.txt"
