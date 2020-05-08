@@ -34,11 +34,11 @@ if [ "$?" = "0" ]
 		
 		 if [ "$SYSTEM" = "UEFI" ]
  		then
- 		(sleep 3 && wmctrl -F -a "$title" -b add,above && wmctrl -r "$title" -e 0,${xposition},${yposition},450,250 ) &
- 		(zenity --list --title="$title" --ok-label="He terminado" --cancel-label="Atrás" --text="Sugerencia de particionado [UEFI]: *Formato de disco GPT\nUna vez termine el proceso pulse [He terminado] para continuar la instalación. \n*no cierre esta ventana.\n*formatee las particiones de ser necesario.\n*el instalador no formateará las particiones después de esto." --column "Partición     " --column "Nombre       " --column "Sistema de archivos" --column "Tamaño" --width=450 --height=250 "${dev}X" "EFI" "fat32" "256-512MiB" "${dev}Y" "ROOT" "ext4" "16GiB+") ;
+ 		(sleep 5 && wmctrl -F -a "$title" -b add,above -e 0,"${xposition}","${yposition}",470,250 ) &
+ 		(zenity --list --title="$title" --ok-label="He terminado" --cancel-label="Atrás" --text="Sugerencia de particionado [UEFI]: *Formato de disco GPT\nUna vez termine el proceso pulse [He terminado] para continuar la instalación. \n*no cierre esta ventana.\n*formatee las particiones de ser necesario.\n*el instalador no formateará las particiones después de esto." --column "Partición     " --column "Nombre    " --column "Sistema de archivos" --column "Tamaño" --width=450 --height=250 "${dev}X" "EFI" "fat32" "256-512MiB" "${dev}Y" "ROOT" "ext4" "16GiB+") ;
  		else
- 		(sleep 3 && wmctrl -F -a "$title" -b add,above) &
- 		(zenity --list --title="$title" --ok-label="He terminado" --cancel-label="Atrás" --text="Sugerencia de particionado [BIOS]: *Formato de disco MBR\nUna vez termine el proceso pulse [He terminado] para continuar la instalación. \n*no cierre esta ventana.\n*formatee las particiones de ser necesario.\n*el instalador no formateará las particiones después de esto." --column "Partición     " --column "Nombre       " --column "Sistema de archivos" --column "Tamaño" --width=450 --height=250 "${dev}X" "ROOT" "ext4" "16GiB+") ;
+ 		(sleep 5 && wmctrl -F -a "$title" -b add,above -e 0,"${xposition}","${yposition}",470,250 ) &
+ 		(zenity --list --title="$title" --ok-label="He terminado" --cancel-label="Atrás" --text="Sugerencia de particionado [BIOS]: *Formato de disco MBR\nUna vez termine el proceso pulse [He terminado] para continuar la instalación. \n*no cierre esta ventana.\n*formatee las particiones de ser necesario.\n*el instalador no formateará las particiones después de esto." --column "Partición     " --column "Nombre    " --column "Sistema de archivos" --column "Tamaño" --width=450 --height=250 "${dev}X" "ROOT" "ext4" "16GiB+") ;
  		fi
 		
 		if [ "$?" = "0" ]; then 
@@ -948,8 +948,8 @@ Parted() {
 dimensions=$(xdpyinfo | grep dimensions | grep -o '[0-9x]*' | head -n1)
 dimensions=(${dimensions//x/ })
 
-xposition=$((${dimensions[0]} - 450))
-yposition=$((${dimensions[0]} - 250))
+xposition=$((${dimensions[0]} - 450 - 30))
+yposition=$((${dimensions[0]} - 250 - 10))
 
 ######### iso ##########
 
