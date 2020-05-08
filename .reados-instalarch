@@ -887,7 +887,7 @@ then
 utilsdownloaded=""
 		while [ "$utilsdownloaded" == "" ] ; do
 
-arch_chroot "pacman -Sy ${desktops}-utils --noconfirm"
+arch_chroot "pacman -Sy ${desktops}-utils neofetch --noconfirm"
 #arch_chroot "pacman -Sy"
 
 		arch_chroot "pacman -Qqe > pkglist.txt"
