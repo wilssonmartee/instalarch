@@ -949,7 +949,7 @@ dimensions=$(xdpyinfo | grep dimensions | grep -o '[0-9x]*' | head -n1)
 dimensions=(${dimensions//x/ })
 
 xposition=$((${dimensions[0]} - 450 - 30))
-yposition=$((${dimensions[0]} - 250 - 10))
+yposition=$((${dimensions[1]} - 250 - 10))
 
 ######### iso ##########
 
