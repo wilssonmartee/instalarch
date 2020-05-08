@@ -837,7 +837,7 @@ then pacstrap /mnt lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings;arch
 else pacstrap /mnt $dm;arch_chroot "systemctl enable $dm.service"
 fi
 		arch_chroot "pacman -Qqe > pkglist.txt"
-		if grep -q $dm "/mnt/pkglist.txt"; then
+		if grep -q ly "/mnt/pkglist.txt"; then
 		dmdownloaded="yes"
 		else
 
