@@ -30,7 +30,9 @@ if [ "$?" = "0" ]
 	then 
 
 		gparted $dev & 
-		sleep 5
+		(
+			sleep 30
+		) | zenity --progress --pulsate --auto-close --no-cancel --title="Cargando..." --text="Cargando Gparted... Espere un momento" --width=450
 		
 		 if [ "$SYSTEM" = "UEFI" ]
  		then
