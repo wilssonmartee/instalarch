@@ -913,6 +913,7 @@ echo "99" >> percent
 rm /mnt/usr/share/applications/xfce4-about.desktop
 rm /mnt/usr/share/applications/libfm-pref-apps.desktop
 rm /mnt/usr/share/applications/pcmanfm-desktop-pref.desktop
+rm /mnt/usr/share/applications/htop.desktop
 # unmounting partitions
 echo "# Desmontando particiones..."
 #umount -l /mnt
