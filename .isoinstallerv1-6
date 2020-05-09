@@ -405,7 +405,44 @@ videocont
 
 videocont() {
 	title="Controlador de video - $titlep"
-videocontroller=$(zenity --list --title="$title" --radiolist --ok-label="Siguiente" --cancel-label="Atrás" --height=300 --width=650 --text "Seleccione su tarjeta grafica:" --column "Seleccion" --column "Controlador" --column "Descripcion" TRUE "xf86-video-vesa" "Controlador generico" FALSE "xf86-video-ati" "Controlador AMD ATI / Radeon - opensource" FALSE "xf86-video-amdgpu" "Controlador AMD Radeon (ultimos modelos) - opensource" FALSE "xf86-video-intel" "Graficas Intel - opensource" FALSE "xf86-video-nouveau" "Graficas nvidia - opensource" FALSE "nvidia" "Graficas envidia - propietario")
+nvidiacont="FALSE xf86-video-nouveau"
+radeoncont="FALSE xf86-video-amdgpu"
+aticont="FALSE xf86-video-ati"
+intelcont="FALSE xf86-video-intel"
+vesacont="FALSE xf86-video-vesa"
+
+if (lspci | grep VGA | grep "NVIDIA\|nVidia" &>/dev/null); then
+    
+echo "Nvidia"
+nvidiacont="TRUE xf86-video-nouveau"            
+
+        elif (lspci | grep VGA | grep "Radeon R\|R2/R3/R4/R5" &>/dev/null); then
+            
+echo "Radeon"
+radeoncont="TRUE xf86-video-amdgpu"
+
+
+        elif (lspci | grep VGA | grep "AsTI\|AMsD/ATsI" &>/dev/null); then
+                    
+echo "Ati"
+aticont="TRUE xf86-video-ati"
+
+
+        elif (lspci | grep VGA | grep "Intel" &>/dev/null); then
+            
+echo "Intel"
+intelcont="TRUE xf86-video-intel"
+                
+        else
+            
+echo "Otro"
+vesacont="TRUE xf86-video-vesa"
+
+fi
+
+
+videocontroller=$(zenity --list --title="$title" --radiolist --ok-label="Siguiente" --cancel-label="Atrás" --height=370 --width=650 --text "Seleccione su tarjeta gráfica:" --column "Selección" --column "Controlador" --column "Descripción" ${vesacont} "Controlador genérico" ${aticont} "Controlador AMD ATI / Radeon - opensource" ${radeoncont} "Controlador AMD Radeon (últimos modelos) - opensource" ${intelcont} "Gráficas Intel - opensource" ${nvidiacont} "Gráficas nvidia - opensource" FALSE "nvidia" "Gráficas nvidia - propietario" FALSE "nvidia-lts" "Gráficas nvidia (kernel lts) - propietario" FALSE "nvidia-dkms" "Gráficas nvidia (kernel hardened) - propietario")
+
 if [ "$?" = "1" ]
 then kernel
 fi
