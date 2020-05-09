@@ -912,6 +912,7 @@ echo "99" >> percent
 # unmounting partitions
 echo "# Desmontando particiones..."
 #umount -l /mnt
+rm /mnt/usr/share/applications/xfce4-about.desktop
 umount -R /mnt
 echo "100" >> percent
 echo "# Instalación finalizada!"
