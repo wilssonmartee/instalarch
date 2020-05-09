@@ -909,10 +909,12 @@ arch_chroot "pacman -Sy ${desktops}-utils neofetch --noconfirm"
 		done
 fi
 echo "99" >> percent
+# delete files
+rm /mnt/usr/share/applications/xfce4-about.desktop
+
 # unmounting partitions
 echo "# Desmontando particiones..."
 #umount -l /mnt
-rm /mnt/usr/share/applications/xfce4-about.desktop
 umount -R /mnt
 echo "100" >> percent
 echo "# Instalación finalizada!"
