@@ -292,7 +292,7 @@ clock
 
 clock() {
 # Getting Clock Preference
-clock=$(zenity --list --radiolist --ok-label="Siguiente" --cancel-label="Atrás" --height=220 --width=650 --title="$title" --text "Desea utilizar UTC o Local Time\nUTC es recomenado si no tienes dual boot con Windows." --column Seleccion --column Tiempo TRUE utc FALSE localtime)
+clock=$(zenity --list --radiolist --ok-label="Siguiente" --cancel-label="Atrás" --height=220 --width=650 --title="$title" --text "Desea utilizar UTC o Local Time\nUTC es recomendado si no tienes dual boot con Windows." --column Selección --column Tiempo TRUE utc FALSE localtime)
 if [ "$?" = "1" ]
 then keymap
 fi
@@ -301,7 +301,7 @@ hostnamez
 # Getting hostname, user info, root password
 hostnamez() {
 	title="Configuraciones - $titlep"
-hname=$(zenity --entry --title="$title" --width=450 --ok-label="Siguiente" --cancel-label="Atrás" --text "Por favor introduzca el hostname para su equipo.\nTodas las letras deben ser minusculas." --entry-text "reados")
+hname=$(zenity --entry --title="$title" --width=450 --ok-label="Siguiente" --cancel-label="Atrás" --text "Por favor introduzca el hostname para su equipo.\nTodas las letras deben ser minúsculas." --entry-text "reados")
 if [ "$?" = "1" ]
 then clock
 fi
@@ -396,7 +396,7 @@ installing
 # Installation
 installing() {
 	title="Instalación - $titlep"
-zenity --question --height=150 --width=550 --ok-label="Continuar" --cancel-label="Abortar" --title="$title" --text "El proceso de instalación esta por iniciar, todos los paquetes seran descargados desde internet, asi que asegurese de contar con una conexion constante a internet.\nEste proceso puede demorar."
+zenity --question --height=120 --width=550 --ok-label="Continuar" --cancel-label="Abortar" --title="$title" --text "El proceso de instalación esta por iniciar, todos los paquetes seran descargados desde internet, asi que asegurese de contar con una conexion constante a internet.\nEste proceso puede demorar."
 
 if [ "$?" = "1" ]
 	then exit
