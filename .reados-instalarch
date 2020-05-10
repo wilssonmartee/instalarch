@@ -420,7 +420,7 @@ vesacont="TRUE xf86-video-vesa"
 fi
 
 
-videocontroller=$(zenity --list --title="$title" --radiolist --ok-label="Siguiente" --cancel-label="Atrás" --height=370 --width=650 --text "Seleccione su tarjeta gráfica:" --column "Selección" --column "Controlador" --column "Descripción" ${vesacont} "Controlador genérico" ${aticont} "Controlador AMD ATI / Radeon - opensource" ${radeoncont} "Controlador AMD Radeon (últimos modelos) - opensource" ${intelcont} "Gráficas Intel - opensource" ${nvidiacont} "Gráficas nvidia - opensource" FALSE "nvidia" "Gráficas nvidia - propietario" FALSE "nvidia-lts" "Gráficas nvidia (kernel lts) - propietario" FALSE "nvidia-dkms" "Gráficas nvidia (kernel hardened) - propietario")
+videocontroller=$(zenity --list --title="$title" --radiolist --ok-label="Siguiente" --cancel-label="Atrás" --height=320 --width=650 --text "Seleccione su tarjeta gráfica:" --column "Selección" --column "Controlador" --column "Descripción" ${vesacont} "Controlador genérico" ${aticont} "Controlador AMD ATI / Radeon - opensource" ${radeoncont} "Controlador AMD Radeon (últimos modelos) - opensource" ${intelcont} "Gráficas Intel - opensource" ${nvidiacont} "Gráficas nvidia - opensource" FALSE "nvidia" "Gráficas nvidia - propietario" FALSE "nvidia-lts" "Gráficas nvidia (kernel lts) - propietario" FALSE "nvidia-dkms" "Gráficas nvidia (kernel hardened) - propietario")
 
 if [ "$?" = "1" ]
 then rootinfof
