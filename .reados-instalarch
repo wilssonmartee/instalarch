@@ -401,7 +401,7 @@ echo "Radeon"
 radeoncont="TRUE xf86-video-amdgpu"
 
 
-        elif (lspci | grep VGA | grep "AsTI\|AMsD/ATsI" &>/dev/null); then
+        elif (lspci | grep VGA | grep "ATI\|AMD/ATI" &>/dev/null); then
                     
 echo "Ati"
 aticont="TRUE xf86-video-ati"
