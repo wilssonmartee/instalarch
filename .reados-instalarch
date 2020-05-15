@@ -534,10 +534,21 @@ kernel="linux"
 dm="ly"
 desktops="i3-gaps"
 shell="zsh"
-modulo=$(lspci -v | grep -A10 VGA | grep driver | awk '{print $NF}')
 
+## Detect gpu module in use
+declare -i linedriver=1
+allmodules="driverx"
+while [ "$allmodules" != "" ] ; do
+allmodules=$(lspci -k | grep 'Kernel driver in use' | awk '{print $NF}' | sed -n ${linedriver}p
+)
+linedriver=$linedriver+1
+modulo=$allmodules
+[[ ! -d /lib/modules/$(uname -r)/kernel/drivers/gpu/drm/$modulo ]] || allmodules=""
+done
+
+# Reflector
 echo "# Buscando los servidores mas rapidos..."
-reflector -l 10 --sort rate --save /etc/pacman.d/mirrorlist
+reflector -l 15 --sort rate --save /etc/pacman.d/mirrorlist
 # updating pacman cache
 echo "5" >> percent
 echo "# Sincronizando base de datos..."
@@ -756,8 +767,9 @@ sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet"/GRUB_CMDLINE_LINUX_DEFAU
 sed -i 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="splash"/' /mnt/etc/default/grub
 echo -e 'GRUB_COLOR_NORMAL="red/black"' >> /mnt/etc/default/grub
 echo -e 'GRUB_COLOR_HIGHLIGHT="white/red"' >> /mnt/etc/default/grub
-sed -i "s#MODULES=()#MODULES=(${modulo})#" /mnt/etc/mkinitcpio.conf
-sed -i "s#HOOKS=(base udev#HOOKS=(base udev plymouth#" /mnt/etc/mkinitcpio.conf
+if [[ ${modulo} != "" ]]; then
+	sed -i "s#MODULES=()#MODULES=(${modulo})#" /mnt/etc/mkinitcpio.conf
+	sed -i "s#HOOKS=(base udev#HOOKS=(base udev plymouth#" /mnt/etc/mkinitcpio.conf
 
 		plymouth=""
 		while [ "$plymouth" == "" ] ; do
@@ -781,6 +793,7 @@ sed -i "s#HOOKS=(base udev#HOOKS=(base udev plymouth#" /mnt/etc/mkinitcpio.conf
 		done
 
 arch_chroot "plymouth-set-default-theme -R reados"
+fi
 arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
 
 echo "88" >> percent
@@ -899,7 +912,7 @@ echo "# Instalando aplicaciones..."
 utilsia=""
 		while [ "$utilsia" == "" ] ; do
 
-arch_chroot "pacman -S reados-utils pcmanfm-gtk3 geany ristretto firefox pavucontrol gparted --noconfirm"
+arch_chroot "pacman -S reados-utils pcmanfm-gtk3 geany ristretto firefox pavucontrol gparted xarchiver zip arch-install-scripts b43-fwcutter broadcom-wl crda darkhttpd dhclient dialog diffutils dmraid dnsmasq dnsutils dosfstools ethtool exfat-utils f2fs-tools fsarchiver gnu-netcat gpm gptfdisk ipw2100-fw ipw2200-fw irssi iwd jfsutils linux-atm lsscsi lvm2 mc mdadm mtools nano ndisc6 netctl nfs-utils nilfs-utils nmap ntfs-3g ntp openconnect openssh openvpn parted ppp pptpclient reiserfsprogs rp-pppoe rsync sg3_utils tcpdump testdisk usb_modeswitch usbutils wireless-regdb wireless_tools wpa_supplicant wvdial xfsprogs xl2tpd --needed --noconfirm"
 arch_chroot "pacman -Sy"
 
 		arch_chroot "pacman -Qqe > pkglist.txt"
