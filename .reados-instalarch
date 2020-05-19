@@ -27,13 +27,13 @@ fi
 # using gparted
 zenity --question --height=150 --width=650 --ok-label="Deseo particionar" --cancel-label="Ya he particionado" --title="$title" --text "Necesita particionar y/o formatear el disco $dev?\n \nDe ser así seleccione [Deseo particionar] y realice todos los cambios pertinentes.\nEl instalador no realizará ningún cambio ni formateará las particiones después de esto."
 if [ "$?" = "0" ]
-	then 
+	then
 
-		gparted $dev & 
+		gparted $dev &
 		(
 			sleep 20
 		) | zenity --progress --pulsate --auto-close --no-cancel --title="Cargando..." --text="Cargando Gparted... Espere un momento" --width=450
-		
+
 		 if [ "$SYSTEM" = "UEFI" ]
  		then
  		(sleep 2 && wmctrl -F -a "$title" -b add,above -e 0,"${xposition}","${yposition}",470,250 ) &
@@ -42,9 +42,9 @@ if [ "$?" = "0" ]
  		(sleep 2 && wmctrl -F -a "$title" -b add,above -e 0,"${xposition}","${yposition}",470,250 ) &
  		(zenity --list --title="$title" --ok-label="He terminado" --cancel-label="Atrás" --text="Sugerencia de particionado [BIOS]: *Formato de disco MBR\nUna vez termine el proceso pulse [He terminado] para continuar la instalación. \n*no cierre esta ventana.\n*formatee las particiones de ser necesario.\n*el instalador no formateará las particiones después de esto." --column "Partición     " --column "Nombre    " --column "Sistema de archivos" --column "Tamaño" --width=450 --height=250 "${dev}X" "ROOT" "ext4" "16GiB+") ;
  		fi
-		
-		if [ "$?" = "0" ]; then 
-			pkill gparted 
+
+		if [ "$?" = "0" ]; then
+			pkill gparted
 		else
 			pkill gparted
 			man_partition
@@ -57,10 +57,10 @@ root_part
 root_part() {
 	greplist="Disco"
 	# Select root partition
-	
- 			
+
+
 		root_part=$(zenity --list --radiolist --ok-label="Siguiente" --cancel-label="Atrás" --height=500 --width=650 --title="$title" --text="Seleccione la partición para ROOT\nAdvertencia! la lista muestra todas las particiones disponibles.\nPor favor elige con cuidado." --column 'Seleccione' --column "Particiones                                    " --column 'Tamaño    ' --column 'Tipo' $(fdisk -l $dev -o Device,Size,Type | grep dev | grep -v $greplist | awk '{print $1 " " $2 " " $3 $4 $5 $6 $7}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
-	
+
 	#mounting root partition
 
 if [ "$?" = "1" ]
@@ -77,31 +77,31 @@ swap_partition
 }
 swap_partition() {
 	# Swap partition?
-			
+
 	zenity --question --height=100 --width=350 --ok-label="Si" --cancel-label="No" --title="$title" --text " \n Desea utilizar una partición swap?                             "
 		if [ "$?" = "0" ]
-		then 
+		then
 
 			swap_part=$(zenity --list  --radiolist --ok-label="Siguiente" --cancel-label="Atrás" --height=500 --width=650 --title="$title" --text="Seleccione la partición SWAP\nAdvertencia! la lista muestra todas las particiones disponibles.\nPor favor elige con cuidado." --column 'Seleccione' --column "Particiones                                     " --column 'Tamaño    ' --column 'Tipo' $(fdisk -l $dev -o Device,Size,Type | grep dev | grep -v $greplist | awk '{print $1 " " $2 " " $3 $4 $5 $6 $7}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
-			
-				
-			
+
+
+
 
 		if [ "$?" = "1" ]
 		then swap_partition
 		fi
-		
+
 		if [[ "$swap_part" != *[!\ ]* ]] || [ "$swap_part" = "(null)" ]
 		then swap_partition
 		else
 		greplist=$greplist"\|"$swap_part
 		fi
-		
+
 		else
 		zenity --question --height=100 --width=350 --ok-label="Si" --cancel-label="No" --title="$title" --text " \nDesea crear un archivo swap?                                   "
 		if [ "$?" = "0" ]
 	 	then swapfile="yes"
-	 	
+
 		fi
 		fi
 
@@ -121,12 +121,12 @@ boot_partition() {
 		if [ "$?" = "1" ]
 		then boot_partition
 		fi
-		
+
 		if [[ "$boot_part" != *[!\ ]* ]] || [ "$boot_part" = "(null)" ]
 		then boot_partition
 		else
 		greplist=$greplist"\|"$boot_part
-		fi	
+		fi
 	fi
 
 home_partition
@@ -137,20 +137,20 @@ home_partition() {
 	# Home Partition?
 		zenity --question --height=100 --width=350 --ok-label="Si" --cancel-label="No" --title="$title" --text " \n Desea utilizar una partición separada para /home?  "
 		if [ "$?" = "0" ]
-		then 
+		then
 
-		
+
 				home_part=$(zenity --list  --radiolist --ok-label="Siguiente" --cancel-label="Atrás" --height=500 --width=650 --title="$title" --text="Seleccione la partición para HOME\nAdvertencia! la lista muestra todas las particiones disponibles.\nPor favor elige con cuidado." --column 'Seleccione' --column "Particiones                                    " --column 'Tamaño    ' --column 'Tipo' $(fdisk -l $dev -o Device,Size,Type | grep dev | grep -v $greplist | awk '{print $1 " " $2 " " $3 $4 $5 $6 $7}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
-			
+
 		# mounting home partition
 		if [ "$?" = "1" ]
 		then home_partition
 		fi
-		
+
 		if [[ "$home_part" != *[!\ ]* ]] || [ "$home_part" = "(null)" ]
 		then home_partition
-			
-		fi		
+
+		fi
 
 		fi
 
@@ -188,7 +188,7 @@ title="Particionado automatico - $titlep"
 		then swap_space=4096
 		else swap_space=$ram
 	fi
-	
+
 	uefi_swap=$(($swap_space + 513))
 
 
@@ -197,37 +197,37 @@ title="Particionado automatico - $titlep"
         then
 	       (
 	       	echo "# Formateando disco [BIOS]..."
-		
+
 	        dd if=/dev/zero of=$dev bs=512 count=1
 		echo "# Creando particiones [BIOS]..."
-		
+
 	        Parted "mklabel msdos"
 	        Parted "mkpart primary ext4 1MiB 100%"
 	        Parted "set 1 boot on"
 	        mkfs.ext4 -F ${dev}1
 		echo "# Montando particiones [BIOS]..."
-		
+
 	        mount ${dev}1 /mnt
 		echo "# Creando archivo swap [BIOS]..."
-		
-		
+
+
 		touch /mnt/swapfile
 		dd if=/dev/zero of=/mnt/swapfile bs=1M count=${swap_space}
 		chmod 600 /mnt/swapfile
 		mkswap /mnt/swapfile
 		swapon /mnt/swapfile
-		
-		
+
+
 		swapfile="yes"
 		) | zenity --progress --pulsate --title="$title" --width=450 --no-cancel --auto-close
 
 	    else
         (
         echo "# Formateando disco [UEFI]..."
-		
+
             	dd if=/dev/zero of=$dev bs=512 count=1
 		echo "# Creando particiones [UEFI]..."
-		
+
         Parted "mklabel gpt"
         Parted "mkpart primary fat32 1MiB 513MiB"
 		Parted "mkpart primary ext4 513MiB 100%"
@@ -235,26 +235,26 @@ title="Particionado automatico - $titlep"
 		mkfs.fat -F32 ${dev}1
 		mkfs.ext4 -F ${dev}2
 		echo "# Montando particiones [UEFI]..."
-		
+
 		mount ${dev}2 /mnt
 		mkdir -p /mnt/efi
 		mount ${dev}1 /mnt/efi
 		esp="/efi"
 		echo "# Creando archivo swap [UEFI]..."
-		
-		
+
+
 		touch /mnt/swapfile
 		dd if=/dev/zero of=/mnt/swapfile bs=1M count=${swap_space}
 		chmod 600 /mnt/swapfile
 		mkswap /mnt/swapfile
 		swapon /mnt/swapfile
-		
+
 		echo "# Creando archivo swap [UEFI]..."
-		
+
 		swapfile="yes"
 		) | zenity --progress --pulsate --title="$title" --width=450 --no-cancel --auto-close
 	fi
-	configure		
+	configure
 }
 
 partition() {
@@ -391,29 +391,29 @@ intelcont="FALSE xf86-video-intel"
 vesacont="FALSE xf86-video-vesa"
 
 if (lspci | grep VGA | grep "NVIDIA\|nVidia" &>/dev/null); then
-    
+
 echo "Nvidia"
-nvidiacont="TRUE xf86-video-nouveau"            
+nvidiacont="TRUE xf86-video-nouveau"
 
         elif (lspci | grep VGA | grep "Radeon R\|R2/R3/R4/R5" &>/dev/null); then
-            
+
 echo "Radeon"
 radeoncont="TRUE xf86-video-amdgpu"
 
 
         elif (lspci | grep VGA | grep "ATI\|AMD/ATI" &>/dev/null); then
-                    
+
 echo "Ati"
 aticont="TRUE xf86-video-ati"
 
 
         elif (lspci | grep VGA | grep "Intel" &>/dev/null); then
-            
+
 echo "Intel"
 intelcont="TRUE xf86-video-intel"
-                
+
         else
-            
+
 echo "Otro"
 vesacont="TRUE xf86-video-vesa"
 
@@ -437,12 +437,12 @@ zenity --question --height=120 --width=550 --ok-label="Continuar" --cancel-label
 
 if [ "$?" = "1" ]
 	then exit
-else 
+else
 title="Instalando - $titlep"
 echo "0" >> percent
 yadconfig="--progress --center --no-buttons --auto-close  --width=700 --height=400 --log-expanded --log-on-top --log-height=380 --no-cancel"
 i=0
-{   
+{
 
 #start partitions
 if [ "$ans" = "Particionado Manual" ]
@@ -486,7 +486,7 @@ else swap_space=$ram
 fi
 
 uefi_swap=$(($swap_space + 513))
-	
+
 touch /mnt/swapfile
 dd if=/dev/zero of=/mnt/swapfile bs=1M count=${swap_space}
 chmod 600 /mnt/swapfile
@@ -522,7 +522,7 @@ then
 greplist=$greplist"\|"$home_part
 mkdir -p /mnt/home
 mount $home_part /mnt/home
-fi		
+fi
 
 fi
 #End partitions
@@ -552,7 +552,7 @@ reflector -l 15 --sort rate --save /etc/pacman.d/mirrorlist
 # updating pacman cache
 echo "5" >> percent
 echo "# Sincronizando base de datos..."
-pacman -Syy
+pacman -Syu
 echo "# Actualizando claves..."
 pacman -S archlinux-keyring --noconfirm
 echo "10" >> percent
@@ -671,14 +671,14 @@ echo "# Actualizando pacman.conf..."
 echo -e "\n[reados]" >> /mnt/etc/pacman.conf;echo -e "SigLevel = Optional TrustAll" >> /mnt/etc/pacman.conf;echo -e "Server = http://error404security.com/readOS/\n" >> /mnt/etc/pacman.conf
 echo "74" >> percent
 echo "# Sincronizando base de datos..."
-arch_chroot "pacman -Syy"
+arch_chroot "pacman -Syu"
 
 echo "78" >> percent
-## 
+##
 echo "80" >> percent
 
 		echo "# Instalando os-prober..."
-		
+
 		osdownloaded=""
 		while [ "$osdownloaded" == "" ] ; do
 		pacstrap /mnt os-prober
@@ -702,7 +702,7 @@ echo "80" >> percent
 		echo "84" >> percent
 		if [ "$SYSTEM" = 'BIOS' ]
 		then echo "# Instalando Bootloader (BIOS)..."
-		
+
 
 		grubdownloaded=""
 		while [ "$grubdownloaded" == "" ] ; do
@@ -725,7 +725,7 @@ echo "80" >> percent
 		done
 
 		arch_chroot "grub-install --target=i386-pc $dev"
-				
+
 		else
 		if [ "$ans" = "Particionado Automatico" ]
 		then
@@ -757,7 +757,7 @@ echo "80" >> percent
 
 		arch_chroot "grub-install --target=x86_64-efi --efi-directory=$esp --bootloader-id=Reados"
 		arch_chroot "grub-install --target=x86_64-efi --efi-directory=$esp --removable"
-				
+
 		fi
 
 
@@ -848,12 +848,12 @@ echo "%wheel ALL=(ALL) ALL" >> /mnt/etc/sudoers
 
 echo "# Instalando shell..."
 # selecting shell
-
+arch_chroot "pacman -Syu"
 shelldownloaded=""
 while [ "$shelldownloaded" == "" ] ; do
 
 if [ "$shell" = "zsh" ]
-then arch_chroot "pacman -Sy --noconfirm zsh zsh-autosuggestions;chsh -s /usr/bin/zsh $username"
+then arch_chroot "pacman -S --noconfirm zsh zsh-autosuggestions;chsh -s /usr/bin/zsh $username"
 elif [ "$shell" = "bash" ]
 then arch_chroot "pacman -S --noconfirm bash;chsh -s /bin/bash $username"
 elif [ "$shell" = "fish" ]
@@ -883,7 +883,7 @@ echo "# Configurando gestor de pantalla..."
 
 		dmdownloaded=""
 		while [ "$dmdownloaded" == "" ] ; do
-	
+
 if [ "$dm" = "lightdm" ]
 then pacstrap /mnt lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings;arch_chroot "systemctl enable lightdm.service"
 else pacstrap /mnt $dm;arch_chroot "systemctl enable $dm.service"
@@ -913,7 +913,7 @@ utilsia=""
 		while [ "$utilsia" == "" ] ; do
 
 arch_chroot "pacman -S reados-utils pcmanfm-gtk3 geany ristretto firefox pavucontrol gparted xarchiver zip arch-install-scripts b43-fwcutter broadcom-wl crda darkhttpd dhclient dialog diffutils dmraid dnsmasq dnsutils dosfstools ethtool exfat-utils f2fs-tools fsarchiver gnu-netcat gpm gptfdisk ipw2100-fw ipw2200-fw irssi iwd jfsutils linux-atm lsscsi lvm2 mc mdadm mtools nano ndisc6 netctl nfs-utils nilfs-utils nmap ntfs-3g ntp openconnect openssh openvpn parted ppp pptpclient reiserfsprogs rp-pppoe rsync sg3_utils tcpdump testdisk usb_modeswitch usbutils wireless-regdb wireless_tools wpa_supplicant wvdial xfsprogs xl2tpd --needed --noconfirm"
-arch_chroot "pacman -Sy"
+arch_chroot "pacman -Syu"
 
 		arch_chroot "pacman -Qqe > pkglist.txt"
 		if grep -q reados-utils "/mnt/pkglist.txt"; then
@@ -938,8 +938,8 @@ if [ "$desktops" != "Ninguno" ]
 then
 utilsdownloaded=""
 		while [ "$utilsdownloaded" == "" ] ; do
-
-arch_chroot "pacman -Sy ${desktops}-utils neofetch --noconfirm"
+arch_chroot "pacman -Syu"
+arch_chroot "pacman -S ${desktops}-utils neofetch --noconfirm"
 #arch_chroot "pacman -Sy"
 
 		arch_chroot "pacman -Qqe > pkglist.txt"
@@ -972,8 +972,8 @@ echo "100" >> percent
 echo "# Instalación finalizada!"
 
 #### Commands
-   
-} | while read -r line; do 
+
+} | while read -r line; do
     echo "# ${line}"
     tail -1 percent; done | yad ${yadconfig} --percentage=0  --title="${title}" --enable-log="Descargando paquetes"
 
@@ -1015,6 +1015,6 @@ titlep="ReadOS - [$SYSTEM]"
 
 n="0"
 if [ "$n" = "0" ]
-	then 
+	then
 partition
 fi
