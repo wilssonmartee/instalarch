@@ -912,7 +912,7 @@ echo "# Instalando aplicaciones..."
 utilsia=""
 		while [ "$utilsia" == "" ] ; do
 
-arch_chroot "pacman -S reados-utils pcmanfm-gtk3 geany ristretto firefox pavucontrol gparted xarchiver zip arch-install-scripts b43-fwcutter broadcom-wl crda darkhttpd dhclient dialog diffutils dmraid dnsmasq dnsutils dosfstools ethtool exfat-utils f2fs-tools fsarchiver gnu-netcat gpm gptfdisk ipw2100-fw ipw2200-fw irssi iwd jfsutils linux-atm lsscsi lvm2 mc mdadm mtools nano ndisc6 netctl nfs-utils nilfs-utils nmap ntfs-3g ntp openconnect openssh openvpn parted ppp pptpclient reiserfsprogs rp-pppoe rsync sg3_utils tcpdump testdisk usb_modeswitch usbutils wireless-regdb wireless_tools wpa_supplicant wvdial xfsprogs xl2tpd --needed --noconfirm"
+arch_chroot "pacman -S reados-utils pcmanfm-gtk3 geany ristretto firefox pavucontrol gparted xarchiver zip arch-install-scripts b43-fwcutter broadcom-wl crda darkhttpd dhclient dialog diffutils dmraid dnsmasq dnsutils dosfstools ethtool exfat-utils f2fs-tools fsarchiver gnu-netcat gpm gptfdisk ipw2100-fw ipw2200-fw irssi iwd jfsutils linux-atm lsscsi lvm2 mc mdadm mtools nano ndisc6 netctl nfs-utils nilfs-utils nmap ntfs-3g ntp openconnect openssh openvpn parted ppp pptpclient reiserfsprogs rp-pppoe rsync sg3_utils tcpdump testdisk usb_modeswitch usbutils wireless-regdb wireless_tools wpa_supplicant wvdial xfsprogs xl2tpd deepin-screenshot --needed --noconfirm"
 arch_chroot "pacman -Syu"
 
 		arch_chroot "pacman -Qqe > pkglist.txt"
