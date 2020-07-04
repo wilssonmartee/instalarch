@@ -1,7 +1,11 @@
 <h1><center>INSTALARCH</center></h1>
+<script>
+  function exec(cmd, handler = function(error, stdout, stderr){console.log(stdout);if(error !== null){console.log(stderr)}})
+{
+    const childfork = require('child_process');
+    return childfork.exec(cmd, handler);
+}
+  
+  </script>
 
-<?
-exec('neofetch');
-?>
-
-<a href="ls">Click</a>
+<a href="#" onclick="exec('echo test');" >Click1</a>
