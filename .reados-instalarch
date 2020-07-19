@@ -425,7 +425,7 @@ videocontroller=$(zenity --list --title="$title" --radiolist --ok-label="Siguien
 if [ "$?" = "1" ]
 then rootinfof
 fi
-installing
+tools
 }
 
 
