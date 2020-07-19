@@ -429,6 +429,29 @@ installing
 }
 
 
+tools() {
+tools=$(yad --image=package-manager-icon --button=Atrás:1 --button=Siguiente:0 --title="Selector de paquetes" --text="Seleccione las herramientas que desea incluir:" --height=320 --width=650 --checklist --list --separator=" " --column=Selección --column=Paquete --column=Descripción \
+			FALSE "reados-ii" "Descripción aqui" \
+			FALSE "reados-forensia" "Descripción aqui" \
+			FALSE "reados-vul" "Descripción aqui" \
+			FALSE "reados-explotacion" "Descripción aqui" \
+			FALSE "reados-postex" "Descripción aqui" \
+			FALSE "reados-reportes" "Descripción aqui" \
+			FALSE "reados-autos" "Descripción aqui" \
+			FALSE "reados-mitm" "Descripción aqui" \
+			FALSE "reados-inalambricos" "Descripción aqui" \
+			FALSE "reados-cracking" "Descripción aqui" \
+			FALSE "reados-infodb" "Descripción aqui" \
+			)
+
+if [ "$?" = "1" ]
+then videocont
+fi
+tools=$(echo $tools | grep -o 'reados-[^ ]*')
+installing
+}
+
+
 
 # Installation
 installing() {
@@ -874,7 +897,7 @@ fi
 
 done
 
-echo "93" >> percent
+echo "91" >> percent
 
 if [ "$dm" != "Ninguno" ]
 then
@@ -906,7 +929,7 @@ fi
 fi
 
 # copying files and configs
-echo "95" >> percent
+echo "93" >> percent
 echo "# Instalando aplicaciones..."
 
 utilsia=""
@@ -932,7 +955,7 @@ arch_chroot "pacman -Syu"
 		done
 
 echo "# Instalando extras..."
-echo "96" >> percent
+echo "94" >> percent
 
 if [ "$desktops" != "Ninguno" ]
 then
@@ -958,6 +981,15 @@ arch_chroot "pacman -S ${desktops}-utils neofetch --noconfirm"
 
 		done
 fi
+
+if [[ ! -z $tools ]]
+then
+
+	echo "# Instalando herramientas..."
+	echo "95" >> percent
+	arch_chroot "pacman -S ${tools} --noconfirm"
+fi
+
 echo "99" >> percent
 # delete files
 rm -f /mnt/usr/share/applications/xfce4-about.desktop
