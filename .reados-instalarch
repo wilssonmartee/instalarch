@@ -430,7 +430,7 @@ tools
 
 
 tools() {
-tools=$(yad --image=package-manager-icon --button=Atrás:1 --button=Siguiente:0 --title="Selector de paquetes" --text="Seleccione las herramientas que desea incluir:" --height=320 --width=650 --checklist --list --separator=" " --column=Selección --column=Paquete --column=Descripción \
+tools=$(yad --image=package-manager-icon --button=Atrás:1 --button=Siguiente:0 --title="Selector de paquetes" --text="Seleccione las herramientas que desea incluir:" --height=400 --width=650 --checklist --list --separator=" " --column=Selección --column=Paquete --column=Descripción \
 			FALSE "reados-ii" "Descripción aqui" \
 			FALSE "reados-forensia" "Descripción aqui" \
 			FALSE "reados-vul" "Descripción aqui" \
